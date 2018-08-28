@@ -9,6 +9,8 @@ import javafx.util.Duration;
 
 public class Scout extends Enemy{
     
+    private static final double HELMET_LINE = EYE_WIDTH*6/5;
+    
     private Rectangle body;
     
     //0-left, 1-right
@@ -25,10 +27,6 @@ public class Scout extends Enemy{
         //ears
         for(int i = 0; i < ears.length; i++){
             ears[i] = new Path(
-//                    new MoveTo(5, EN_HEIGHT/2), 
-//                    new LineTo(5-EN_WIDTH*2/3, -5),
-//                    new LineTo(5-EN_WIDTH*2/3, EN_HEIGHT + 5),
-//                    new ClosePath()
                         new MoveTo(i==0 ? -EN_WIDTH/2+5 : EN_WIDTH/2-5, 0), 
                         new LineTo(i==0 ? -EN_WIDTH*7/6+5 : EN_WIDTH*7/6-5, -EN_HEIGHT/2-5),
                         new VLineTo(EN_HEIGHT/2+5),
@@ -36,15 +34,12 @@ public class Scout extends Enemy{
             );
             double angle = 15;
             if (i == 1){
-                //ears[i].getTransforms().addAll(new Translate(EN_WIDTH-10, 0), new Rotate(180, 5, EN_HEIGHT/2));
                 angle = -angle;
             }
             ears[i].setFill(Color.ALICEBLUE);
             
             //flying animation
             Rotate fly_rot = new Rotate();
-//            fly_rot.setPivotY(EN_HEIGHT/2);
-//            fly_rot.setPivotX(5);
             fly_rot.setPivotY(0);
             fly_rot.setPivotX(i==0 ? -EN_WIDTH/2+5 : EN_WIDTH/2-5);
             ears[i].getTransforms().add(fly_rot);
@@ -82,19 +77,30 @@ public class Scout extends Enemy{
             gr_eyes[i].getChildren().addAll(eyes[i], pupils[i]);
             gr_eyes[i].setTranslateX((i == 0? -1:1) * 1.3 *EYE_WIDTH);
             gr_eyes[i].setTranslateY(-EN_HEIGHT/2 + EYE_HEIGHT*3);
-//            gr_eyes[i].setTranslateX(EYE_WIDTH*15/8 + i*EYE_WIDTH*5/2);
-//            gr_eyes[i].setTranslateY(EYE_HEIGHT*3);
             getChildren().add(gr_eyes[i]);           
         }
         
         //mouth
-//        mouth = new Arc(EN_WIDTH*1/2, EN_HEIGHT*2/3, EN_WIDTH/3, EN_HEIGHT/4, 180, 180); 
         mouth = new Arc(0, EN_HEIGHT/7, EN_WIDTH/3, EN_HEIGHT/4, 180, 180); 
-        getChildren().add(mouth);
+        getChildren().addAll(mouth, new Circle(2));
         
-//        helmet = new Path(
-//                new MoveTo()
-//        );
+        helmet = new Path(
+                new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
+                new LineTo(-HELMET_LINE*3/2, EN_HEIGHT*2/3),
+                new VLineTo(0),
+                new LineTo(-HELMET_LINE*5/2, -HELMET_LINE),
+                new LineTo(-HELMET_LINE*3/2, -HELMET_LINE*2),
+                new LineTo(-HELMET_LINE/2, 0),
+                new HLineTo(HELMET_LINE/2),
+                new LineTo(HELMET_LINE*3/2, -HELMET_LINE*2),
+                new LineTo(HELMET_LINE*5/2, -HELMET_LINE),
+                new LineTo(HELMET_LINE*3/2 , 0),
+                new VLineTo(EN_HEIGHT*2/3),
+                new LineTo(EN_WIDTH/2, EN_HEIGHT/2),
+                new ArcTo(EN_WIDTH*2/3, EN_HEIGHT*5/6, 270, -EN_WIDTH/2, EN_HEIGHT/2, true, false)
+        );
+        helmet.setFill(Color.GRAY);
+        getChildren().addAll(helmet);
     
     }
     
