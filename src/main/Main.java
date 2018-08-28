@@ -21,11 +21,13 @@ public class Main extends Application {
     
     public static final int ENEMIES_IN_A_ROW = 8;
     public static final int ENEMIES_IN_A_COLUMN = 4;
+    
+    private static final int HARD = 5;
 
     private Background background;
     private static Player player;
-    private List<Enemy> enemies;
-    private List<Enemy> shotEnemies = new ArrayList<>();
+    private static List<Enemy> enemies;
+    private static List<Enemy> shotEnemies = new ArrayList<>();
     private List<Shot> shots;
     
     public static Camera camera;
@@ -38,7 +40,7 @@ public class Main extends Application {
     private String time_msg = "Time: ";
     private Text time_text;
     
-    private int points = 0;
+    private static int points = 0;
     private String end_msg = " POINTS WON";
     private int lives = Background.LIVES_CNT;
     private String life_msg = "LIFE LOST, %d REMAIN";
@@ -50,8 +52,8 @@ public class Main extends Application {
     private boolean rst = false; //random shoot time
     private static List<Projectile> projs = new ArrayList<>();
     
-    private String points_msg = " Points: ";
-    private Text points_text;
+    private static String points_msg = " Points: ";
+    private static Text points_text;
     
     private static List<Sprite> delObjects = new ArrayList<>();
     
@@ -102,6 +104,7 @@ public class Main extends Application {
                         
                 );
                 arrival.play();
+                enemy.showBar(camera);
                 camera.getChildren().add(enemy);
                 
                 //blinking
@@ -205,32 +208,7 @@ public class Main extends Application {
                     Enemy currentEnemy = enemies.get(j);
                     if (currentShot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
                         shots.remove(currentShot);
-                        enemies.remove(currentEnemy);
-                        shotEnemies.add(currentEnemy);                        
-                        Rotate rot = new Rotate();
-                        currentEnemy.getTransforms().add(rot);
-                        Timeline tl = new Timeline(
-                                new KeyFrame(Duration.seconds(0),
-                                        new KeyValue(rot.angleProperty(), 0)),
-                                new KeyFrame(Duration.seconds(1),
-                                        t -> {
-                                            double x = currentEnemy.getTranslateX() + currentEnemy.getBody().getWidth()/2;
-                                            double y = currentEnemy.getTranslateY() + currentEnemy.getBody().getHeight()/2;
-                                            shotEnemies.remove(currentEnemy);
-                                            camera.getChildren().remove(currentEnemy);
-                                            double rand = Math.random();
-                                            points += 2;// points won from kill shot
-                                            points_text.setText(points_msg + points);
-                                            if (rand < 0.6){
-                                                if (rand < 0.1)
-                                                    bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
-                                                else
-                                                    coins.add(new Coin(x, y));                                          
-                                            }
-                                        },
-                                        new KeyValue(rot.angleProperty(), 360))
-                        );
-                        tl.play();
+                        currentEnemy.enemyShot();
                         break;
                     }
                 }
@@ -263,7 +241,7 @@ public class Main extends Application {
                 });
                 coins.removeAll(delObjects);
                 camera.getChildren().addAll(enemies);
-                enemies.forEach(e -> e.update());
+                enemies.forEach(e -> {e.update(); e.showBar(camera);});
                 camera.getChildren().addAll(shotEnemies);
                 //projectiles
                 camera.getChildren().addAll(projs);                
@@ -290,6 +268,35 @@ public class Main extends Application {
     
     public static void removeSprite(Sprite sprite){
         delObjects.add(sprite);
+    }
+    
+    public static void destroyEnemy(Enemy enemy){
+        enemies.remove(enemy);
+        shotEnemies.add(enemy);                        
+        Rotate rot = new Rotate();
+        enemy.getTransforms().add(rot);
+        Timeline tl = new Timeline(
+                new KeyFrame(Duration.seconds(0),
+                        new KeyValue(rot.angleProperty(), 0)),
+                new KeyFrame(Duration.seconds(1),
+                        t -> {
+                            double x = enemy.getTranslateX() + enemy.getBody().getWidth()/2;
+                            double y = enemy.getTranslateY() + enemy.getBody().getHeight()/2;
+                            shotEnemies.remove(enemy);
+                            camera.getChildren().remove(enemy);
+                            double rand = Math.random();
+                            points += enemy.enemyStrength()/HARD;// points won from kill shot
+                            points_text.setText(points_msg + points);
+                            if (rand < 0.6){
+                                if (rand < 0.1)
+                                    bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
+                                else
+                                    coins.add(new Coin(x, y));                                          
+                            }
+                        },
+                        new KeyValue(rot.angleProperty(), 360))
+        );
+        tl.play();
     }
     
     public static void main(String[] args) {

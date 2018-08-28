@@ -6,7 +6,8 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.transform.*;
 import javafx.util.Duration;
-import sprites.Sprite;
+import main.Main;
+import sprites.*;
 
 public abstract class Enemy extends Sprite {
     
@@ -18,17 +19,25 @@ public abstract class Enemy extends Sprite {
     
     protected static final double HELMET_LINE = EYE_WIDTH*6/5;
     
+    protected static final int SCOUT = 5;
+    protected static final int WARRIOR = 15;
+    protected static final int COMMANDER = 25;
+    
     private Rectangle body;
     
     //0-left, 1-right
     private Group [] gr_eyes = new Group [2];
     private Ellipse [] eyes = new Ellipse [2]; 
     private Circle [] pupils = new Circle [2];
-    
-    protected Path [] ears = new Path [2]; 
+    protected Path [] ears = new Path [2];     
     
     private Arc mouth; 
-    private int strength;
+    
+    private Group stat;
+    //0 - black, 1 - green
+    private Rectangle [] bars = new Rectangle [2];
+    
+    protected int strength;
     
     private boolean first = true;
     private int velocityX = -1, moves = 0;
@@ -94,6 +103,20 @@ public abstract class Enemy extends Sprite {
         //mouth
         mouth = new Arc(0, EN_HEIGHT/7, EN_WIDTH/3, EN_HEIGHT/4, 180, 180); 
         getChildren().addAll(mouth);
+        
+        //bar
+        stat = new Group();
+        for(int i = 0; i < bars.length; i++){
+            bars[i] = new Rectangle(EN_WIDTH/2, EN_HEIGHT/8);
+            bars[i].setFill(i==1 ? Color.CHARTREUSE : Color.BLACK);
+        }
+        stat.getChildren().addAll(bars);
+        stat.setTranslateX(-EN_WIDTH/4);
+        stat.setTranslateY(-EN_HEIGHT/4 - EN_HEIGHT*2/3);
+    }
+    
+    public void showBar(Group root){
+        root.getChildren().add(stat);
     }
     
     public Rectangle getBody(){
@@ -118,7 +141,20 @@ public abstract class Enemy extends Sprite {
     
     public void enemyShot(){
         strength--;
+        if (strength == 0)
+            Main.destroyEnemy(this);
+        else{
+            ScaleTransition hit = new ScaleTransition(Duration.seconds(0.1), this);
+            hit.setFromX(1); hit.setByX(0.1);
+            hit.setFromY(1); hit.setByY(0.1);
+            hit.setAutoReverse(true);
+            hit.setCycleCount(2);
+            hit.play();
+            bars[1].setWidth(bars[1].getWidth() - EN_WIDTH/(2*enemyStrength()));
+        }
     }
+    
+    public abstract int enemyStrength();
     
     @Override
     public void update() {
@@ -144,6 +180,8 @@ public abstract class Enemy extends Sprite {
                 }
             }
             setTranslateX(getTranslateX() + velocityX); 
+            stat.setTranslateX(getTranslateX() - EN_WIDTH/4);
+            stat.setTranslateY(getTranslateY() - EN_HEIGHT/4 - EN_HEIGHT*2/3);
         }
     }
 }

@@ -29,11 +29,20 @@ public class Warrior extends Enemy{
         getChildren().addAll(helmet);
         for(Path e: ears)
             e.setFill(new ImagePattern(new Image("/resources/enemy/steel_armor.png")));
+        
+        strength = WARRIOR;
+    }
+    
+    @Override
+    public int enemyStrength() {
+        return Enemy.WARRIOR;
     }
     
         @Override
     public void update() {
         super.update();
     }
+
+
     
 }

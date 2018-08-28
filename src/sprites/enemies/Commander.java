@@ -52,11 +52,19 @@ public class Commander extends Enemy{
         for(Path e: ears)
             e.setFill(new ImagePattern(new Image("/resources/enemy/red_feathers.png")));
         getChildren().addAll(helmet, holder, crown);
+        
+        strength = COMMANDER;
+    }
+    
+    @Override
+    public int enemyStrength() {
+        return Enemy.COMMANDER;
     }
 
     @Override
     public void update() {
         super.update();
     }
+
     
 }
