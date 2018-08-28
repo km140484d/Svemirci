@@ -19,8 +19,8 @@ public class Main extends Application {
     public static final int WINDOW_WIDTH = 1200;
     public static final int WINDOW_HEIGHT = 700;
     
-    public static final int ENEMIES_IN_A_ROW = 6;
-    public static final int ENEMIES_IN_A_COLUMN = 3;
+    public static final int ENEMIES_IN_A_ROW = 8;
+    public static final int ENEMIES_IN_A_COLUMN = 4;
 
     private Background background;
     private static Player player;
@@ -81,7 +81,14 @@ public class Main extends Application {
         
         for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
             for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
-                Enemy enemy = new Scout();
+                Enemy enemy;
+                if (i + j % 3 == 1)
+                    enemy = new Warrior();
+                else
+                    if (i + j % 3 == 2)
+                        enemy = new Commander();
+                    else
+                        enemy = new Scout();
                 enemy.setTranslateX((j+1) * WINDOW_WIDTH / (ENEMIES_IN_A_ROW + 1));
                 Timeline arrival = new Timeline(
                         new KeyFrame(Duration.ZERO, 

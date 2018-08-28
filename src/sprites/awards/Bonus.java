@@ -91,10 +91,10 @@ public class Bonus extends Sprite{
     public void initRedBonus(RedBonus bonus){
         switch(bonus){
             case Stream:
-                icon = new Image("/resources/fukiya.png");
+                icon = new Image("/resources/bonus/fukiya.png");
                 break;
             default:
-                icon = new Image("/resources/boomerang.png");
+                icon = new Image("/resources/bonus/boomerang.png");
                 break;
         }
     }
@@ -102,19 +102,19 @@ public class Bonus extends Sprite{
     public void initYellowBonus(YellowBonus bonus){
         switch(bonus){
             case Speed:
-                icon = new Image("/resources/speed.png");
+                icon = new Image("/resources/bonus/speed.png");
                 break;
             case Rotation:
-                icon = new Image("/resources/rotate.png");
+                icon = new Image("/resources/bonus/rotate.png");
                 break;
             case Shield:
-                icon = new Image("/resources/shield.png");
+                icon = new Image("/resources/bonus/shield.png");
                 break;
             case ProjectileGrowth:
-                icon = new Image("/resources/enlarge.png");
+                icon = new Image("/resources/bonus/enlarge.png");
                 break;
             case KnockOut:
-                icon = new Image("/resources/destroy.png");
+                icon = new Image("/resources/bonus/destroy.png");
                 break;
         }
     }
@@ -122,16 +122,16 @@ public class Bonus extends Sprite{
     public void initGreenBonus(GreenBonus bonus){
         switch(bonus){
             case Life:
-                icon = new Image("/resources/hollowheart.png");
+                icon = new Image("/resources/bonus/hollowheart.png");
                 break;
             case PointS:
-                icon = new Image("/resources/smallpoints.png");
+                icon = new Image("/resources/bonus/smallpoints.png");
                 break;
             case PointM:
-                icon = new Image("/resources/mediumpoints.png");
+                icon = new Image("/resources/bonus/mediumpoints.png");
                 break;
             case PointL:
-                icon = new Image("/resources/bigpoints.png");
+                icon = new Image("/resources/bonus/bigpoints.png");
                 break;       
         }
     }
@@ -139,19 +139,19 @@ public class Bonus extends Sprite{
     public void initBlackBonus(BlackBonus bonus){
         switch(bonus){
             case Munition:
-                icon = new Image("/resources/powerup.png");
+                icon = new Image("/resources/bonus/powerup.png");
                 break;
             case Triangle:
-                icon = new Image("/resources/triangle.png");
+                icon = new Image("/resources/bonus/triangle.png");
                 break;
             case Rhombus:
-                icon = new Image("/resources/rhombus.png");
+                icon = new Image("/resources/bonus/rhombus.png");
                 break;
             case Pentagon:
-                icon = new Image("/resources/pentagon.png");
+                icon = new Image("/resources/bonus/pentagon.png");
                 break;
             case Hexagon:
-                icon = new Image("/resources/hexagon.png");
+                icon = new Image("/resources/bonus/hexagon.png");
                 break;
         }
     }
