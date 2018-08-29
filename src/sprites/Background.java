@@ -37,66 +37,20 @@ public class Background extends Sprite {
         for(int i = 0; i < LIVES_CNT; i++){
             Life life = new Life();            
             life.setTranslateX(20 + i*(2*Life.getWidth() + 5));
-            life.setTranslateY(20);    
+            life.setTranslateY(Life.getHeght());    
             lives.add(life);
             getChildren().add(life);            
         }
         
         getChildren().addAll(star1, star2, star3);
-//        Bonus b1 = new Bonus(Bonus.RedBonus.Boomerang);
-//        b1.setTranslateX(30);
-//        b1.setTranslateY(height - 50);
-//        Bonus b2 = new Bonus(Bonus.RedBonus.Stream);
-//        b2.setTranslateX(100);
-//        b2.setTranslateY(height - 50);
-//        Bonus b3 = new Bonus(Bonus.YellowBonus.KnockOut);
-//        b3.setTranslateX(170);
-//        b3.setTranslateY(height - 50);
-//        Bonus b4 = new Bonus(Bonus.YellowBonus.ProjectileGrowth);
-//        b4.setTranslateX(240);
-//        b4.setTranslateY(height - 50);
-//        Bonus b5 = new Bonus(Bonus.YellowBonus.Rotation);
-//        b5.setTranslateX(310);
-//        b5.setTranslateY(height - 50);
-//        Bonus b6 = new Bonus(Bonus.YellowBonus.Shield);
-//        b6.setTranslateX(380);
-//        b6.setTranslateY(height - 50);
-//        Bonus b7 = new Bonus(Bonus.YellowBonus.Speed);
-//        b7.setTranslateX(450);
-//        b7.setTranslateY(height - 50);
-//        Bonus b8 = new Bonus(Bonus.GreenBonus.Life);
-//        b8.setTranslateX(520);
-//        b8.setTranslateY(height - 50);
-//        Bonus b9 = new Bonus(Bonus.GreenBonus.PointS);
-//        b9.setTranslateX(590);
-//        b9.setTranslateY(height - 50);
-//        Bonus b10 = new Bonus(Bonus.GreenBonus.PointM);
-//        b10.setTranslateX(660);
-//        b10.setTranslateY(height - 50);
-//        Bonus b11 = new Bonus(Bonus.GreenBonus.PointL);
-//        b11.setTranslateX(730);
-//        b11.setTranslateY(height - 50);
-//        Bonus b12 = new Bonus(Bonus.BlackBonus.Munition);
-//        b12.setTranslateX(800);
-//        b12.setTranslateY(height - 50);
-//        Bonus b13 = new Bonus(Bonus.BlackBonus.Triangle);
-//        b13.setTranslateX(870);
-//        b13.setTranslateY(height - 50);
-//        Bonus b14 = new Bonus(Bonus.BlackBonus.Rhombus);
-//        b14.setTranslateX(940);
-//        b14.setTranslateY(height - 50);
-//        Bonus b15 = new Bonus(Bonus.BlackBonus.Pentagon);
-//        b15.setTranslateX(1010);
-//        b15.setTranslateY(height - 50);
-//        Bonus b16 = new Bonus(Bonus.BlackBonus.Hexagon);
-//        b16.setTranslateX(1080);
-//        b16.setTranslateY(height - 50);
-//        getChildren().addAll(b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16);
+
     }
     
     public boolean loseLife(){
         Life lostLife = lives.get(lives.size() - 1);
         if (lives.size() == 1){
+            getChildren().remove(lostLife);
+            lives.remove(lostLife);
             return true; //player loses
         }else{
             Timeline disappearingLife = new Timeline(

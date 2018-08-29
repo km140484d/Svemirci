@@ -3,6 +3,7 @@ package sprites;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import main.Main;
+import sprites.Sprite;
 import static main.Main.WINDOW_HEIGHT;
 
 public class Projectile extends Sprite{

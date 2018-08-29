@@ -1,5 +1,7 @@
 package main;
 
+import sprites.shots.Shot;
+import sprites.Projectile;
 import sprites.enemies.*;
 import cameras.Camera;
 import java.util.*;
@@ -23,6 +25,8 @@ public class Main extends Application {
     public static final int ENEMIES_IN_A_COLUMN = 4;
     
     private static final int HARD = 5;
+    
+    private static final String GAME = "Svemirci";
 
     private Background background;
     private static Player player;
@@ -66,15 +70,8 @@ public class Main extends Application {
         background = new Background(WINDOW_WIDTH, WINDOW_HEIGHT);
         root.getChildren().add(background);
         
-        time_text = new Text(WINDOW_WIDTH/2 - 15, 20, time_msg + time_passed);
-        time_text.setFill(Color.RED);
-        time_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
-        root.getChildren().add(time_text); 
-        
-        points_text = new Text(WINDOW_WIDTH - 100, 20, points_msg + points);
-        points_text.setFill(Color.RED);
-        points_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
-        root.getChildren().add(points_text); 
+        displayTime();        
+        displayPoints();
         
         player = new Player();
         player.setTranslateX(WINDOW_WIDTH / 2);
@@ -127,7 +124,7 @@ public class Main extends Application {
         scene.setOnKeyPressed(player);
         scene.setOnKeyReleased(player);
         
-        primaryStage.setTitle("Svemirci");
+        primaryStage.setTitle(GAME);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
@@ -162,19 +159,7 @@ public class Main extends Application {
     public void updatePlayer(){
         if (!player.invincible()){
             lives--;
-            if (background.loseLife()){
-                theEnd = true;
-                camera.getChildren().clear();
-                camera.getChildren().addAll(shots);
-                camera.getChildren().addAll(enemies);
-                camera.getChildren().addAll(coins);
-                camera.getChildren().addAll(projs);
-                end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, points + end_msg);
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
-                return;
-            }else{
+            if (!background.loseLife()){
                 end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, String.format(life_msg, lives));
                 end_text.setFill(Color.ORANGERED);
                 end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
@@ -189,50 +174,66 @@ public class Main extends Application {
     }
     
     public void update() {
-        if (theEnd == false) {            
-            for (int j = 0; j < enemies.size(); j++) {
-                Enemy currentEnemy = enemies.get(j);
-                if (currentEnemy.getBoundsInParent().intersects(player.getBoundsInParent())){ 
+        if (theEnd == false) {
+            
+            camera.getChildren().clear();  
+            
+            //enemy player update
+            for(int i = 0; i < enemies.size(); i++){
+                Enemy enemy = enemies.get(i);
+                enemy.update(); enemy.showBar(camera);
+                if (enemy.getBoundsInParent().intersects(player.getBoundsInParent())){ 
                     updatePlayer();
-                }
-            }            
-            //enemy and shots update
-            shots = player.getShots(); 
-            for (int i = 0; i < shots.size(); i++) {
-                Shot currentShot = shots.get(i);                
-                if (currentShot.getTranslateY() < 50) {
-                    shots.remove(currentShot);
-                    continue;
-                }               
-                for (int j = 0; j < enemies.size(); j++) {
-                    Enemy currentEnemy = enemies.get(j);
-                    if (currentShot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
-                        shots.remove(currentShot);
-                        currentEnemy.enemyShot();
-                        break;
-                    }
-                }
-            }
-            
-            if (rst){
-                int randEnemy = (int)(Math.random() * (enemies.size() - 1));
-                Enemy e = enemies.get(randEnemy);
-                double x = e.getTranslateX() + e.getBody().getWidth()/2;
-                double y = e.getTranslateY() + e.getBody().getHeight()/2;
-                projs.add(new Projectile(x, y));
-                rst = false;
-            }
-            
-            //display game objects
-            camera.getChildren().clear();
-            camera.getChildren().add(player);            
-            if (enemies.isEmpty()) {
+                } 
+            }          
+             
+            if (enemies.isEmpty() || (lives == 0)) {
                 theEnd = true;
-            } else {    
+                camera.getChildren().clear();
                 camera.getChildren().addAll(shots);
-                shots.forEach(e -> e.update());
-                //coins
+                camera.getChildren().addAll(enemies);
                 camera.getChildren().addAll(coins);
+                camera.getChildren().addAll(projs);
+                end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, points + end_msg);
+                end_text.setFill(Color.ORANGERED);
+                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+                root.getChildren().add(end_text);
+            }else {  
+                //random enemy shooting
+                if (rst){
+                    int randEnemy = (int)(Math.random() * (enemies.size() - 1));
+                    Enemy e = enemies.get(randEnemy);
+                    double x = e.getTranslateX() + e.getBody().getWidth()/2;
+                    double y = e.getTranslateY() + e.getBody().getHeight()/2;
+                    projs.add(new Projectile(x, y));
+                    rst = false;
+                }                  
+                
+                //display game objects
+                //player
+                camera.getChildren().add(player);
+                
+                //enemy and shots update
+                shots = player.getShots(); 
+                shots.forEach(s -> {              
+                    if (s.getTranslateY() < 50) {
+                        Main.removeSprite(s);
+                        return;
+                    }               
+                    for (int j = 0; j < enemies.size(); j++) {
+                        Enemy currentEnemy = enemies.get(j);
+                        if (s.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
+                            Main.removeSprite(s);
+                            currentEnemy.enemyShot();
+                            break;
+                        }
+                    }
+                });
+                shots.removeAll(delObjects);
+                shots.forEach(e -> e.update());
+                camera.getChildren().addAll(shots);                
+                
+                //coins                
                 coins.forEach(c -> {
                     c.update();
                     if (c.getBoundsInParent().intersects(player.getBoundsInParent())){
@@ -240,29 +241,35 @@ public class Main extends Application {
                     }                    
                 });
                 coins.removeAll(delObjects);
-                camera.getChildren().addAll(enemies);
-                enemies.forEach(e -> {e.update(); e.showBar(camera);});
+                camera.getChildren().addAll(coins);
+                
+                //enemies             
                 camera.getChildren().addAll(shotEnemies);
-                //projectiles
-                camera.getChildren().addAll(projs);                
+                camera.getChildren().addAll(enemies);  
+                
+                //projectiles                                
                 projs.forEach(p -> {
                     p.update();
                     if (p.getBoundsInParent().intersects(player.getBoundsInParent()))
                             updatePlayer();
                 });
                 projs.removeAll(delObjects);
-                //bonus
-                camera.getChildren().addAll(bonuses);
-                bonuses.forEach(b -> b.update());
+                camera.getChildren().addAll(projs);
+                
+                //bonuses                
+                bonuses.forEach(b -> {                    
+                    b.update();
+                });
                 bonuses.removeAll(delObjects);
-            }
-            camera.updateCamera(player);
-            player.setShots(shots);
-            player.update();
-            background.update();
-            
-            time += 1.0 / 60;
-            
+                camera.getChildren().addAll(bonuses);
+                
+                camera.updateCamera(player);
+                player.setShots(shots);
+                player.update();
+                background.update();
+                time += 1.0 / 60;
+            }   
+
         }
     }
     
@@ -299,9 +306,25 @@ public class Main extends Application {
         tl.play();
     }
     
+    
+    private void displayTime() {
+        time_text = new Text(WINDOW_WIDTH/2 - 15, 20, time_msg + time_passed);
+        time_text.setFill(Color.RED);
+        time_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
+        root.getChildren().add(time_text); 
+    }
+    
+    
+    public void displayPoints(){
+        points_text = new Text(5, Life.getHeght()*2 + 20, points_msg + points);
+        points_text.setFill(Color.RED);
+        points_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
+        root.getChildren().add(points_text); 
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
-    
+
     
 }

@@ -9,6 +9,7 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.*;
 import main.Main;
+import sprites.shots.*;
 
 public class Player extends Sprite implements EventHandler<KeyEvent> {
     
@@ -164,7 +165,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     }
     
     private void makeShot() {
-        Shot shot = new Shot();
+        Shot shot = new Triangle();
         shot.setTranslateX(getTranslateX());
         shot.setTranslateY(getTranslateY() - GUN_OUT_RY);
         shots.add(shot);
@@ -191,51 +192,92 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
 
     @Override
     public void handle(KeyEvent event) {
-        if (event.getCode() == KeyCode.RIGHT && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED){
-                state = States.UP;
-                setVelocity();
-            }else{
-                if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED){
-                    state = States.DOWN;
-                    setVelocity();
-                }                
+        if (event.getEventType() == KeyEvent.KEY_PRESSED){
+            KeyCode code = event.getCode();
+            switch (code) {                    
+                    case UP:
+                        state = States.UP;
+                        setVelocity();
+                        break;
+                    case DOWN:
+                        state = States.DOWN;
+                        setVelocity();
+                        break;
+                    case RIGHT:
+                        state = States.RIGHT;
+                        setVelocity();
+                        break;
+                    case LEFT:
+                        state = States.LEFT;
+                        setVelocity();
+                        break;
+                    case DIGIT1:
+                        Main.camera.setDefault();
+                        break;
+                    case DIGIT2:
+                        Main.camera.setPlayerBound(this);
+                        break;
+                }
+        }else{                
+            if (event.getEventType() == KeyEvent.KEY_RELEASED){
+                KeyCode code = event.getCode();
+                switch (code) {
+                    case UP: case DOWN: case RIGHT: case LEFT:
+                        state = States.STALL;
+                        setVelocity();
+                        break;
+                    case SPACE:
+                        makeShot();
+                        break;
+                }
             }
-            state = States.RIGHT;
-            setVelocity();
-        } else if (event.getCode() == KeyCode.LEFT && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED){
-                state = States.UP;
-                setVelocity();
-            }else{
-                if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED){
-                    state = States.DOWN;
-                    setVelocity();
-                }                
-            }
-            state = States.LEFT;
-            setVelocity();
-        } else if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            state = States.UP;
-            setVelocity();
-        } else if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            state = States.DOWN;
-            setVelocity();
-        } else if ((event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.LEFT) 
-                && event.getEventType() == KeyEvent.KEY_RELEASED) {
-            state = States.STALL;
-            setVelocity();
-        } else if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN) 
-                && event.getEventType() == KeyEvent.KEY_RELEASED) {
-            state = States.STALL;
-            setVelocity();
-        } else if (event.getCode() == KeyCode.SPACE && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            makeShot();
-        } else if (event.getCode() == KeyCode.DIGIT1 && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            Main.camera.setDefault();            
-        } else if (event.getCode() == KeyCode.DIGIT2 && event.getEventType() == KeyEvent.KEY_PRESSED) {
-            Main.camera.setPlayerBound(this);
         }
+        
+//        if (event.getCode() == KeyCode.RIGHT && event.getEventType() == KeyEvent.KEY_PRESSED) {
+//            if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED){
+//                state = States.UP;
+//                setVelocity();
+//            }else{
+//                if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED){
+//                    state = States.DOWN;
+//                    setVelocity();
+//                }                
+//            }
+//            state = States.RIGHT;
+//            setVelocity();
+//        } else if (event.getCode() == KeyCode.LEFT && event.getEventType() == KeyEvent.KEY_PRESSED) {
+//            if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED){
+//                state = States.UP;
+//                setVelocity();
+//            }else{
+//                if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED){
+//                    state = States.DOWN;
+//                    setVelocity();
+//                }                
+//            }
+//            state = States.LEFT;
+//            setVelocity();
+//        } else if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED) {
+//            state = States.UP;
+//            setVelocity();
+//        } else if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED) {
+//            state = States.DOWN;
+//            setVelocity();
+//        } else if ((event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.LEFT) 
+//                && event.getEventType() == KeyEvent.KEY_RELEASED) {
+//            state = States.STALL;
+//            setVelocity();
+//        } else if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN) 
+//                && event.getEventType() == KeyEvent.KEY_RELEASED) {
+//            state = States.STALL;
+//            setVelocity();
+//        } else if (event.getCode() == KeyCode.SPACE && event.getEventType() == KeyEvent.KEY_RELEASED) {
+//            makeShot();
+//        } else if (event.getCode() == KeyCode.DIGIT1 && event.getEventType() == KeyEvent.KEY_PRESSED) {
+//            Main.camera.setDefault();            
+//        } else if (event.getCode() == KeyCode.DIGIT2 && event.getEventType() == KeyEvent.KEY_PRESSED) {
+//            Main.camera.setPlayerBound(this);
+//        }
     }
     
 }

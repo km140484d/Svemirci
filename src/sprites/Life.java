@@ -5,7 +5,7 @@ import javafx.scene.shape.*;
 
 public class Life extends Sprite{
     
-    private static final double SIZE = 8;
+    private static final double SIZE = 6;
     private static final double CHEEK_WIDTH = 2;
     
     private Path core;
@@ -30,6 +30,10 @@ public class Life extends Sprite{
     
     public static double getWidth(){
         return 2*SIZE-CHEEK_WIDTH;
+    }
+    
+    public static double getHeght(){
+        return 2*SIZE;
     }
     
 

@@ -28,7 +28,7 @@ public class Warrior extends Enemy{
         helmet.setFill(new ImagePattern(new Image("/resources/enemy/steel_armor.png")));
         getChildren().addAll(helmet);
         for(Path e: ears)
-            e.setFill(new ImagePattern(new Image("/resources/enemy/steel_armor.png")));
+            e.setFill(Color.GRAY);
         
         strength = WARRIOR;
     }
