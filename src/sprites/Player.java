@@ -9,6 +9,7 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.*;
 import main.Main;
+import sprites.awards.Bonus.*;
 import sprites.shots.*;
 
 public class Player extends Sprite implements EventHandler<KeyEvent> {
@@ -37,8 +38,10 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private Circle shield;
     
     
-    public Player() {  
-        
+    private static RedBonus redBonus;
+    
+    
+    public Player() { 
         shield = new Circle(SHIELD_R);
         shield.setFill(Color.color(0.4, 0.6, 0));
         shield.setTranslateY(10);
@@ -165,10 +168,27 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     }
     
     private void makeShot() {
-        Shot shot = new Triangle();
+        Shot shot = null;
+        if (redBonus != null){
+            switch(redBonus){
+                case Stream:
+                    shot = new Stream();
+                    break;
+                case Boomerang:
+                    shot = new Boomerang();
+                    break;
+            } 
+            redBonus = null;
+        }else{
+            shot = new Triangle();
+        }
         shot.setTranslateX(getTranslateX());
         shot.setTranslateY(getTranslateY() - GUN_OUT_RY);
         shots.add(shot);
+    }
+    
+    public static void setRedBonusType(RedBonus type){
+        redBonus = type;
     }
     
     @Override
@@ -232,52 +252,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 }
             }
         }
-        
-//        if (event.getCode() == KeyCode.RIGHT && event.getEventType() == KeyEvent.KEY_PRESSED) {
-//            if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED){
-//                state = States.UP;
-//                setVelocity();
-//            }else{
-//                if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED){
-//                    state = States.DOWN;
-//                    setVelocity();
-//                }                
-//            }
-//            state = States.RIGHT;
-//            setVelocity();
-//        } else if (event.getCode() == KeyCode.LEFT && event.getEventType() == KeyEvent.KEY_PRESSED) {
-//            if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED){
-//                state = States.UP;
-//                setVelocity();
-//            }else{
-//                if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED){
-//                    state = States.DOWN;
-//                    setVelocity();
-//                }                
-//            }
-//            state = States.LEFT;
-//            setVelocity();
-//        } else if (event.getCode() == KeyCode.UP && event.getEventType() == KeyEvent.KEY_PRESSED) {
-//            state = States.UP;
-//            setVelocity();
-//        } else if (event.getCode() == KeyCode.DOWN && event.getEventType() == KeyEvent.KEY_PRESSED) {
-//            state = States.DOWN;
-//            setVelocity();
-//        } else if ((event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.LEFT) 
-//                && event.getEventType() == KeyEvent.KEY_RELEASED) {
-//            state = States.STALL;
-//            setVelocity();
-//        } else if ((event.getCode() == KeyCode.UP || event.getCode() == KeyCode.DOWN) 
-//                && event.getEventType() == KeyEvent.KEY_RELEASED) {
-//            state = States.STALL;
-//            setVelocity();
-//        } else if (event.getCode() == KeyCode.SPACE && event.getEventType() == KeyEvent.KEY_RELEASED) {
-//            makeShot();
-//        } else if (event.getCode() == KeyCode.DIGIT1 && event.getEventType() == KeyEvent.KEY_PRESSED) {
-//            Main.camera.setDefault();            
-//        } else if (event.getCode() == KeyCode.DIGIT2 && event.getEventType() == KeyEvent.KEY_PRESSED) {
-//            Main.camera.setPlayerBound(this);
-//        }
+
     }
     
 }

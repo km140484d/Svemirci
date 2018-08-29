@@ -16,6 +16,8 @@ import javafx.stage.*;
 import javafx.util.Duration;
 import sprites.*;
 import sprites.awards.*;
+import sprites.shots.Boomerang;
+import sprites.shots.Stream;
 
 public class Main extends Application {    
     public static final int WINDOW_WIDTH = 1200;
@@ -52,6 +54,8 @@ public class Main extends Application {
     private static List<Coin> coins = new ArrayList<>();
     
     private static List<Bonus> bonuses = new ArrayList<>();
+    private static Bonus collectedRed = null;
+    private static List<Bonus> collectedYellow = new ArrayList<>();
         
     private boolean rst = false; //random shoot time
     private static List<Projectile> projs = new ArrayList<>();
@@ -181,7 +185,6 @@ public class Main extends Application {
             //enemy player update
             for(int i = 0; i < enemies.size(); i++){
                 Enemy enemy = enemies.get(i);
-                enemy.update(); enemy.showBar(camera);
                 if (enemy.getBoundsInParent().intersects(player.getBoundsInParent())){ 
                     updatePlayer();
                 } 
@@ -216,15 +219,26 @@ public class Main extends Application {
                 //enemy and shots update
                 shots = player.getShots(); 
                 shots.forEach(s -> {              
-                    if (s.getTranslateY() < 50) {
+                    if (!(s instanceof Boomerang) && (s.getTranslateY() < 50)) {
+                        if (s instanceof Stream){
+                            enemies.forEach(e -> e.setRedMark(false));
+                            collectedRed = null;
+                        }
                         Main.removeSprite(s);
                         return;
                     }               
                     for (int j = 0; j < enemies.size(); j++) {
                         Enemy currentEnemy = enemies.get(j);
                         if (s.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
-                            Main.removeSprite(s);
-                            currentEnemy.enemyShot();
+                            if (s instanceof Stream || s instanceof Boomerang){
+                                if (currentEnemy.isRedMark()){
+                                    currentEnemy.enemyShot();
+                                    currentEnemy.setRedMark(false);
+                                }
+                            }else{
+                                Main.removeSprite(s);
+                                currentEnemy.enemyShot();
+                            }                                
                             break;
                         }
                     }
@@ -243,9 +257,10 @@ public class Main extends Application {
                 coins.removeAll(delObjects);
                 camera.getChildren().addAll(coins);
                 
-                //enemies             
+                //enemies                 
                 camera.getChildren().addAll(shotEnemies);
                 camera.getChildren().addAll(enemies);  
+                enemies.forEach(e -> {e.update(); e.showBar(camera);});
                 
                 //projectiles                                
                 projs.forEach(p -> {
@@ -256,11 +271,16 @@ public class Main extends Application {
                 projs.removeAll(delObjects);
                 camera.getChildren().addAll(projs);
                 
-                //bonuses                
-                bonuses.forEach(b -> {                    
-                    b.update();
-                });
-                bonuses.removeAll(delObjects);
+                //bonuses        
+                for(int i = 0; i < bonuses.size(); i++){
+                    Bonus bonus = bonuses.get(i);
+                    bonus.update();
+                    if (bonus.getBoundsInParent().intersects(player.getBoundsInParent())){
+                        bonus.consumed();
+                        bonuses.remove(bonus);
+                        break;
+                    }
+                }
                 camera.getChildren().addAll(bonuses);
                 
                 camera.updateCamera(player);
@@ -294,16 +314,27 @@ public class Main extends Application {
                             double rand = Math.random();
                             points += enemy.enemyStrength()/HARD;// points won from kill shot
                             points_text.setText(points_msg + points);
-                            if (rand < 0.6){
-                                if (rand < 0.1)
-                                    bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
-                                else
-                                    coins.add(new Coin(x, y));                                          
-                            }
+//                            if (rand < 0.6){
+//                                if (rand < 0.1){
+                                    //bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
+                                    Bonus bonus = new Bonus(Bonus.RedBonus.Stream, x, y);
+                                    bonuses.add(bonus);
+                                    if (bonus.getBonusType() instanceof Bonus.RedBonus)
+                                        collectedRed = bonus;
+                                    else
+                                        if (bonus.getBonusType() instanceof Bonus.YellowBonus)
+                                            collectedYellow.add(bonus);
+//                                }else
+//                                    coins.add(new Coin(x, y));                                          
+//                            }
                         },
                         new KeyValue(rot.angleProperty(), 360))
         );
         tl.play();
+    }
+    
+    public static void setEnemyRedMark(){
+        enemies.forEach(e -> e.setRedMark(true));
     }
     
     

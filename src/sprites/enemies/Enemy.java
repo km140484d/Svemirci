@@ -43,6 +43,8 @@ public abstract class Enemy extends Sprite {
     private int velocityX = -1, moves = 0;
     private boolean update = false;
     
+    private boolean redMark;
+    
     public Enemy() {
         //ears
         for(int i = 0; i < ears.length; i++){
@@ -152,6 +154,14 @@ public abstract class Enemy extends Sprite {
             hit.play();
             bars[1].setWidth(bars[1].getWidth() - EN_WIDTH/(2*enemyStrength()));
         }
+    }
+    
+    public boolean isRedMark(){
+        return redMark;
+    }  
+    
+    public void setRedMark(boolean value){
+        redMark = value;
     }
     
     public abstract int enemyStrength();

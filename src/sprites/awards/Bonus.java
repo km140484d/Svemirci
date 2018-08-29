@@ -16,7 +16,7 @@ public class Bonus extends Sprite{
     private static final double GREEN_FREQ = 0.1;
     private double velocityY = 2;
     
-    interface BonusType{} 
+    public interface BonusType{} 
     /*3 - 0.2*/ public static enum RedBonus implements BonusType{Stream /*S*/, Boomerang /*B*/};
     /*2 - 0.3*/ public static enum YellowBonus implements BonusType{Speed /*V*/, Rotation /*R*/, Shield /*S*/, ProjectileGrowth /*G*/, KnockOut /*K*/};
     /*4 - 0.1*/ public static enum GreenBonus implements BonusType{Life /*H*/, PointS /*S*/, PointM /*M*/, PointL /*L*/};
@@ -31,6 +31,7 @@ public class Bonus extends Sprite{
     private Image icon;
     
     public Bonus(BonusType type, double x, double y){
+        this.type = type;
         power = new Circle(BONUS_R);
         if (type instanceof RedBonus)
             initRedBonus((RedBonus)type);
@@ -155,7 +156,47 @@ public class Bonus extends Sprite{
                 break;
         }
     }
+    //action
+    public void consumed(){
+        if (type instanceof RedBonus)
+            actionRedBonus((RedBonus)type);        
+        else
+            if (type instanceof YellowBonus)
+                actionYellowBonus((YellowBonus)type);
+            else
+                if (type instanceof GreenBonus)
+                    actionGreenBonus((GreenBonus) type);
+                else
+                    actionBlackBonus((BlackBonus)type);
+    }
+    
+    public void actionRedBonus(RedBonus bonus){
+        switch(bonus){
+            case Stream:
+                Player.setRedBonusType(RedBonus.Stream);
+                Main.setEnemyRedMark();
+                break;
+            default:
+                Player.setRedBonusType(RedBonus.Boomerang);
+                break;
+        }
+    }
+    
+    public void actionYellowBonus(YellowBonus bonus){
+        
+    }
+    
+    public void actionGreenBonus(GreenBonus bonus){
+        
+    }
+    
+    public void actionBlackBonus(BlackBonus bonus){
+        
+    }
 
+    public BonusType getBonusType(){
+        return type;
+    }
     
     @Override
     public void update() {

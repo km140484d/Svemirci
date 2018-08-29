@@ -7,8 +7,8 @@ public class Shot extends Sprite {
 
     private static final double SHOT_VELOCITY = -5;
     
-    protected Polygon base;
-    protected Polygon center;
+    protected Shape base;
+    protected Shape center;
     
     protected static final double SIDE = 10;
     protected static final double RATIO = 0.4;
