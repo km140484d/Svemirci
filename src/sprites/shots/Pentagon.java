@@ -6,7 +6,8 @@ import javafx.scene.shape.*;
 
 public class Pentagon extends Shot {
     
-    public Pentagon(){
+    public Pentagon(double playerAngle){
+        super(playerAngle);
         base = new Polygon(xCoord(1, 0), yCoord(1, 0),
                             xCoord(1, 1), yCoord(1, 1),
                             xCoord(1, 2), yCoord(1, 2),

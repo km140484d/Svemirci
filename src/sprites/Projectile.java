@@ -18,10 +18,13 @@ public class Projectile extends Sprite{
             velocityX = -velocityX;
         cBig = new Circle(RADIUS);
         cBig.setFill(Color.CHARTREUSE);
+        cBig.setStrokeWidth(1.2);
         cMiddle = new Circle(RADIUS/3*2);
         cMiddle.setFill(Color.LIME);
+        cMiddle.setStrokeWidth(1.2);
         cSmall = new Circle(RADIUS/3);
         cSmall.setFill(Color.BLUEVIOLET);
+        cSmall.setStrokeWidth(1.2);
         getChildren().addAll(cBig, cMiddle, cSmall);
         setTranslateX(x);
         setTranslateY(y);

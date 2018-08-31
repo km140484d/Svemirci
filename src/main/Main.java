@@ -16,6 +16,7 @@ import javafx.stage.*;
 import javafx.util.Duration;
 import sprites.*;
 import sprites.awards.*;
+import sprites.awards.Bonus.BonusType;
 import sprites.shots.Boomerang;
 import sprites.shots.Stream;
 
@@ -54,8 +55,8 @@ public class Main extends Application {
     private static List<Coin> coins = new ArrayList<>();
     
     private static List<Bonus> bonuses = new ArrayList<>();
-    private static Bonus collectedRed = null;
-    private static List<Bonus> collectedYellow = new ArrayList<>();
+    private static BonusType collectedRed = null;
+    private static List<BonusType> collectedYellow = new ArrayList<>();
         
     private boolean rst = false; //random shoot time
     private static List<Projectile> projs = new ArrayList<>();
@@ -219,14 +220,9 @@ public class Main extends Application {
                 //enemy and shots update
                 shots = player.getShots(); 
                 shots.forEach(s -> {              
-                    if (!(s instanceof Boomerang) && (s.getTranslateY() < 50)) {
-                        if (s instanceof Stream){
-                            enemies.forEach(e -> e.setRedMark(false));
-                            collectedRed = null;
-                        }
-                        Main.removeSprite(s);
-                        return;
-                    }               
+                    if (s instanceof Stream){
+                        enemies.forEach(e -> e.setRedMark(false));
+                    }
                     for (int j = 0; j < enemies.size(); j++) {
                         Enemy currentEnemy = enemies.get(j);
                         if (s.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
@@ -317,13 +313,13 @@ public class Main extends Application {
 //                            if (rand < 0.6){
 //                                if (rand < 0.1){
                                     //bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
-                                    Bonus bonus = new Bonus(Bonus.RedBonus.Stream, x, y);
+                                    Bonus bonus = new Bonus(Bonus.RedBonus.Boomerang, x, y);
                                     bonuses.add(bonus);
                                     if (bonus.getBonusType() instanceof Bonus.RedBonus)
-                                        collectedRed = bonus;
+                                        collectedRed = bonus.getBonusType();
                                     else
                                         if (bonus.getBonusType() instanceof Bonus.YellowBonus)
-                                            collectedYellow.add(bonus);
+                                            collectedYellow.add(bonus.getBonusType());
 //                                }else
 //                                    coins.add(new Coin(x, y));                                          
 //                            }
@@ -333,10 +329,13 @@ public class Main extends Application {
         tl.play();
     }
     
-    public static void setEnemyRedMark(){
-        enemies.forEach(e -> e.setRedMark(true));
+    public static void setEnemyRedMark(boolean mark){
+        enemies.forEach(e -> e.setRedMark(mark));
     }
     
+    public static void setCollectedRed(BonusType bonus){
+        collectedRed = bonus;
+    }
     
     private void displayTime() {
         time_text = new Text(WINDOW_WIDTH/2 - 15, 20, time_msg + time_passed);

@@ -10,7 +10,8 @@ public class Rhombus extends Shot{
     private static final double INNER = SIDE*RATIO;
     private static final double INNER_WIDTH = INNER*2/3;
     
-    public Rhombus(){
+    public Rhombus(double playerAngle){
+        super(playerAngle);
         base = new Polygon( 0, -SIDE,
                 WIDTH, 0,
                 0, SIDE,

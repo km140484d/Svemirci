@@ -171,10 +171,10 @@ public class Bonus extends Sprite{
     }
     
     public void actionRedBonus(RedBonus bonus){
+        Main.setEnemyRedMark(true);
         switch(bonus){
             case Stream:
                 Player.setRedBonusType(RedBonus.Stream);
-                Main.setEnemyRedMark();
                 break;
             default:
                 Player.setRedBonusType(RedBonus.Boomerang);
@@ -183,7 +183,18 @@ public class Bonus extends Sprite{
     }
     
     public void actionYellowBonus(YellowBonus bonus){
-        
+        switch(bonus){
+            case Speed:
+                break;
+            case Rotation:
+                break;
+            case Shield:
+                break;
+            case ProjectileGrowth:
+                break;
+            case KnockOut:
+                break;
+        }
     }
     
     public void actionGreenBonus(GreenBonus bonus){
