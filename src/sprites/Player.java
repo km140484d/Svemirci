@@ -39,6 +39,8 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static final double STREAM_HEIGHT = TUBE_HEIGHT*4/3;
     
     private static final double SHIELD_R = WIDTH*3/4;
+    
+    private static final double ROTATE_ANGLE = 3;
 
     private Shape body;
     private Group gun;    
@@ -46,7 +48,8 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private Group rightTubeGroup;  
     private Circle shield;
 
-    private static RedBonus redBonus; 
+    private RedBonus redBonus; 
+    private boolean rotate = false;
     
     public Player() { 
         Stop [] stops = {
@@ -194,15 +197,16 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         shots.add(shot);
     }
     
-    public static void setRedBonusType(RedBonus type){
+    public void setRedBonusType(RedBonus type){
         redBonus = type;
+    }
+    
+    public void setRotate(boolean rotation){
+        rotate = rotation;
     }
     
     @Override
     public void update() {
-        
-        
-        
         if (getTranslateX() + velocityX < WIDTH / 2 + 5) {
             setTranslateX(WIDTH / 2 + 5);
         } else if (getTranslateX() + velocityX > Main.WINDOW_WIDTH - WIDTH / 2 - 5) {
@@ -225,21 +229,29 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         if (event.getEventType() == KeyEvent.KEY_PRESSED){
             KeyCode code = event.getCode();
             switch (code) {                    
-                    case UP:
+                    case W:
                         state = States.UP;
                         setVelocity();
                         break;
-                    case DOWN:
+                    case S:
                         state = States.DOWN;
                         setVelocity();
                         break;
-                    case RIGHT:
+                    case D:
                         state = States.RIGHT;
                         setVelocity();
                         break;
-                    case LEFT:
+                    case A:
                         state = States.LEFT;
                         setVelocity();
+                        break;
+                    case E:
+                        if (rotate)
+                            setRotate(getRotate() - ROTATE_ANGLE);                            
+                        break;
+                    case R:
+                        if (rotate)
+                            setRotate(getRotate() + ROTATE_ANGLE);
                         break;
                     case DIGIT1:
                         Main.camera.setDefault();
@@ -252,7 +264,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
             if (event.getEventType() == KeyEvent.KEY_RELEASED){
                 KeyCode code = event.getCode();
                 switch (code) {
-                    case UP: case DOWN: case RIGHT: case LEFT:
+                    case W: case S: case D: case A:
                         state = States.STALL;
                         setVelocity();
                         break;

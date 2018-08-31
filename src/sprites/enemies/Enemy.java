@@ -143,8 +143,8 @@ public abstract class Enemy extends Sprite {
     
     public void enemyShot(){
         strength--;
-        if (strength == 0)
-            Main.destroyEnemy(this);
+        if (strength <= 0)
+            Main.removeEnemy(this);
         else{
             ScaleTransition hit = new ScaleTransition(Duration.seconds(0.1), this);
             hit.setFromX(1); hit.setByX(0.1);

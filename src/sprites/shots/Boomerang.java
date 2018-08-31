@@ -61,7 +61,7 @@ public class Boomerang extends Shot{
         }
         
         if (y + velocityY > Main.WINDOW_HEIGHT - RADIUS - 5)
-            Main.removeSprite(this);
+            Main.removeSprite(this);        
         else{
             if (y + velocityY < RADIUS - 5){
                 setTranslateY(RADIUS - 5);

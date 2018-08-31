@@ -1,7 +1,7 @@
 package main;
 
-import sprites.shots.Shot;
-import sprites.Projectile;
+import sprites.shots.*;
+import sprites.*;
 import sprites.enemies.*;
 import cameras.Camera;
 import java.util.*;
@@ -14,11 +14,8 @@ import javafx.scene.text.*;
 import javafx.scene.transform.*;
 import javafx.stage.*;
 import javafx.util.Duration;
-import sprites.*;
 import sprites.awards.*;
-import sprites.awards.Bonus.BonusType;
-import sprites.shots.Boomerang;
-import sprites.shots.Stream;
+import sprites.awards.Bonus.*;
 
 public class Main extends Application {    
     public static final int WINDOW_WIDTH = 1200;
@@ -30,6 +27,9 @@ public class Main extends Application {
     private static final int HARD = 5;
     
     private static final String GAME = "Svemirci";
+    
+    private static final double RED_IND_HEIGHT = 110;
+    private static final double YELLOW_IND_HEIGHT = 70;
 
     private Background background;
     private static Player player;
@@ -55,8 +55,8 @@ public class Main extends Application {
     private static List<Coin> coins = new ArrayList<>();
     
     private static List<Bonus> bonuses = new ArrayList<>();
-    private static BonusType collectedRed = null;
-    private static List<BonusType> collectedYellow = new ArrayList<>();
+    private static BonusIndicator collectedRed = null;
+    private static List<BonusIndicator> collectedYellow = new ArrayList<>();
         
     private boolean rst = false; //random shoot time
     private static List<Projectile> projs = new ArrayList<>();
@@ -65,6 +65,9 @@ public class Main extends Application {
     private static Text points_text;
     
     private static List<Sprite> delObjects = new ArrayList<>();
+    private static List<Enemy> delEnemies = new ArrayList<>();
+    
+    int choose = 0;
     
     @Override
     public void start(Stage primaryStage) {
@@ -220,9 +223,6 @@ public class Main extends Application {
                 //enemy and shots update
                 shots = player.getShots(); 
                 shots.forEach(s -> {              
-                    if (s instanceof Stream){
-                        enemies.forEach(e -> e.setRedMark(false));
-                    }
                     for (int j = 0; j < enemies.size(); j++) {
                         Enemy currentEnemy = enemies.get(j);
                         if (s.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
@@ -241,7 +241,7 @@ public class Main extends Application {
                 });
                 shots.removeAll(delObjects);
                 shots.forEach(e -> e.update());
-                camera.getChildren().addAll(shots);                
+                camera.getChildren().addAll(shots); 
                 
                 //coins                
                 coins.forEach(c -> {
@@ -253,10 +253,12 @@ public class Main extends Application {
                 coins.removeAll(delObjects);
                 camera.getChildren().addAll(coins);
                 
-                //enemies                 
+                //enemies
                 camera.getChildren().addAll(shotEnemies);
                 camera.getChildren().addAll(enemies);  
                 enemies.forEach(e -> {e.update(); e.showBar(camera);});
+                delEnemies.forEach(e -> destroyEnemy((Enemy)e));
+                delEnemies.clear();
                 
                 //projectiles                                
                 projs.forEach(p -> {
@@ -272,12 +274,38 @@ public class Main extends Application {
                     Bonus bonus = bonuses.get(i);
                     bonus.update();
                     if (bonus.getBoundsInParent().intersects(player.getBoundsInParent())){
-                        bonus.consumed();
+                        consumed(bonus);
                         bonuses.remove(bonus);
                         break;
                     }
                 }
+                bonuses.removeAll(delObjects);
                 camera.getChildren().addAll(bonuses);
+                
+                for(int i = 0; i < collectedYellow.size(); i++){
+                    BonusIndicator yellow = collectedYellow.get(i);
+                    if (yellow.decTime()){
+                        switch((YellowBonus)yellow.getType()){
+                            case Rotation:
+                                player.setRotate(false);
+                                collectedYellow.remove(yellow);
+                                for(int j = i; j < collectedYellow.size(); j++)
+                                    collectedYellow.get(j).setTranslateX(
+                                            collectedYellow.get(j).getTranslateX() - 2*BonusIndicator.RADIUS);                                
+                                RotateTransition rt = new RotateTransition(Duration.seconds(1.5), player);
+                                rt.setToAngle(0);
+                                rt.play();
+                                break;                       
+                        }
+                    }else{
+                        if (!camera.getChildren().contains(yellow))
+                            camera.getChildren().add(yellow);
+                    }
+                
+                }
+                
+                if (collectedRed != null && !camera.getChildren().contains(collectedRed))
+                    camera.getChildren().add(collectedRed);
                 
                 camera.updateCamera(player);
                 player.setShots(shots);
@@ -293,7 +321,11 @@ public class Main extends Application {
         delObjects.add(sprite);
     }
     
-    public static void destroyEnemy(Enemy enemy){
+    public static void removeEnemy(Enemy enemy){
+        delEnemies.add(enemy);
+    }
+    
+    public void destroyEnemy(Enemy enemy){
         enemies.remove(enemy);
         shotEnemies.add(enemy);                        
         Rotate rot = new Rotate();
@@ -313,13 +345,16 @@ public class Main extends Application {
 //                            if (rand < 0.6){
 //                                if (rand < 0.1){
                                     //bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
-                                    Bonus bonus = new Bonus(Bonus.RedBonus.Boomerang, x, y);
-                                    bonuses.add(bonus);
-                                    if (bonus.getBonusType() instanceof Bonus.RedBonus)
-                                        collectedRed = bonus.getBonusType();
+                                    Bonus bonus;
+                                    if (choose == 0)
+                                        bonus = new Bonus(Bonus.RedBonus.Boomerang, x, y);
                                     else
-                                        if (bonus.getBonusType() instanceof Bonus.YellowBonus)
-                                            collectedYellow.add(bonus.getBonusType());
+                                        if (choose == 1)
+                                            bonus = new Bonus(Bonus.RedBonus.Stream, x, y);
+                                        else
+                                            bonus = new Bonus(Bonus.YellowBonus.Rotation, x, y);
+                                    bonuses.add(bonus);
+                                    choose = (choose + 1) %3;
 //                                }else
 //                                    coins.add(new Coin(x, y));                                          
 //                            }
@@ -329,12 +364,71 @@ public class Main extends Application {
         tl.play();
     }
     
+    //action
+    public void consumed(Bonus bonus){
+        BonusType type = bonus.getBonusType();
+        if (type instanceof Bonus.RedBonus){
+            collectedRed = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
+            collectedRed.setTranslateX(BonusIndicator.RADIUS + 5);
+            collectedRed.setTranslateY(Main.RED_IND_HEIGHT);
+//            camera.getChildren().add(collectedRed);
+            actionRedBonus((Bonus.RedBonus)type);             
+        }else
+            if (type instanceof Bonus.YellowBonus){
+                BonusIndicator yellow = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
+                collectedYellow.add(yellow);
+                yellow.setTranslateX(5 + (collectedYellow.indexOf(yellow) + 1)*BonusIndicator.RADIUS);
+                yellow.setTranslateY(Main.YELLOW_IND_HEIGHT);
+                actionYellowBonus((Bonus.YellowBonus)type);
+            }else
+                if (type instanceof Bonus.GreenBonus)
+                    actionGreenBonus((Bonus.GreenBonus) type);
+                else
+                    actionBlackBonus((Bonus.BlackBonus)type);
+    }
+    
+    public void actionRedBonus(Bonus.RedBonus bonus){
+        setEnemyRedMark(true);
+        switch(bonus){
+            case Stream:
+                player.setRedBonusType(Bonus.RedBonus.Stream);
+                break;
+            default:
+                player.setRedBonusType(Bonus.RedBonus.Boomerang);
+                break;
+        }
+    }
+    
+    public void actionYellowBonus(Bonus.YellowBonus bonus){
+        switch(bonus){
+            case Speed:
+                break;
+            case Rotation:
+                player.setRotate(true);
+                break;
+            case Shield:
+                break;
+            case ProjectileGrowth:
+                break;
+            case KnockOut:
+                break;
+        }
+    }
+    
+    public void actionGreenBonus(Bonus.GreenBonus bonus){
+        
+    }
+    
+    public void actionBlackBonus(Bonus.BlackBonus bonus){
+        
+    }
+    
     public static void setEnemyRedMark(boolean mark){
         enemies.forEach(e -> e.setRedMark(mark));
     }
     
-    public static void setCollectedRed(BonusType bonus){
-        collectedRed = bonus;
+    public static void setCollectedRed(Bonus bonus){
+        collectedRed = (bonus == null) ? null : new BonusIndicator(bonus.getBonusType(), bonus.getPath());
     }
     
     private void displayTime() {

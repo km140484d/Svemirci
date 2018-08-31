@@ -29,6 +29,7 @@ public class Bonus extends Sprite{
     private BonusType type;
     private Circle power;
     private Image icon;
+    private String path = "";
     
     public Bonus(BonusType type, double x, double y){
         this.type = type;
@@ -43,7 +44,7 @@ public class Bonus extends Sprite{
                     initGreenBonus((GreenBonus) type);
                 else
                     initBlackBonus((BlackBonus)type);
-        power.setFill(new ImagePattern(icon));
+        power.setFill(new ImagePattern(new Image(path)));
         getChildren().addAll(power);
         setTranslateX(x);
         setTranslateY(y);
@@ -92,10 +93,10 @@ public class Bonus extends Sprite{
     public void initRedBonus(RedBonus bonus){
         switch(bonus){
             case Stream:
-                icon = new Image("/resources/bonus/fukiya.png");
+                path = "/resources/bonus/fukiya.png";
                 break;
             default:
-                icon = new Image("/resources/bonus/boomerang.png");
+                path = "/resources/bonus/boomerang.png";
                 break;
         }
     }
@@ -103,19 +104,19 @@ public class Bonus extends Sprite{
     public void initYellowBonus(YellowBonus bonus){
         switch(bonus){
             case Speed:
-                icon = new Image("/resources/bonus/speed.png");
+                path = "/resources/bonus/speed.png";
                 break;
             case Rotation:
-                icon = new Image("/resources/bonus/rotate.png");
+                path = "/resources/bonus/rotate.png";
                 break;
             case Shield:
-                icon = new Image("/resources/bonus/shield.png");
+                path = "/resources/bonus/shield.png";
                 break;
             case ProjectileGrowth:
-                icon = new Image("/resources/bonus/enlarge.png");
+                path = "/resources/bonus/enlarge.png";
                 break;
             case KnockOut:
-                icon = new Image("/resources/bonus/destroy.png");
+                path = "/resources/bonus/destroy.png";
                 break;
         }
     }
@@ -123,16 +124,16 @@ public class Bonus extends Sprite{
     public void initGreenBonus(GreenBonus bonus){
         switch(bonus){
             case Life:
-                icon = new Image("/resources/bonus/hollowheart.png");
+                path = "/resources/bonus/hollowheart.png";
                 break;
             case PointS:
-                icon = new Image("/resources/bonus/smallpoints.png");
+                path = "/resources/bonus/smallpoints.png";
                 break;
             case PointM:
-                icon = new Image("/resources/bonus/mediumpoints.png");
+                path = "/resources/bonus/mediumpoints.png";
                 break;
             case PointL:
-                icon = new Image("/resources/bonus/bigpoints.png");
+                path = "/resources/bonus/bigpoints.png";
                 break;       
         }
     }
@@ -140,75 +141,31 @@ public class Bonus extends Sprite{
     public void initBlackBonus(BlackBonus bonus){
         switch(bonus){
             case Munition:
-                icon = new Image("/resources/bonus/powerup.png");
+                path = "/resources/bonus/powerup.png";
                 break;
             case Triangle:
-                icon = new Image("/resources/bonus/triangle.png");
+                path = "/resources/bonus/triangle.png";
                 break;
             case Rhombus:
-                icon = new Image("/resources/bonus/rhombus.png");
+                path = "/resources/bonus/rhombus.png";
                 break;
             case Pentagon:
-                icon = new Image("/resources/bonus/pentagon.png");
+                path = "/resources/bonus/pentagon.png";
                 break;
             case Hexagon:
-                icon = new Image("/resources/bonus/hexagon.png");
+                path = "/resources/bonus/hexagon.png";
                 break;
         }
-    }
-    //action
-    public void consumed(){
-        if (type instanceof RedBonus)
-            actionRedBonus((RedBonus)type);        
-        else
-            if (type instanceof YellowBonus)
-                actionYellowBonus((YellowBonus)type);
-            else
-                if (type instanceof GreenBonus)
-                    actionGreenBonus((GreenBonus) type);
-                else
-                    actionBlackBonus((BlackBonus)type);
-    }
-    
-    public void actionRedBonus(RedBonus bonus){
-        Main.setEnemyRedMark(true);
-        switch(bonus){
-            case Stream:
-                Player.setRedBonusType(RedBonus.Stream);
-                break;
-            default:
-                Player.setRedBonusType(RedBonus.Boomerang);
-                break;
-        }
-    }
-    
-    public void actionYellowBonus(YellowBonus bonus){
-        switch(bonus){
-            case Speed:
-                break;
-            case Rotation:
-                break;
-            case Shield:
-                break;
-            case ProjectileGrowth:
-                break;
-            case KnockOut:
-                break;
-        }
-    }
-    
-    public void actionGreenBonus(GreenBonus bonus){
-        
-    }
-    
-    public void actionBlackBonus(BlackBonus bonus){
-        
     }
 
     public BonusType getBonusType(){
         return type;
     }
     
+    public String getPath(){
+        return path;
+    }    
+
     @Override
     public void update() {
         if ((getTranslateY() + velocityY) > Main.WINDOW_HEIGHT)
