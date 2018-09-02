@@ -18,7 +18,7 @@ public class Bonus extends Sprite{
     
     public interface BonusType{} 
     /*3 - 0.2*/ public static enum RedBonus implements BonusType{Stream /*S*/, Boomerang /*B*/};
-    /*2 - 0.3*/ public static enum YellowBonus implements BonusType{Speed /*V*/, Rotation /*R*/, Shield /*S*/, ProjectileGrowth /*G*/, KnockOut /*K*/};
+    /*2 - 0.3*/ public static enum YellowBonus implements BonusType{Speed /*V*/, Rotation /*R*/, Shield /*S*/, ShotGrowth /*G*/, KnockOut /*K*/};
     /*4 - 0.1*/ public static enum GreenBonus implements BonusType{Life /*H*/, PointS /*S*/, PointM /*M*/, PointL /*L*/};
     /*1 - 0.4*/ public static enum BlackBonus implements BonusType{Munition /*M*/, Triangle /*T*/, Rhombus /*R*/, Pentagon /*P*/, Hexagon /*H*/};
 //    
@@ -70,8 +70,8 @@ public class Bonus extends Sprite{
                     else
                         if (rand < YELLOW_FREQ*3) return YellowBonus.Rotation;
                         else
-                            if (rand < YELLOW_FREQ*4) return YellowBonus.ProjectileGrowth;
-                            else return YellowBonus.ProjectileGrowth;
+                            if (rand < YELLOW_FREQ*4) return YellowBonus.ShotGrowth;
+                            else return YellowBonus.ShotGrowth;
             }else{
                 if (rand < 0.7 + BONUS_FREQ*2){
                     rand -= 0.7;
@@ -112,7 +112,7 @@ public class Bonus extends Sprite{
             case Shield:
                 path = "/resources/bonus/shield.png";
                 break;
-            case ProjectileGrowth:
+            case ShotGrowth:
                 path = "/resources/bonus/enlarge.png";
                 break;
             case KnockOut:

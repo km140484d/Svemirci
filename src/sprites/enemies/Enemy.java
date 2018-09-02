@@ -41,7 +41,7 @@ public abstract class Enemy extends Sprite {
     
     private boolean first = true;
     private int velocityX = -1, moves = 0;
-    private boolean update = false;
+    private static boolean update = false;
     
     private boolean redMark;
     
@@ -133,12 +133,12 @@ public abstract class Enemy extends Sprite {
         return gr_eyes[1];
     }
 
-    public boolean isUpdate() {
+    public static boolean isUpdate() {
         return update;
     }
 
-    public void setUpdate(boolean update) {
-        this.update = update;
+    public static void setUpdate(boolean state) {
+        update = state;
     }
     
     public void enemyShot(){

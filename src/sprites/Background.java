@@ -17,6 +17,7 @@ public class Background extends Sprite {
     private Star star3 = new Star();
     
     private List<Life> lives = new ArrayList<>();
+    private List<Life> lostLives = new ArrayList<>();
     
     public Background(int width, int height) {
         Rectangle background = new Rectangle(0, 0, width + 10, height + 10);
@@ -53,6 +54,8 @@ public class Background extends Sprite {
             lives.remove(lostLife);
             return true; //player loses
         }else{
+            lostLives.add(lostLife);
+            lives.remove(lostLife);
             Timeline disappearingLife = new Timeline(
                     new KeyFrame(Duration.ZERO, 
                         new KeyValue(lostLife.opacityProperty(), 1.0, Interpolator.DISCRETE)),
@@ -63,11 +66,23 @@ public class Background extends Sprite {
             disappearingLife.setCycleCount(5);
             disappearingLife.setOnFinished(t ->{
                 getChildren().remove(lostLife);
-                lives.remove(lostLife);
+                lostLives.remove(lostLife);
             });   
             disappearingLife.play();
             return false; //player has more lives
         }
+    }
+    
+    public void collectLife(){
+        Life life = new Life();            
+        life.setTranslateX(20 + lives.size()*(2*Life.getWidth() + 5));
+        life.setTranslateY(Life.getHeght());    
+        lives.add(life);
+        getChildren().add(life); 
+    }
+    
+    public int getLifeNumber(){
+        return lives.size();
     }
 
     @Override

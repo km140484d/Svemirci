@@ -6,15 +6,15 @@ import javafx.scene.shape.*;
 
 public class Rhombus extends Shot{
     
-    private static final double WIDTH = SIDE*2/3;
-    private static final double INNER = SIDE*RATIO;
+    private static final double WIDTH = size*2/3;
+    private static final double INNER = size*RATIO;
     private static final double INNER_WIDTH = INNER*2/3;
     
     public Rhombus(double playerAngle){
         super(playerAngle);
-        base = new Polygon( 0, -SIDE,
+        base = new Polygon( 0, -size,
                 WIDTH, 0,
-                0, SIDE,
+                0, size,
                 -WIDTH, 0                
         );
         base.setFill(new ImagePattern(new Image("/resources/shots/rhombus1.png")));

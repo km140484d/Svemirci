@@ -26,7 +26,7 @@ public class Pentagon extends Shot {
     
     public static double xCoord(double fact, int k){
         //System.out.println("x-coord: " + fact*8.1*Math.cos(k*2*Math.PI/5));
-        return SIDE*fact*Math.cos(k*2*Math.PI/5 - Math.PI/2);
+        return size*fact*Math.cos(k*2*Math.PI/5 - Math.PI/2);
     }
     
     public static double yCoord(double fact, int k){

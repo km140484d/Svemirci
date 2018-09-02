@@ -9,7 +9,7 @@ import main.Main;
 
 public class Boomerang extends Shot{
     
-    private static final double BOOM = SIDE*3/2;
+    private static final double BOOM = size*3/2;
     private static final double INNER_R = BOOM*3/8;
     private static final double OUTER_R = BOOM*3/4;
     

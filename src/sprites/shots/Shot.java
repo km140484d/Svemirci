@@ -16,9 +16,20 @@ public class Shot extends Sprite {
     
     protected double velocityX, velocityY = SHOT_VELOCITY;
     
+    protected static final double FACTOR = 2;
+    
+    protected static double size = SIDE;
+    
     public Shot(double playerAngle) {
         velocityX = SHOT_VELOCITY*Math.tan(Math.toRadians(-playerAngle));
         setRotate(playerAngle);
+    }
+    
+    public static void setEnlarge(boolean enlarge){
+        if (enlarge)
+            size = SIDE*FACTOR;
+        else
+            size = SIDE;
     }
     
     @Override

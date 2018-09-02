@@ -10,9 +10,9 @@ public class Triangle extends Shot{
     
     public Triangle(double playerAngle){
         super(playerAngle);
-        base = new Polygon(0, -SIDE*3/4,
-                SIDE*3/4, SIDE*3/4,
-                -SIDE*3/4, SIDE*3/4
+        base = new Polygon(0, -size*3/4,
+                size*3/4, size*3/4,
+                -size*3/4, size*3/4
         );
         base.setFill(new ImagePattern(new Image("/resources/shots/triangle1.png")));
         base.setStroke(Color.WHITE);

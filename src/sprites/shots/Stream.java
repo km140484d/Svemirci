@@ -8,7 +8,7 @@ public class Stream extends Shot{
 
     public Stream(double playerAngle){
         super(playerAngle);
-        base = new Circle(SIDE*2);
+        base = new Circle(size*2);
         base.setFill(new ImagePattern(new Image("/resources/shots/bowling.png")));
         getChildren().addAll(base);
     }

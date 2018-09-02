@@ -49,7 +49,6 @@ public class Main extends Application {
     
     private static int points = 0;
     private String end_msg = " POINTS WON";
-    private int lives = Background.LIVES_CNT;
     private String life_msg = "LIFE LOST, %d REMAIN";
     private Text end_text;    
     private static List<Coin> coins = new ArrayList<>();
@@ -101,13 +100,10 @@ public class Main extends Application {
                         new KeyFrame(Duration.ZERO, 
                                 new KeyValue(enemy.translateYProperty(), -((ENEMIES_IN_A_ROW - i-1)*100), Interpolator.EASE_OUT)), //ENEMIES_SPACE = 100
                         new KeyFrame(Duration.seconds(4), 
-                                t->{
-                                    enemy.setUpdate(true);
-                                },
                                 new KeyValue(enemy.translateYProperty(), (i+1) * 100, Interpolator.EASE_BOTH))//ENEMIES_SPACE = 100
-                        
-                        
-                );
+                );                
+                if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
+                    arrival.setOnFinished(e -> Enemy.setUpdate(true));
                 arrival.play();
                 enemy.showBar(camera);
                 camera.getChildren().add(enemy);
@@ -153,6 +149,12 @@ public class Main extends Application {
     }
     
     public void resetPlayer(){
+        //reset bonuses, remove them
+        int yellow = collectedYellow.size();
+        for(int i=0; i < yellow; i++)
+            removeYellowBonus(collectedYellow.get(0));
+        player.setRedBonusType(null);
+        //reset player
         player.reset();
         player.setTranslateX(WINDOW_WIDTH / 2);
         player.setTranslateY(WINDOW_HEIGHT * 0.95);
@@ -166,9 +168,8 @@ public class Main extends Application {
     
     public void updatePlayer(){
         if (!player.invincible()){
-            lives--;
             if (!background.loseLife()){
-                end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, String.format(life_msg, lives));
+                end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, String.format(life_msg, background.getLifeNumber()));
                 end_text.setFill(Color.ORANGERED);
                 end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
                 root.getChildren().add(end_text);
@@ -177,7 +178,7 @@ public class Main extends Application {
                 ft.setToValue(0);
                 ft.play();
                 resetPlayer();
-            }  
+            }
         }
     }
     
@@ -187,12 +188,13 @@ public class Main extends Application {
             //enemy player update
             for(int i = 0; i < enemies.size(); i++){
                 Enemy enemy = enemies.get(i);
-                if (enemy.getBoundsInParent().intersects(player.getBoundsInParent())){ 
+                if (enemy.getBoundsInParent().intersects(player.getBoundsInParent())){
                     updatePlayer();
-                } 
+                    break;
+                }
             }          
              
-            if (enemies.isEmpty() || (lives == 0)) {
+            if (enemies.isEmpty() || (background.getLifeNumber() == 0)) {
                 theEnd = true;
                 camera.getChildren().clear();
                 camera.getChildren().addAll(shots);
@@ -237,6 +239,8 @@ public class Main extends Application {
                         }
                     }
                 });
+                delEnemies.forEach(e -> destroyEnemy((Enemy)e));
+                delEnemies.clear();
                 shots.removeAll(delObjects);
                 shots.forEach(e -> e.update());
                 camera.getChildren().addAll(shots); 
@@ -255,8 +259,6 @@ public class Main extends Application {
                 camera.getChildren().addAll(shotEnemies);
                 camera.getChildren().addAll(enemies);  
                 enemies.forEach(e -> {e.update(); e.showBar(camera);});
-                delEnemies.forEach(e -> destroyEnemy((Enemy)e));
-                delEnemies.clear();
                 
                 //projectiles                                
                 projs.forEach(p -> {
@@ -282,31 +284,17 @@ public class Main extends Application {
                 
                 for(int i = 0; i < collectedYellow.size(); i++){
                     BonusIndicator yellow = collectedYellow.get(i);
-                    if (yellow.decTime()){
-                        switch((YellowBonus)yellow.getType()){
-                            case Rotation:
-                                player.setRotate(false);                                                              
-                                RotateTransition rt = new RotateTransition(Duration.seconds(1.5), player);
-                                rt.setToAngle(0);
-                                rt.play();
-                                break; 
-                            case Shield:
-                                player.setShield(false);
-                                break;
-                            case Speed:
-                                player.setSpeed(false);
-                                break;
-                        }
-                        collectedYellow.remove(yellow);
-                        for(int j = i; j < collectedYellow.size(); j++)
-                            collectedYellow.get(j).setTranslateX(
-                                    collectedYellow.get(j).getTranslateX() - BonusIndicator.getWidth());
-                    }else{
+                    if (yellow.decTime())
+                        removeYellowBonus(yellow);
+                    else
                         if (!camera.getChildren().contains(yellow))
                             camera.getChildren().add(yellow);
-                    }
-                
+                                    
                 }
+                collectedYellow.forEach(y -> {
+                    y.setTranslateX(BonusIndicator.getWidth()/2 + 
+                        collectedYellow.indexOf(y)*BonusIndicator.getWidth());
+                });
                 
                 if (collectedRed != null && !camera.getChildren().contains(collectedRed))
                     camera.getChildren().add(collectedRed);
@@ -319,6 +307,30 @@ public class Main extends Application {
             }   
 
         }
+    }
+    
+    public void removeYellowBonus(BonusIndicator yellow){
+        switch((YellowBonus)yellow.getType()){
+            case KnockOut:
+                Enemy.setUpdate(true);
+                break;
+            case Rotation:
+                player.setRotate(false);                                                              
+                RotateTransition rt = new RotateTransition(Duration.seconds(1.5), player);
+                rt.setToAngle(0);
+                rt.play();
+                break; 
+            case ShotGrowth:
+                Shot.setEnlarge(false);
+                break;
+            case Shield:
+                player.setShield(false);
+                break;
+            case Speed:
+                player.setSpeed(false);
+                break;
+        }
+        collectedYellow.remove(yellow);
     }
     
     public static void removeSprite(Sprite sprite){
@@ -351,12 +363,12 @@ public class Main extends Application {
                                     //bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
                                     Bonus bonus;
                                     if (choose == 0)
-                                        bonus = new Bonus(Bonus.YellowBonus.Speed, x, y);
+                                        bonus = new Bonus(Bonus.GreenBonus.Life, x, y);
                                     else
                                         if (choose == 1)
                                             bonus = new Bonus(Bonus.YellowBonus.Shield, x, y);
                                         else
-                                            bonus = new Bonus(Bonus.YellowBonus.Rotation, x, y);
+                                            bonus = new Bonus(Bonus.YellowBonus.KnockOut, x, y);
                                     bonuses.add(bonus);
                                     choose = (choose + 1) %3;
 //                                }else
@@ -420,15 +432,27 @@ public class Main extends Application {
             case Shield:
                 player.setShield(true);
                 break;
-            case ProjectileGrowth:
+            case ShotGrowth:
+                Shot.setEnlarge(true);
                 break;
             case KnockOut:
+                Enemy.setUpdate(false);
                 break;
         }
     }
     
     public void actionGreenBonus(Bonus.GreenBonus bonus){
-        
+        switch(bonus){
+            case Life:
+                background.collectLife();
+                break;
+            case PointS:
+                break;
+            case PointM:
+                break;
+            case PointL:
+                break;       
+        }
     }
     
     public void actionBlackBonus(Bonus.BlackBonus bonus){
