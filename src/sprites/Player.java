@@ -47,9 +47,11 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private Group leftTubeGroup;
     private Group rightTubeGroup;  
     private Circle shield;
+    private Timeline playerProtection;
 
     private RedBonus redBonus; 
     private boolean rotate = false;
+    private boolean speed = false;
     
     public Player() { 
         Stop [] stops = {
@@ -59,6 +61,14 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         RadialGradient rg = new RadialGradient(0, 0, 0, 0, SHIELD_R, false, CycleMethod.NO_CYCLE, stops);        
         shield = new Circle(SHIELD_R);
         shield.setFill(rg);
+        
+        playerProtection = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(shield.opacityProperty(), 1, Interpolator.DISCRETE)),
+                new KeyFrame(Duration.seconds(0.75), new KeyValue(shield.opacityProperty(), 0, Interpolator.DISCRETE)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(shield.opacityProperty(), 0))
+        );
+        playerProtection.setCycleCount(5);
+        playerProtection.setOnFinished(t -> {getChildren().remove(shield);});
 
         Ellipse e1 = new Ellipse(0, BODY_OUT_RY, BODY_OUT_RX, BODY_OUT_RY);
         Ellipse e2 = new Ellipse(0, BODY_OUT_RY*7/4, BODY_OUT_RX, BODY_OUT_RY);
@@ -82,7 +92,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         getChildren().addAll(gun, leftTubeGroup, rightTubeGroup, body);
     }
     
-    public Group makeTube(String type){
+    public static Group makeTube(String type){
          Path tube = new Path(
                 new MoveTo(-TUBE_WIDTH/2, 0),
                 new QuadCurveTo(-TUBE_WIDTH*4/3, TUBE_HEIGHT/2, -TUBE_WIDTH/2, TUBE_HEIGHT),
@@ -124,14 +134,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     public void reset(){
         getChildren().clear();
-        getChildren().addAll(shield, gun, leftTubeGroup, rightTubeGroup, body);
-        Timeline playerProtection = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(shield.opacityProperty(), 1, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.seconds(0.75), new KeyValue(shield.opacityProperty(), 0, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.seconds(1), new KeyValue(shield.opacityProperty(), 0))
-        );
-        playerProtection.setCycleCount(5);
-        playerProtection.setOnFinished(t -> {getChildren().remove(shield);});
+        getChildren().addAll(shield, gun, leftTubeGroup, rightTubeGroup, body);        
         playerProtection.play();
     }
     
@@ -142,22 +145,25 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     }
         
     private void setVelocity() {
+        double velocity = PLAYER_VELOCITY;
+        if (speed)
+            velocity = 2*PLAYER_VELOCITY;
         switch (state) {
             case STALL:
                 velocityX = 0;
                 velocityY = 0;
                 break;
             case RIGHT:
-                velocityX = PLAYER_VELOCITY;
+                velocityX = velocity;
                 break;
             case LEFT:
-                velocityX = - PLAYER_VELOCITY;
+                velocityX = - velocity;
                 break;
             case UP:
-                velocityY = - PLAYER_VELOCITY;
+                velocityY = - velocity;
                 break;
             case DOWN:
-                velocityY = PLAYER_VELOCITY;
+                velocityY = velocity;
                 break;
             default:
                 break;
@@ -201,8 +207,25 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         redBonus = type;
     }
     
-    public void setRotate(boolean rotation){
-        rotate = rotation;
+    public void setRotate(boolean rotate){
+        this.rotate = rotate;
+    }
+    
+    public void setSpeed(boolean speed){
+        this.speed = speed;
+    }
+    
+    public void setShield(boolean status){
+        if (status){
+            shield.setOpacity(1);
+            if (playerProtection.getStatus() == Animation.Status.RUNNING)
+                playerProtection.stop();           
+            else{
+                getChildren().clear();
+                getChildren().addAll(shield, gun, leftTubeGroup, rightTubeGroup, body);
+            }
+        }else
+            getChildren().remove(shield);        
     }
     
     @Override

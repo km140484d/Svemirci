@@ -9,8 +9,9 @@ import sprites.awards.Bonus.*;
 
 public class BonusIndicator extends Sprite{
     
-    private static int BONUS_TIME = 2*60;
-    public static double RADIUS = 20;
+    private static int BONUS_TIME = 5*60;
+    private static double RADIUS = 20;
+    private static double BAR_SPEED = 3*RADIUS/((BONUS_TIME*2));
     
     private BonusType type;
     private double time = BONUS_TIME;
@@ -28,23 +29,27 @@ public class BonusIndicator extends Sprite{
         getChildren().addAll(shape);
         
         if (type instanceof Bonus.YellowBonus){
-            System.out.println("ROTACIJA");
             bar_out = new Rectangle(RADIUS/3, RADIUS*3/2);
             bar_out.setFill(Color.BLACK);
             bar_in = new Rectangle(RADIUS/3, RADIUS*3/2);
-            bar_in.setFill(Color.CHARTREUSE);
-            Group bar = new Group(bar_out, bar_in);
-            bar.setTranslateX(-RADIUS*7/6 - 2);
-            bar.setTranslateY(-RADIUS);
+            bar_in.setFill(Color.YELLOW);
+            Group bar = new Group(bar_in);
+            bar.setTranslateX(-RADIUS*4/3 - 2);
+            bar.setTranslateY(-RADIUS*3/4);
             getChildren().add(bar);
         }
     }
 
     public boolean decTime(){
         time--;
-        bar_in.setHeight(bar_in.getHeight() - 3/2*RADIUS*(time/(BONUS_TIME)));
+        bar_in.setHeight(bar_in.getHeight() - BAR_SPEED);
         return time == 0;
     }    
+    
+    public void reset(){
+        bar_in.setHeight(RADIUS*3/2);
+        time = BONUS_TIME;
+    }
     
     public BonusType getType() {
         return type;
@@ -60,6 +65,10 @@ public class BonusIndicator extends Sprite{
 
     public void setTime(int time) {
         this.time = time;
+    }
+    
+    public static double getWidth(){
+        return RADIUS*3;
     }
 
     @Override

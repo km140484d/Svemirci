@@ -28,7 +28,7 @@ public class Main extends Application {
     
     private static final String GAME = "Svemirci";
     
-    private static final double RED_IND_HEIGHT = 110;
+    private static final double RED_IND_HEIGHT = 115;
     private static final double YELLOW_IND_HEIGHT = 70;
 
     private Background background;
@@ -182,10 +182,8 @@ public class Main extends Application {
     }
     
     public void update() {
-        if (theEnd == false) {
-            
-            camera.getChildren().clear();  
-            
+        if (theEnd == false) {            
+            camera.getChildren().clear();             
             //enemy player update
             for(int i = 0; i < enemies.size(); i++){
                 Enemy enemy = enemies.get(i);
@@ -287,16 +285,22 @@ public class Main extends Application {
                     if (yellow.decTime()){
                         switch((YellowBonus)yellow.getType()){
                             case Rotation:
-                                player.setRotate(false);
-                                collectedYellow.remove(yellow);
-                                for(int j = i; j < collectedYellow.size(); j++)
-                                    collectedYellow.get(j).setTranslateX(
-                                            collectedYellow.get(j).getTranslateX() - 2*BonusIndicator.RADIUS);                                
+                                player.setRotate(false);                                                              
                                 RotateTransition rt = new RotateTransition(Duration.seconds(1.5), player);
                                 rt.setToAngle(0);
                                 rt.play();
-                                break;                       
+                                break; 
+                            case Shield:
+                                player.setShield(false);
+                                break;
+                            case Speed:
+                                player.setSpeed(false);
+                                break;
                         }
+                        collectedYellow.remove(yellow);
+                        for(int j = i; j < collectedYellow.size(); j++)
+                            collectedYellow.get(j).setTranslateX(
+                                    collectedYellow.get(j).getTranslateX() - BonusIndicator.getWidth());
                     }else{
                         if (!camera.getChildren().contains(yellow))
                             camera.getChildren().add(yellow);
@@ -347,10 +351,10 @@ public class Main extends Application {
                                     //bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
                                     Bonus bonus;
                                     if (choose == 0)
-                                        bonus = new Bonus(Bonus.RedBonus.Boomerang, x, y);
+                                        bonus = new Bonus(Bonus.YellowBonus.Speed, x, y);
                                     else
                                         if (choose == 1)
-                                            bonus = new Bonus(Bonus.RedBonus.Stream, x, y);
+                                            bonus = new Bonus(Bonus.YellowBonus.Shield, x, y);
                                         else
                                             bonus = new Bonus(Bonus.YellowBonus.Rotation, x, y);
                                     bonuses.add(bonus);
@@ -369,15 +373,21 @@ public class Main extends Application {
         BonusType type = bonus.getBonusType();
         if (type instanceof Bonus.RedBonus){
             collectedRed = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
-            collectedRed.setTranslateX(BonusIndicator.RADIUS + 5);
+            collectedRed.setTranslateX(BonusIndicator.getWidth()/2);
             collectedRed.setTranslateY(Main.RED_IND_HEIGHT);
-//            camera.getChildren().add(collectedRed);
             actionRedBonus((Bonus.RedBonus)type);             
         }else
             if (type instanceof Bonus.YellowBonus){
+                for(int i=0; i<collectedYellow.size(); i++){
+                    if (collectedYellow.get(i).getType().equals(type)){
+                        collectedYellow.get(i).reset();
+                        return;
+                    }
+                }                
                 BonusIndicator yellow = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
                 collectedYellow.add(yellow);
-                yellow.setTranslateX(5 + (collectedYellow.indexOf(yellow) + 1)*BonusIndicator.RADIUS);
+                yellow.setTranslateX(BonusIndicator.getWidth()/2 + 
+                        collectedYellow.indexOf(yellow)*BonusIndicator.getWidth());
                 yellow.setTranslateY(Main.YELLOW_IND_HEIGHT);
                 actionYellowBonus((Bonus.YellowBonus)type);
             }else
@@ -402,11 +412,13 @@ public class Main extends Application {
     public void actionYellowBonus(Bonus.YellowBonus bonus){
         switch(bonus){
             case Speed:
+                player.setSpeed(true);
                 break;
             case Rotation:
                 player.setRotate(true);
                 break;
             case Shield:
+                player.setShield(true);
                 break;
             case ProjectileGrowth:
                 break;
