@@ -64,7 +64,6 @@ public class Main extends Application {
     private static Text points_text;
     
     private static List<Sprite> delObjects = new ArrayList<>();
-    private static List<Enemy> delEnemies = new ArrayList<>();
     
     int choose = 0;
     
@@ -154,15 +153,16 @@ public class Main extends Application {
         for(int i=0; i < yellow; i++)
             removeYellowBonus(collectedYellow.get(0));
         player.setRedBonusType(null);
+        player.setShotType(null, true);
         //reset player
         player.reset();
         player.setTranslateX(WINDOW_WIDTH / 2);
         player.setTranslateY(WINDOW_HEIGHT * 0.95);
-        Timeline playerAnotherShot = new Timeline(
+        Timeline playerAnotherTry = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(player.opacityProperty(), 0, Interpolator.DISCRETE)),
                 new KeyFrame(Duration.seconds(1), new KeyValue(player.opacityProperty(), 1, Interpolator.DISCRETE))
         );
-        playerAnotherShot.play();
+        playerAnotherTry.play();
         
     }
     
@@ -222,25 +222,27 @@ public class Main extends Application {
                 
                 //enemy and shots update
                 shots = player.getShots(); 
-                shots.forEach(s -> {              
+                for(int i=0; i < shots.size(); i++){
+                    Shot shot = shots.get(i);                
                     for (int j = 0; j < enemies.size(); j++) {
                         Enemy currentEnemy = enemies.get(j);
-                        if (s.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
-                            if (s instanceof Stream || s instanceof Boomerang){
+                        if (shot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
+                            if (shot instanceof Stream || shot instanceof Boomerang){
                                 if (currentEnemy.isRedMark()){
-                                    currentEnemy.enemyShot();
-                                    currentEnemy.setRedMark(false);
+                                    if (currentEnemy.enemyShot())
+                                        destroyEnemy(currentEnemy);
+                                    else
+                                        currentEnemy.setRedMark(false);
                                 }
                             }else{
-                                Main.removeSprite(s);
-                                currentEnemy.enemyShot();
+                                Main.removeSprite(shot);
+                                if (currentEnemy.enemyShot())
+                                    destroyEnemy(currentEnemy);
                             }                                
                             break;
                         }
                     }
-                });
-                delEnemies.forEach(e -> destroyEnemy((Enemy)e));
-                delEnemies.clear();
+                }
                 shots.removeAll(delObjects);
                 shots.forEach(e -> e.update());
                 camera.getChildren().addAll(shots); 
@@ -338,7 +340,7 @@ public class Main extends Application {
     }
     
     public static void removeEnemy(Enemy enemy){
-        delEnemies.add(enemy);
+        enemies.remove(enemy);
     }
     
     public void destroyEnemy(Enemy enemy){
@@ -358,22 +360,12 @@ public class Main extends Application {
                             double rand = Math.random();
                             points += enemy.enemyStrength()/HARD;// points won from kill shot
                             points_text.setText(points_msg + points);
-//                            if (rand < 0.6){
-//                                if (rand < 0.1){
-                                    //bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
-                                    Bonus bonus;
-                                    if (choose == 0)
-                                        bonus = new Bonus(Bonus.GreenBonus.Life, x, y);
-                                    else
-                                        if (choose == 1)
-                                            bonus = new Bonus(Bonus.YellowBonus.Shield, x, y);
-                                        else
-                                            bonus = new Bonus(Bonus.YellowBonus.KnockOut, x, y);
-                                    bonuses.add(bonus);
-                                    choose = (choose + 1) %3;
-//                                }else
-//                                    coins.add(new Coin(x, y));                                          
-//                            }
+                            if (rand < 0.6){
+                                if (rand < 0.1)
+                                    bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
+                                else
+                                    coins.add(new Coin(x, y));                                          
+                            }
                         },
                         new KeyValue(rot.angleProperty(), 360))
         );
@@ -445,18 +437,39 @@ public class Main extends Application {
         switch(bonus){
             case Life:
                 background.collectLife();
+                points += Life.POINTS;
                 break;
             case PointS:
+                points += Bonus.POINT_S;
                 break;
             case PointM:
+                points += Bonus.POINT_M; 
                 break;
             case PointL:
+                points += Bonus.POINT_L;                 
                 break;       
         }
+        points_text.setText(points_msg + points);
     }
     
     public void actionBlackBonus(Bonus.BlackBonus bonus){
-        
+        switch(bonus){
+            case Munition:
+                player.setShotType(player.getShotType(), false);
+                break;
+            case Triangle:
+                player.setShotType(Shot.BasicShotType.Tri, false);
+                break;
+            case Rhombus:
+                player.setShotType(Shot.BasicShotType.Rho, false);
+                break;
+            case Pentagon:
+                player.setShotType(Shot.BasicShotType.Pen, false);
+                break;
+            case Hexagon:
+                player.setShotType(Shot.BasicShotType.Hex, false);
+                break;
+        }
     }
     
     public static void setEnemyRedMark(boolean mark){

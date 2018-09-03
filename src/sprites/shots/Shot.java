@@ -18,10 +18,28 @@ public class Shot extends Sprite {
     
     protected static final double FACTOR = 2;
     
-    protected static double size = SIDE;
+    protected static double size = SIDE;    
     
-    public Shot(double playerAngle) {
-        velocityX = SHOT_VELOCITY*Math.tan(Math.toRadians(-playerAngle));
+    public interface ShotAngle{ double getAngle(); }    
+    public static enum BasicShotType implements ShotAngle{
+        Tri{
+            @Override
+            public double getAngle(){ return Triangle.ANGLE;} 
+        }, Rho{
+            @Override
+            public double getAngle(){ return Rhombus.ANGLE;}            
+        }, Pen{
+            @Override
+            public double getAngle(){ return Pentagon.ANGLE;}
+        }, Hex{
+            @Override
+            public double getAngle(){ return Hexagon.ANGLE; }
+        }
+    };
+
+    public Shot(double playerAngle, double angle) {
+        velocityX = -SHOT_VELOCITY*Math.cos(Math.toRadians(-playerAngle + 90 - angle));
+        velocityY = SHOT_VELOCITY*Math.sin(Math.toRadians(-playerAngle + 90 - angle));
         setRotate(playerAngle);
     }
     

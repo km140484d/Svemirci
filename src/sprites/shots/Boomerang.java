@@ -16,7 +16,7 @@ public class Boomerang extends Shot{
     private static final double RADIUS = BOOM*5/4;
  
     public Boomerang(double playerAngle){
-        super(playerAngle);
+        super(playerAngle, 0);
         
         base = new Path(
                 new MoveTo(INNER_R, 0),

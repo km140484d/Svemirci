@@ -7,7 +7,7 @@ import javafx.scene.shape.*;
 public class Stream extends Shot{
 
     public Stream(double playerAngle){
-        super(playerAngle);
+        super(playerAngle, 0);
         base = new Circle(size*2);
         base.setFill(new ImagePattern(new Image("/resources/shots/bowling.png")));
         getChildren().addAll(base);

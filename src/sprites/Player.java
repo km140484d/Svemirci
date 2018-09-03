@@ -13,6 +13,8 @@ import javafx.util.*;
 import main.Main;
 import sprites.awards.Bonus.*;
 import sprites.shots.*;
+import sprites.shots.Shot.*;
+import static sprites.shots.Shot.BasicShotType.*;
 
 public class Player extends Sprite implements EventHandler<KeyEvent> {
     
@@ -41,6 +43,8 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static final double SHIELD_R = WIDTH*3/4;
     
     private static final double ROTATE_ANGLE = 3;
+    
+    private static final int MAX_SHOTS = 5;
 
     private Shape body;
     private Group gun;    
@@ -52,6 +56,9 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private RedBonus redBonus; 
     private boolean rotate = false;
     private boolean speed = false;
+    
+    private BasicShotType shotType = BasicShotType.Tri;
+    private int shotCnt = 1;
     
     public Player() { 
         Stop [] stops = {
@@ -137,13 +144,115 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         getChildren().addAll(shield, gun, leftTubeGroup, rightTubeGroup, body);        
         playerProtection.play();
     }
+   
+    private void makeShot() {
+        Shot shot = null;
+        if (redBonus != null){            
+            switch(redBonus){
+                case Stream:
+                    shot = new Stream(getRotate());
+                    break;
+                case Boomerang:
+                    shot = new Boomerang(getRotate());
+                    break;
+            } 
+            redBonus = null;
+            Main.setCollectedRed(null);
+            shot.setTranslateX(getTranslateX() + GUN_OUT_RY*Math.tan(Math.toRadians(getRotate())));
+            shot.setTranslateY(getTranslateY() - GUN_OUT_RY);
+            shots.add(shot);
+        }else{
+            int half = shotCnt/2;
+            double delta = shotType.getAngle()/(2*half);
+            double angle = delta;
+            for(int i=0; i<shotCnt/2 + shotCnt%2; i++){
+                if (half == 0)
+                    shoot(0, 90 - getRotate());
+                else{
+                    shoot(angle, -getRotate() + 90 - angle);
+                    shoot(-angle, -getRotate() + 90 + angle);
+                    angle += delta;
+                    half--;
+                }             
+            }                      
+        }
+    }
     
+    public void shoot(double angle, double trans){
+        Shot shot = null;
+        switch(shotType){
+            case Tri:
+                shot = new Triangle(getRotate(), angle);
+                break;
+            case Rho:
+                shot = new Rhombus(getRotate(), angle);
+                break;
+            case Pen:
+                shot = new Pentagon(getRotate(), angle);
+                break;
+            case Hex:
+                shot = new Hexagon(getRotate(), angle);
+        }
+        shot.setTranslateX(getTranslateX() + GUN_OUT_RY*Math.cos(Math.toRadians(trans)));
+        shot.setTranslateY(getTranslateY() - GUN_OUT_RY*Math.sin(Math.toRadians(trans)));
+        shot.setRotate(shot.getRotate() + angle);
+        shots.add(shot);
+    }
+    
+    public void setRedBonusType(RedBonus type){
+        redBonus = type;
+    }
+    
+    public void setRotate(boolean rotate){
+        this.rotate = rotate;
+    }
+    
+    public void setSpeed(boolean speed){
+        this.speed = speed;
+    }
+ 
     public boolean invincible(){
         if (getChildren().contains(shield))
             return true;
         return false;
     }
-        
+    
+    public void setShield(boolean status){
+        if (status){
+            shield.setOpacity(1);
+            if (playerProtection.getStatus() == Animation.Status.RUNNING)
+                playerProtection.stop();           
+            else{
+                getChildren().clear();
+                getChildren().addAll(shield, gun, leftTubeGroup, rightTubeGroup, body);
+            }
+        }else
+            getChildren().remove(shield);        
+    }
+    
+    public void setShotType(BasicShotType type, boolean reset){
+        if (reset)
+            shotCnt = 1;
+        else{
+            if (shotType.equals(type) && shotCnt < MAX_SHOTS)
+                shotCnt++;
+            else
+                shotType = type;
+        }
+    }
+    
+    public BasicShotType getShotType(){
+        return shotType;
+    }
+
+    public List<Shot> getShots() {
+        return shots;
+    }
+    
+    public void setShots(List<Shot> s) {
+        shots = s;
+    }
+    
     private void setVelocity() {
         double velocity = PLAYER_VELOCITY;
         if (speed)
@@ -170,64 +279,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         }
     }
     
-    public void loseGame(){
-        
-    }
-    
-    public List<Shot> getShots() {
-        return shots;
-    }
-    
-    public void setShots(List<Shot> s) {
-        shots = s;
-    }
-    
-    private void makeShot() {
-        Shot shot = null;
-        if (redBonus != null){            
-            switch(redBonus){
-                case Stream:
-                    shot = new Stream(getRotate());
-                    break;
-                case Boomerang:
-                    shot = new Boomerang(getRotate());
-                    break;
-            } 
-            redBonus = null;
-            Main.setCollectedRed(null);
-        }else{
-            shot = new Triangle(getRotate());
-        }
-        shot.setTranslateX(getTranslateX() + GUN_OUT_RY*Math.tan(Math.toRadians(getRotate())));
-        shot.setTranslateY(getTranslateY() - GUN_OUT_RY);
-        shots.add(shot);
-    }
-    
-    public void setRedBonusType(RedBonus type){
-        redBonus = type;
-    }
-    
-    public void setRotate(boolean rotate){
-        this.rotate = rotate;
-    }
-    
-    public void setSpeed(boolean speed){
-        this.speed = speed;
-    }
-    
-    public void setShield(boolean status){
-        if (status){
-            shield.setOpacity(1);
-            if (playerProtection.getStatus() == Animation.Status.RUNNING)
-                playerProtection.stop();           
-            else{
-                getChildren().clear();
-                getChildren().addAll(shield, gun, leftTubeGroup, rightTubeGroup, body);
-            }
-        }else
-            getChildren().remove(shield);        
-    }
-    
     @Override
     public void update() {
         if (getTranslateX() + velocityX < WIDTH / 2 + 5) {
@@ -252,27 +303,27 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         if (event.getEventType() == KeyEvent.KEY_PRESSED){
             KeyCode code = event.getCode();
             switch (code) {                    
-                    case W:
+                    case UP:
                         state = States.UP;
                         setVelocity();
                         break;
-                    case S:
+                    case DOWN:
                         state = States.DOWN;
                         setVelocity();
                         break;
-                    case D:
+                    case RIGHT:
                         state = States.RIGHT;
                         setVelocity();
                         break;
-                    case A:
+                    case LEFT:
                         state = States.LEFT;
                         setVelocity();
                         break;
-                    case E:
+                    case A:
                         if (rotate)
                             setRotate(getRotate() - ROTATE_ANGLE);                            
                         break;
-                    case R:
+                    case S:
                         if (rotate)
                             setRotate(getRotate() + ROTATE_ANGLE);
                         break;
@@ -287,7 +338,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
             if (event.getEventType() == KeyEvent.KEY_RELEASED){
                 KeyCode code = event.getCode();
                 switch (code) {
-                    case W: case S: case D: case A:
+                    case UP: case DOWN: case LEFT: case RIGHT:
                         state = States.STALL;
                         setVelocity();
                         break;

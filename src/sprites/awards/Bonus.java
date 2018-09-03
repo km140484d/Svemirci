@@ -16,6 +16,10 @@ public class Bonus extends Sprite{
     private static final double GREEN_FREQ = 0.1;
     private double velocityY = 2;
     
+    public static final double POINT_S = 50;
+    public static final double POINT_M = 100;
+    public static final double POINT_L = 150;
+    
     public interface BonusType{} 
     /*3 - 0.2*/ public static enum RedBonus implements BonusType{Stream /*S*/, Boomerang /*B*/};
     /*2 - 0.3*/ public static enum YellowBonus implements BonusType{Speed /*V*/, Rotation /*R*/, Shield /*S*/, ShotGrowth /*G*/, KnockOut /*K*/};

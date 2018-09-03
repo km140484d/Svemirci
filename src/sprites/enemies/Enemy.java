@@ -141,10 +141,10 @@ public abstract class Enemy extends Sprite {
         update = state;
     }
     
-    public void enemyShot(){
+    public boolean enemyShot(){
         strength--;
         if (strength <= 0)
-            Main.removeEnemy(this);
+            return true;
         else{
             ScaleTransition hit = new ScaleTransition(Duration.seconds(0.1), this);
             hit.setFromX(1); hit.setByX(0.1);
@@ -153,6 +153,7 @@ public abstract class Enemy extends Sprite {
             hit.setCycleCount(2);
             hit.play();
             bars[1].setWidth(bars[1].getWidth() - EN_WIDTH/(2*enemyStrength()));
+            return false;
         }
     }
     

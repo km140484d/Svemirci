@@ -7,9 +7,10 @@ import javafx.scene.shape.*;
 public class Triangle extends Shot{
     
     private static final double INNER = SIDE*RATIO;
+    public static final double ANGLE = 120;//60*2
     
-    public Triangle(double playerAngle){
-        super(playerAngle);
+    public Triangle(double playerAngle, double angle){
+        super(playerAngle, angle);
         base = new Polygon(0, -size*3/4,
                 size*3/4, size*3/4,
                 -size*3/4, size*3/4

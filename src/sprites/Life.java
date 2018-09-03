@@ -7,6 +7,7 @@ public class Life extends Sprite{
     
     private static final double SIZE = 6;
     private static final double CHEEK_WIDTH = 2;
+    public static final double POINTS = 100;
     
     private Path core;
     private Arc leftCheek;

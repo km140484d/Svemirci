@@ -9,9 +9,10 @@ public class Hexagon extends Shot{
     private static final double ROOT = size / Math.sqrt(2);
     private static final double INNER = RATIO*size;
     private static final double INNER_ROOT = INNER / Math.sqrt(2);
+    public static final double ANGLE = 30; //2*15
     
-    public Hexagon(double playerAngle){
-        super(playerAngle);
+    public Hexagon(double playerAngle, double angle){
+        super(playerAngle, angle);
         base = new Polygon(0, -(size/2 + ROOT), 
                 ROOT, -size/2, 
                 ROOT, size/2,
