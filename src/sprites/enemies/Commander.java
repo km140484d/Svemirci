@@ -13,7 +13,8 @@ public class Commander extends Enemy{
     private Path holder;
     private Path crown;
     
-    public Commander(){
+    public Commander(double fromX, double fromY, double toX, double toY){
+        super(fromX, fromY, toX, toY);
         helmet = new Path(
             new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
             new LineTo(-HELMET_LINE*3/2, EN_HEIGHT),

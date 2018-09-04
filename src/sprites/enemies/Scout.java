@@ -3,7 +3,8 @@ package sprites.enemies;
 
 public class Scout extends Enemy{
     
-    public Scout(){        
+    public Scout(double fromX, double fromY, double toX, double toY){
+        super(fromX, fromY, toX, toY);
         strength = SCOUT;
     }
 

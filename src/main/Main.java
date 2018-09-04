@@ -15,57 +15,47 @@ import javafx.scene.transform.*;
 import javafx.stage.*;
 import javafx.util.Duration;
 import sprites.awards.*;
-import sprites.awards.Bonus.*;
 
-public class Main extends Application {    
-    public static final int WINDOW_WIDTH = 1200;
-    public static final int WINDOW_HEIGHT = 700;
-    
-    public static final int ENEMIES_IN_A_ROW = 8;
-    public static final int ENEMIES_IN_A_COLUMN = 4;
-    
+public class Main extends Application {  
+    private static final String GAME = "Svemirci";
+    public static final double WINDOW_WIDTH = 1200;//1200
+    public static final double WINDOW_HEIGHT = 700;//700
+    public static final double MIN_WINDOW_WIDTH = 1000;
+    public static final double MIN_WINDOW_HEIGHT = 600;
     private static final int HARD = 5;
     
-    private static final String GAME = "Svemirci";
+    private static final int ENEMIES_IN_A_ROW = 8;
+    private static final int ENEMIES_IN_A_COLUMN = 4;
     
-    private static final double RED_IND_HEIGHT = 115;
-    private static final double YELLOW_IND_HEIGHT = 70;
-
-    private Background background;
+    private static final int TIME_WORTH = 1;    
+    
+    //Nodes on scene -----------------------------
+    private Group root;
+    public static Camera camera;
+    private static Background background;
     private static Player player;
+    private List<Shot> shots;
     private static List<Enemy> enemies;
     private static List<Enemy> shotEnemies = new ArrayList<>();
-    private List<Shot> shots;
+    private static List<Projectile> projs = new ArrayList<>();
+    private static List<Coin> coins = new ArrayList<>();
     
-    public static Camera camera;
-    
-    private Group root;
-    private double time = 0;
+    private static List<Sprite> delObjects = new ArrayList<>();
+
     private boolean theEnd = false;
-    
+    private double time = 0;    
     private int time_passed = 0;
     private String time_msg = "Time: ";
     private Text time_text;
-    
-    private static int points = 0;
+
     private String end_msg = " POINTS WON";
     private String life_msg = "LIFE LOST, %d REMAIN";
     private Text end_text;    
-    private static List<Coin> coins = new ArrayList<>();
-    
-    private static List<Bonus> bonuses = new ArrayList<>();
-    private static BonusIndicator collectedRed = null;
-    private static List<BonusIndicator> collectedYellow = new ArrayList<>();
-        
+  
     private boolean rst = false; //random shoot time
-    private static List<Projectile> projs = new ArrayList<>();
     
-    private static String points_msg = " Points: ";
-    private static Text points_text;
-    
-    private static List<Sprite> delObjects = new ArrayList<>();
-    
-    int choose = 0;
+    public static double width = WINDOW_WIDTH;
+    public static double height = WINDOW_HEIGHT;
     
     @Override
     public void start(Stage primaryStage) {
@@ -73,37 +63,33 @@ public class Main extends Application {
         root = new Group();
         camera = new Camera();
         
-        background = new Background(WINDOW_WIDTH, WINDOW_HEIGHT);
+        background = new Background(width, height);
         root.getChildren().add(background);
         
-        displayTime();        
-        displayPoints();
-        
         player = new Player();
-        player.setTranslateX(WINDOW_WIDTH / 2);
-        player.setTranslateY(WINDOW_HEIGHT * 0.95);
+        player.setTranslateX(width / 2);
+        player.setTranslateY(height * 0.95);
         camera.getChildren().add(player);
+ 
+        displayPoints();
+        displayTime(); 
         
         for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
             for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
                 Enemy enemy;
                 if (i + j % 3 == 1)
-                    enemy = new Warrior();
+                    enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
+                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);
                 else
                     if (i + j % 3 == 2)
-                        enemy = new Commander();
+                        enemy = new Commander((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
+                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);
                     else
-                        enemy = new Scout();
-                enemy.setTranslateX((j+1) * WINDOW_WIDTH / (ENEMIES_IN_A_ROW + 1));
-                Timeline arrival = new Timeline(
-                        new KeyFrame(Duration.ZERO, 
-                                new KeyValue(enemy.translateYProperty(), -((ENEMIES_IN_A_ROW - i-1)*100), Interpolator.EASE_OUT)), //ENEMIES_SPACE = 100
-                        new KeyFrame(Duration.seconds(4), 
-                                new KeyValue(enemy.translateYProperty(), (i+1) * 100, Interpolator.EASE_BOTH))//ENEMIES_SPACE = 100
-                );                
+                        enemy = new Scout((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
+                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);                
                 if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
-                    arrival.setOnFinished(e -> Enemy.setUpdate(true));
-                arrival.play();
+                    enemy.markLast();
+                enemy.arriveOnScene();
                 enemy.showBar(camera);
                 camera.getChildren().add(enemy);
                 
@@ -123,13 +109,25 @@ public class Main extends Application {
             }
         
         root.getChildren().add(camera);
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Scene scene = new Scene(root, width, height);
         scene.setOnKeyPressed(player);
         scene.setOnKeyReleased(player);
-        
+        scene.widthProperty().addListener(w -> {
+            resizeWindow(scene.getWidth()/width, scene.getHeight()/height); 
+            width = scene.getWidth();
+            height = scene.getHeight();}
+        );
+        scene.heightProperty().addListener(h -> {
+            resizeWindow(scene.getWidth()/width,scene.getHeight()/height); 
+            height = scene.getHeight();
+            width = scene.getWidth();}
+        );        
         primaryStage.setTitle(GAME);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
+        primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
+        primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
+        primaryStage.setFullScreen(false);
         primaryStage.show();
         
         new AnimationTimer() {
@@ -147,41 +145,27 @@ public class Main extends Application {
         }.start();
     }
     
-    public void resetPlayer(){
-        //reset bonuses, remove them
-        int yellow = collectedYellow.size();
-        for(int i=0; i < yellow; i++)
-            removeYellowBonus(collectedYellow.get(0));
-        player.setRedBonusType(null);
-        player.setShotType(null, true);
-        //reset player
-        player.reset();
-        player.setTranslateX(WINDOW_WIDTH / 2);
-        player.setTranslateY(WINDOW_HEIGHT * 0.95);
-        Timeline playerAnotherTry = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(player.opacityProperty(), 0, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.seconds(1), new KeyValue(player.opacityProperty(), 1, Interpolator.DISCRETE))
-        );
-        playerAnotherTry.play();
+    public void resizeWindow(double ratioWidth, double ratioHeight){
+        background.resizeWindow(ratioWidth, ratioHeight);
+        player.resizeWindow(ratioWidth, ratioHeight);
+        enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
+        projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
         
-    }
-    
-    public void updatePlayer(){
-        if (!player.invincible()){
-            if (!background.loseLife()){
-                end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, String.format(life_msg, background.getLifeNumber()));
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
-                FadeTransition ft = new FadeTransition(Duration.seconds(2), end_text);
-                ft.setFromValue(1);
-                ft.setToValue(0);
-                ft.play();
-                resetPlayer();
-            }
+        Scale scale = new Scale();
+        scale.setX(ratioWidth);
+        scale.setY(ratioHeight);
+        time_text.getTransforms().add(scale);
+        time_text.setTranslateX(time_text.getTranslateX()*ratioWidth);
+        time_text.setTranslateY(time_text.getTranslateY()*ratioHeight);
+        if (end_text != null){
+            end_text.getTransforms().add(scale);
+            end_text.setTranslateX(end_text.getTranslateX()*ratioWidth);
+            end_text.setTranslateY(end_text.getTranslateY()*ratioHeight);
         }
     }
-    
+        
     public void update() {
         if (theEnd == false) {            
             camera.getChildren().clear();             
@@ -192,19 +176,9 @@ public class Main extends Application {
                     updatePlayer();
                     break;
                 }
-            }          
-             
-            if (enemies.isEmpty() || (background.getLifeNumber() == 0)) {
-                theEnd = true;
-                camera.getChildren().clear();
-                camera.getChildren().addAll(shots);
-                camera.getChildren().addAll(enemies);
-                camera.getChildren().addAll(coins);
-                camera.getChildren().addAll(projs);
-                end_text = new Text(WINDOW_WIDTH/2 - 100, WINDOW_HEIGHT/2 - 30, points + end_msg);
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
+            }             
+            if (enemies.isEmpty() || (player.getLifeNumber() == 0)) {
+                theEnd = true;                
             }else {  
                 //random enemy shooting
                 if (rst){
@@ -216,7 +190,7 @@ public class Main extends Application {
                     rst = false;
                 }                  
                 
-                //display game objects
+                //display game objects ---------------------------------------
                 //player
                 camera.getChildren().add(player);
                 
@@ -251,7 +225,8 @@ public class Main extends Application {
                 coins.forEach(c -> {
                     c.update();
                     if (c.getBoundsInParent().intersects(player.getBoundsInParent())){
-                        points++; points_text.setText(points_msg + points); Main.removeSprite(c);
+                        player.addPoints(1);                         
+                        Main.removeSprite(c);
                     }                    
                 });
                 coins.removeAll(delObjects);
@@ -270,77 +245,43 @@ public class Main extends Application {
                 });
                 projs.removeAll(delObjects);
                 camera.getChildren().addAll(projs);
-                
-                //bonuses        
-                for(int i = 0; i < bonuses.size(); i++){
-                    Bonus bonus = bonuses.get(i);
-                    bonus.update();
-                    if (bonus.getBoundsInParent().intersects(player.getBoundsInParent())){
-                        consumed(bonus);
-                        bonuses.remove(bonus);
-                        break;
-                    }
-                }
-                bonuses.removeAll(delObjects);
-                camera.getChildren().addAll(bonuses);
-                
-                for(int i = 0; i < collectedYellow.size(); i++){
-                    BonusIndicator yellow = collectedYellow.get(i);
-                    if (yellow.decTime())
-                        removeYellowBonus(yellow);
-                    else
-                        if (!camera.getChildren().contains(yellow))
-                            camera.getChildren().add(yellow);
-                                    
-                }
-                collectedYellow.forEach(y -> {
-                    y.setTranslateX(BonusIndicator.getWidth()/2 + 
-                        collectedYellow.indexOf(y)*BonusIndicator.getWidth());
-                });
-                
-                if (collectedRed != null && !camera.getChildren().contains(collectedRed))
-                    camera.getChildren().add(collectedRed);
-                
+                                
                 camera.updateCamera(player);
                 player.setShots(shots);
                 player.update();
                 background.update();
                 time += 1.0 / 60;
-            }   
-
+            } 
         }
     }
     
-    public void removeYellowBonus(BonusIndicator yellow){
-        switch((YellowBonus)yellow.getType()){
-            case KnockOut:
-                Enemy.setUpdate(true);
-                break;
-            case Rotation:
-                player.setRotate(false);                                                              
-                RotateTransition rt = new RotateTransition(Duration.seconds(1.5), player);
-                rt.setToAngle(0);
-                rt.play();
-                break; 
-            case ShotGrowth:
-                Shot.setEnlarge(false);
-                break;
-            case Shield:
-                player.setShield(false);
-                break;
-            case Speed:
-                player.setSpeed(false);
-                break;
+    public void updatePlayer(){
+        if (!player.invincible()){
+            if (!player.loseLife()){
+                end_text = new Text(width/2 - 100, height/2 - 30, String.format(life_msg, player.getLifeNumber()));
+                end_text.setFill(Color.ORANGERED);
+                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+                root.getChildren().add(end_text);
+                FadeTransition ft = new FadeTransition(Duration.seconds(2), end_text);
+                ft.setFromValue(1);
+                ft.setToValue(0);
+                ft.play();
+                resetPlayer();
+            }
         }
-        collectedYellow.remove(yellow);
     }
     
-    public static void removeSprite(Sprite sprite){
-        delObjects.add(sprite);
-    }
-    
-    public static void removeEnemy(Enemy enemy){
-        enemies.remove(enemy);
+    public void resetPlayer(){
+        //reset player
+        player.reset();
+        player.setTranslateX(width / 2);
+        player.setTranslateY(height * 0.95);
+        Timeline playerAnotherTry = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(player.opacityProperty(), 0, Interpolator.DISCRETE)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(player.opacityProperty(), 1, Interpolator.DISCRETE))
+        );
+        playerAnotherTry.play();
+        
     }
     
     public void destroyEnemy(Enemy enemy){
@@ -358,130 +299,41 @@ public class Main extends Application {
                             shotEnemies.remove(enemy);
                             camera.getChildren().remove(enemy);
                             double rand = Math.random();
-                            points += enemy.enemyStrength()/HARD;// points won from kill shot
-                            points_text.setText(points_msg + points);
+                            player.addPoints(enemy.enemyStrength()/HARD);// points won from kill shot
                             if (rand < 0.6){
                                 if (rand < 0.1)
-                                    bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
+                                    player.addBonus(new Bonus(Bonus.pickBonus(), x, y));
                                 else
                                     coins.add(new Coin(x, y));                                          
+                            }
+                            if (enemies.isEmpty() && shotEnemies.isEmpty()){
+                                player.addPoints(-(int)time*TIME_WORTH);
+                                camera.getChildren().clear();
+                                camera.getChildren().addAll(shots);
+                                camera.getChildren().addAll(enemies);
+                                camera.getChildren().addAll(coins);
+                                camera.getChildren().addAll(projs);
+                                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);
+                                end_text.setFill(Color.ORANGERED);
+                                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+                                root.getChildren().add(end_text);
                             }
                         },
                         new KeyValue(rot.angleProperty(), 360))
         );
         tl.play();
     }
-    
-    //action
-    public void consumed(Bonus bonus){
-        BonusType type = bonus.getBonusType();
-        if (type instanceof Bonus.RedBonus){
-            collectedRed = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
-            collectedRed.setTranslateX(BonusIndicator.getWidth()/2);
-            collectedRed.setTranslateY(Main.RED_IND_HEIGHT);
-            actionRedBonus((Bonus.RedBonus)type);             
-        }else
-            if (type instanceof Bonus.YellowBonus){
-                for(int i=0; i<collectedYellow.size(); i++){
-                    if (collectedYellow.get(i).getType().equals(type)){
-                        collectedYellow.get(i).reset();
-                        return;
-                    }
-                }                
-                BonusIndicator yellow = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
-                collectedYellow.add(yellow);
-                yellow.setTranslateX(BonusIndicator.getWidth()/2 + 
-                        collectedYellow.indexOf(yellow)*BonusIndicator.getWidth());
-                yellow.setTranslateY(Main.YELLOW_IND_HEIGHT);
-                actionYellowBonus((Bonus.YellowBonus)type);
-            }else
-                if (type instanceof Bonus.GreenBonus)
-                    actionGreenBonus((Bonus.GreenBonus) type);
-                else
-                    actionBlackBonus((Bonus.BlackBonus)type);
+        
+    public static void removeSprite(Sprite sprite){
+        delObjects.add(sprite);
     }
-    
-    public void actionRedBonus(Bonus.RedBonus bonus){
-        setEnemyRedMark(true);
-        switch(bonus){
-            case Stream:
-                player.setRedBonusType(Bonus.RedBonus.Stream);
-                break;
-            default:
-                player.setRedBonusType(Bonus.RedBonus.Boomerang);
-                break;
-        }
-    }
-    
-    public void actionYellowBonus(Bonus.YellowBonus bonus){
-        switch(bonus){
-            case Speed:
-                player.setSpeed(true);
-                break;
-            case Rotation:
-                player.setRotate(true);
-                break;
-            case Shield:
-                player.setShield(true);
-                break;
-            case ShotGrowth:
-                Shot.setEnlarge(true);
-                break;
-            case KnockOut:
-                Enemy.setUpdate(false);
-                break;
-        }
-    }
-    
-    public void actionGreenBonus(Bonus.GreenBonus bonus){
-        switch(bonus){
-            case Life:
-                background.collectLife();
-                points += Life.POINTS;
-                break;
-            case PointS:
-                points += Bonus.POINT_S;
-                break;
-            case PointM:
-                points += Bonus.POINT_M; 
-                break;
-            case PointL:
-                points += Bonus.POINT_L;                 
-                break;       
-        }
-        points_text.setText(points_msg + points);
-    }
-    
-    public void actionBlackBonus(Bonus.BlackBonus bonus){
-        switch(bonus){
-            case Munition:
-                player.setShotType(player.getShotType(), false);
-                break;
-            case Triangle:
-                player.setShotType(Shot.BasicShotType.Tri, false);
-                break;
-            case Rhombus:
-                player.setShotType(Shot.BasicShotType.Rho, false);
-                break;
-            case Pentagon:
-                player.setShotType(Shot.BasicShotType.Pen, false);
-                break;
-            case Hexagon:
-                player.setShotType(Shot.BasicShotType.Hex, false);
-                break;
-        }
-    }
-    
+
     public static void setEnemyRedMark(boolean mark){
         enemies.forEach(e -> e.setRedMark(mark));
     }
-    
-    public static void setCollectedRed(Bonus bonus){
-        collectedRed = (bonus == null) ? null : new BonusIndicator(bonus.getBonusType(), bonus.getPath());
-    }
-    
+        
     private void displayTime() {
-        time_text = new Text(WINDOW_WIDTH/2 - 15, 20, time_msg + time_passed);
+        time_text = new Text(width/2 - 15, 20, time_msg + time_passed);
         time_text.setFill(Color.RED);
         time_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
         root.getChildren().add(time_text); 
@@ -489,15 +341,19 @@ public class Main extends Application {
     
     
     public void displayPoints(){
-        points_text = new Text(5, Life.getHeght()*2 + 20, points_msg + points);
-        points_text.setFill(Color.RED);
-        points_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
-        root.getChildren().add(points_text); 
+        background.getChildren().add(player.getPointsText());
+    }
+        
+    public static void displayLife(Life life){
+        background.getChildren().add(life);
+    }
+    
+    public static void removeLife(Life life){
+        background.getChildren().remove(life);
     }
     
     public static void main(String[] args) {
         launch(args);
     }
-
-    
+ 
 }

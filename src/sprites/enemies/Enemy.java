@@ -44,14 +44,18 @@ public abstract class Enemy extends Sprite {
     private static boolean update = false;
     
     private boolean redMark;
+    private double posX, posY;
+    private Timeline arrival;
     
-    public Enemy() {
+    public Enemy(double fromX, double fromY, double toX, double toY) {
+        this.posX = toX;
+        this.posY = toY;
         //ears
         for(int i = 0; i < ears.length; i++){
             ears[i] = new Path(
-                        new MoveTo(i==0 ? -EN_WIDTH/2+5 : EN_WIDTH/2-5, 0), 
-                        new LineTo(i==0 ? -EN_WIDTH*7/6+5 : EN_WIDTH*7/6-5, -EN_HEIGHT/2-5),
-                        new VLineTo(EN_HEIGHT/2+5),
+                        new MoveTo(i==0 ? -EN_WIDTH*3/8 : EN_WIDTH*3/8, 0), 
+                        new LineTo(i==0 ? -EN_WIDTH*25/24 : EN_WIDTH*25/24, -EN_HEIGHT*2/3),
+                        new VLineTo(EN_HEIGHT*2/3),
                         new ClosePath()
             );
             double angle = 15;
@@ -63,7 +67,7 @@ public abstract class Enemy extends Sprite {
             //flying animation
             Rotate fly_rot = new Rotate();
             fly_rot.setPivotY(0);
-            fly_rot.setPivotX(i==0 ? -EN_WIDTH/2+5 : EN_WIDTH/2-5);
+            fly_rot.setPivotX(i==0 ? -EN_WIDTH*3/8 : EN_WIDTH*3/8);
             ears[i].getTransforms().add(fly_rot);
             Timeline tl = new Timeline(
                     new KeyFrame( Duration.seconds(0),
@@ -115,6 +119,26 @@ public abstract class Enemy extends Sprite {
         stat.getChildren().addAll(bars);
         stat.setTranslateX(-EN_WIDTH/4);
         stat.setTranslateY(-EN_HEIGHT/4 - EN_HEIGHT*2/3);
+
+        arrival = new Timeline(
+                new KeyFrame(Duration.ZERO, 
+                        new KeyValue(translateYProperty(), fromY, Interpolator.EASE_OUT),
+                        new KeyValue(translateXProperty(), fromX, Interpolator.EASE_OUT)),
+                new KeyFrame(Duration.seconds(4),
+                        new KeyValue(translateYProperty(), toY, Interpolator.EASE_BOTH),
+                        new KeyValue(translateXProperty(), toX, Interpolator.EASE_BOTH)));
+        arrival.play();
+        
+        
+    }
+    
+    public void markLast(){
+        arrival.setOnFinished(e -> Enemy.setUpdate(true));
+//        Main.setResizable();
+    }
+    
+    public void arriveOnScene(){
+        arrival.play();
     }
     
     public void showBar(Group root){
@@ -165,32 +189,24 @@ public abstract class Enemy extends Sprite {
         redMark = value;
     }
     
+    public static double getWidth(){
+        return EN_WIDTH*7/3*Main.width/Main.WINDOW_WIDTH;
+    }
+    
+    public static double getHeight(){
+        return EN_HEIGHT*4/3*Main.height/Main.WINDOW_HEIGHT;
+    }
+    
     public abstract int enemyStrength();
     
     @Override
     public void update() {
         if (update){
-            if (first)
-                moves--;
-            else{
-                if (velocityX > 0)
-                    moves++;
-                else
-                    moves--;
+            if ((getTranslateX() - posX*Main.width/Main.WINDOW_WIDTH + getWidth()*3/4 <= 0) || 
+                    (getTranslateX() + Main.width - posX*Main.width/Main.WINDOW_WIDTH - getWidth()*3/4 >= Main.width)){
+                velocityX = -velocityX;
             }
-            if (first){
-                if (moves < -120){
-                    moves = 0;
-                    velocityX = - velocityX;
-                    first = false;
-                }
-            }else{
-                if ((moves < -180) || (moves > 180)){
-                    moves = 0;
-                    velocityX = - velocityX;
-                }
-            }
-            setTranslateX(getTranslateX() + velocityX); 
+            setTranslateX(getTranslateX() + velocityX);
             stat.setTranslateX(getTranslateX() - EN_WIDTH/4);
             stat.setTranslateY(getTranslateY() - EN_HEIGHT/4 - EN_HEIGHT*2/3);
         }

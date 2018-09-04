@@ -75,7 +75,7 @@ public class Bonus extends Sprite{
                         if (rand < YELLOW_FREQ*3) return YellowBonus.Rotation;
                         else
                             if (rand < YELLOW_FREQ*4) return YellowBonus.ShotGrowth;
-                            else return YellowBonus.ShotGrowth;
+                            else return YellowBonus.KnockOut;
             }else{
                 if (rand < 0.7 + BONUS_FREQ*2){
                     rand -= 0.7;
@@ -169,6 +169,10 @@ public class Bonus extends Sprite{
     public String getPath(){
         return path;
     }    
+    
+    public double getVelocityY(){
+        return velocityY;
+    }
 
     @Override
     public void update() {
