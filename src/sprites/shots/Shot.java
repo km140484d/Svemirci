@@ -55,8 +55,8 @@ public class Shot extends Sprite {
         double x = getTranslateX();
         double y = getTranslateY();
         
-        if ((x + velocityX < SIDE) || (x + velocityX > Main.WINDOW_WIDTH - SIDE) || 
-                (y + velocityY > Main.WINDOW_HEIGHT - SIDE) || (y + velocityY < SIDE)){
+        if ((x + velocityX < SIDE) || (x + velocityX > Main.width - SIDE) || 
+                (y + velocityY > Main.height - SIDE) || (y + velocityY < SIDE)){
             Main.removeSprite(this);
         }else{
             setTranslateX(x + velocityX);

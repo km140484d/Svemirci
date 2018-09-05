@@ -1,8 +1,11 @@
 package sprites.enemies;
 
+import java.util.*;
+import javafx.animation.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import javafx.util.Duration;
 import static sprites.enemies.Enemy.*;
 
 public class Commander extends Enemy{
@@ -12,6 +15,8 @@ public class Commander extends Enemy{
     private Path helmet;
     private Path holder;
     private Path crown;
+    
+    private List<Warrior> warriors = new ArrayList<>();
     
     public Commander(double fromX, double fromY, double toX, double toY){
         super(fromX, fromY, toX, toY);
@@ -55,6 +60,28 @@ public class Commander extends Enemy{
         getChildren().addAll(helmet, holder, crown);
         
         strength = COMMANDER;
+    }
+    
+    public void addWarrior(Warrior warrior){
+        warriors.add(warrior);
+    }
+    
+    public void removeWarrior(Warrior warrior){
+        warriors.remove(warrior);
+    }
+    
+    public void orderAttack(double playerX, double playerY){
+        FillTransition ft = new FillTransition(Duration.seconds(1.5), body);
+        ft.setFromValue(Color.YELLOW);
+        ft.setToValue(Color.CRIMSON);
+        ft.setAutoReverse(true);
+        ft.setCycleCount(2);
+        ft.play();
+        ft.setOnFinished(a -> warriors.forEach(w -> w.attack(playerX, playerY)));
+    }
+    
+    public List<Warrior> getWarriors(){
+        return warriors;
     }
     
     @Override

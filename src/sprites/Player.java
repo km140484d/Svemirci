@@ -524,16 +524,16 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     public void update() {
         if (getTranslateX() + velocityX < WIDTH / 2 + 5) {
             setTranslateX(WIDTH / 2 + 5);
-        } else if (getTranslateX() + velocityX > Main.WINDOW_WIDTH - WIDTH / 2 - 5) {
-            setTranslateX(Main.WINDOW_WIDTH - WIDTH / 2 - 5);
+        } else if (getTranslateX() + velocityX > Main.width - WIDTH / 2 - 5) {
+            setTranslateX(Main.width - WIDTH / 2 - 5);
         } else {
             setTranslateX(getTranslateX() + velocityX);
         }
         
         if (getTranslateY() + velocityY < HEIGHT / 2 + 5) {
             setTranslateY(HEIGHT / 2 + 5);
-        } else if (getTranslateY() + velocityY > Main.WINDOW_HEIGHT - HEIGHT / 2 - 5) {
-            setTranslateY(Main.WINDOW_HEIGHT - HEIGHT / 2 - 5);
+        } else if (getTranslateY() + velocityY > Main.height - HEIGHT / 2 - 5) {
+            setTranslateY(Main.height - HEIGHT / 2 - 5);
         } else {
             setTranslateY(getTranslateY() + velocityY);
         }

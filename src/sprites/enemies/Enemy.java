@@ -23,7 +23,7 @@ public abstract class Enemy extends Sprite {
     protected static final int WARRIOR = 15;
     protected static final int COMMANDER = 25;
     
-    private Rectangle body;
+    protected Rectangle body;
     
     //0-left, 1-right
     private Group [] gr_eyes = new Group [2];
@@ -40,12 +40,19 @@ public abstract class Enemy extends Sprite {
     protected int strength;
     
     private boolean first = true;
-    private int velocityX = -1, moves = 0;
+    private double velocityX = -1, velocityY = 1;
     private static boolean update = false;
     
     private boolean redMark;
     private double posX, posY;
     private Timeline arrival;
+    
+    private double currX, currY, playerX, playerY;
+    private boolean chosen = false;
+    private double oldVelocityX, attackVelocityX, attackVelocityY;
+    private boolean destination = false, animation = false;
+    
+    private ScaleTransition st;
     
     public Enemy(double fromX, double fromY, double toX, double toY) {
         this.posX = toX;
@@ -132,9 +139,48 @@ public abstract class Enemy extends Sprite {
         
     }
     
+    public void startBlinking(Group eye){
+        st = new ScaleTransition(Duration.seconds(2), eye); 
+        st.setFromY(1);
+        st.setToY(0.2);
+        st.setAutoReverse(true);
+        st.setCycleCount(Animation.INDEFINITE);
+        st.play();         
+    }
+    
+    public void moveOnPlayer(double playerX, double playerY){
+        this.playerX = playerX;
+        this.playerY = playerY;
+        this.currX = getTranslateX();
+        this.currY = getTranslateY();
+        update = false;
+        chosen = true;
+        this.oldVelocityX = this.velocityX;
+        double x = (playerX - getTranslateX());
+        double y = playerY - getTranslateY();
+        double alpha1 = Math.atan(x/y); //proj above player
+        double alpha2 = Math.atan(Math.abs(y/x)); //proj below player
+        if (getTranslateY() > playerY){
+            if (playerX < getTranslateX())
+                this.velocityX = -2*Math.cos(alpha2);
+            else
+                this.velocityX = 2*Math.cos(alpha2);
+            this.velocityY = 2*Math.sin(-Math.abs(alpha2));
+        }else{
+            this.velocityX = 2*Math.sin(alpha1);
+            this.velocityY = 2*Math.cos(alpha1);
+        }
+    }
+    
+    public Projectile shootProjectile(){
+        double x = getTranslateX() + getWidth()/2;
+        double y = getTranslateY() + getHeight()/2;
+        return new Projectile(x, y);
+    }
+    
     public void markLast(){
-        arrival.setOnFinished(e -> Enemy.setUpdate(true));
-//        Main.setResizable();
+        arrival.setOnFinished(e -> {Enemy.setUpdate(true); Main.setResizable();});
+        Main.offense = true;
     }
     
     public void arriveOnScene(){
@@ -163,6 +209,10 @@ public abstract class Enemy extends Sprite {
 
     public static void setUpdate(boolean state) {
         update = state;
+    }
+    
+    public boolean isChosen(){
+        return chosen;
     }
     
     public boolean enemyShot(){
@@ -200,15 +250,79 @@ public abstract class Enemy extends Sprite {
     public abstract int enemyStrength();
     
     @Override
+    public void resizeWindow(double ratioWidth, double ratioHeight){
+        super.resizeWindow(ratioWidth, ratioHeight);
+        currX *= ratioWidth;
+        currY *= ratioHeight;
+        playerX *= ratioWidth;
+        playerY *= ratioHeight;
+        velocityX *= ratioWidth;
+        velocityY *= ratioHeight;
+        oldVelocityX *= ratioWidth;
+        attackVelocityX *= ratioWidth;
+        attackVelocityY *= ratioHeight;
+        Scale scale = new Scale();
+        scale.setX(ratioWidth);
+        scale.setY(ratioHeight);
+        stat.getTransforms().add(scale);
+        stat.setTranslateX(stat.getTranslateX()*ratioWidth);
+        stat.setTranslateY(stat.getTranslateY()*ratioHeight);
+    };
+    
+    @Override
     public void update() {
+        double x = getTranslateX();
+        double y = getTranslateY();
         if (update){
-            if ((getTranslateX() - posX*Main.width/Main.WINDOW_WIDTH + getWidth()*3/4 <= 0) || 
-                    (getTranslateX() + Main.width - posX*Main.width/Main.WINDOW_WIDTH - getWidth()*3/4 >= Main.width)){
+            if ((x - posX*Main.width/Main.WINDOW_WIDTH + getWidth()*3/4 <= 0) || 
+                    (x + Main.width - posX*Main.width/Main.WINDOW_WIDTH - getWidth()*3/4 >= Main.width)){
                 velocityX = -velocityX;
             }
-            setTranslateX(getTranslateX() + velocityX);
-            stat.setTranslateX(getTranslateX() - EN_WIDTH/4);
-            stat.setTranslateY(getTranslateY() - EN_HEIGHT/4 - EN_HEIGHT*2/3);
+            setTranslateX(x + velocityX);
+            stat.setTranslateX(x - EN_WIDTH/4);
+            stat.setTranslateY(y - EN_HEIGHT/4 - EN_HEIGHT*2/3);
+        }else{
+            if (chosen){
+                setTranslateX(x + velocityX);
+                setTranslateY(y + velocityY);
+                stat.setTranslateX(x - EN_WIDTH/4);
+                stat.setTranslateY(y - EN_HEIGHT/4 - EN_HEIGHT*2/3);
+                if (!destination){
+                    if ((((currX < playerX) && (x >= playerX)) || ((currX > playerX) && (x <= playerX))) && 
+                            (((currY < playerY) && (y >= playerY)) || ((currY > playerY) && (y <= playerY)))){
+                        Timeline time = new Timeline(
+                                new KeyFrame(Duration.ZERO, 
+                                        new KeyValue(mouth.scaleXProperty(), 1)),
+                                new KeyFrame(Duration.seconds(2),
+                                        new KeyValue(mouth.scaleXProperty(), .2))
+                        );  
+                        time.setAutoReverse(true);
+                        time.setCycleCount(2);
+                        time.setOnFinished(a -> {
+                            velocityX = -attackVelocityX;
+                            velocityY = -attackVelocityY;
+                            animation = true;
+                        });
+                        time.play();
+                        attackVelocityX = velocityX; attackVelocityY = velocityY;
+                        velocityX = 0; velocityY = 0;
+                        destination = true;
+                    }
+                }else{
+                    if (animation){
+                        if ((((currX < playerX) && (x <= currX)) || ((currX > playerX) && (x >= currX))) && 
+                                (((currY < playerY) && (y <= currY)) || ((currY > playerY) && (y >= currY)))){
+                            velocityX = oldVelocityX;
+                            update = true;
+                            chosen = false;
+                            setTranslateX(currX);
+                            setTranslateY(currY);
+                            Main.endAttack();
+                        }
+                    }
+                }
+
+            }
         }
     }
 }

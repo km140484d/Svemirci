@@ -37,8 +37,8 @@ public class Star extends Sprite{
         if (getTranslateX() + velocityX < boundary.getWidth() / 2 + 5) {
             setTranslateX(boundary.getWidth() / 2 + 5);
             velocityX = - velocityX;             
-        } else if (getTranslateX() + velocityX > Main.WINDOW_WIDTH - boundary.getWidth() / 2 - 5) {
-            setTranslateX(Main.WINDOW_WIDTH - boundary.getWidth() / 2 - 5);
+        } else if (getTranslateX() + velocityX > Main.width - boundary.getWidth() / 2 - 5) {
+            setTranslateX(Main.width - boundary.getWidth() / 2 - 5);
             velocityX = - velocityX;
         } else {
             setTranslateX(getTranslateX() + velocityX);
@@ -47,8 +47,8 @@ public class Star extends Sprite{
         if (getTranslateY() + velocityY < boundary.getHeight() / 2 + 5) {
             setTranslateY(boundary.getHeight() / 2 + 5); 
             velocityY = - velocityY;       
-        } else if (getTranslateY() + velocityY > Main.WINDOW_HEIGHT - boundary.getHeight() / 2 - 5) {
-            setTranslateY(Main.WINDOW_HEIGHT - boundary.getHeight() / 2 - 5);
+        } else if (getTranslateY() + velocityY > Main.height - boundary.getHeight() / 2 - 5) {
+            setTranslateY(Main.height - boundary.getHeight() / 2 - 5);
             velocityY = - velocityY; 
         } else {
             setTranslateY(getTranslateY() + velocityY);

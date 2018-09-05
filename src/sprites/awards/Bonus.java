@@ -10,10 +10,10 @@ public class Bonus extends Sprite{
 
     private static final double BONUS_R = 25;
     private static final double BONUS_FREQ = 0.1;
-    private static final double BLACK_FREQ = 0.9;
-    private static final double YELLOW_FREQ = BLACK_FREQ;
-    private static final double RED_FREQ = 0.5;
-    private static final double GREEN_FREQ = 0.1;
+    private static final double BLACK_FREQ = 0.09;
+    private static final double YELLOW_FREQ = 0.07;
+    private static final double RED_FREQ = 0.05;
+    private static final double GREEN_FREQ = 0.01;
     private double velocityY = 2;
     
     public static final double POINT_S = 50;
@@ -25,11 +25,7 @@ public class Bonus extends Sprite{
     /*2 - 0.3*/ public static enum YellowBonus implements BonusType{Speed /*V*/, Rotation /*R*/, Shield /*S*/, ShotGrowth /*G*/, KnockOut /*K*/};
     /*4 - 0.1*/ public static enum GreenBonus implements BonusType{Life /*H*/, PointS /*S*/, PointM /*M*/, PointL /*L*/};
     /*1 - 0.4*/ public static enum BlackBonus implements BonusType{Munition /*M*/, Triangle /*T*/, Rhombus /*R*/, Pentagon /*P*/, Hexagon /*H*/};
-//    
-//    public static enum BonusType{Stream /*1*/, Boomerang /*2*/, 
-//                                    Speed /*1*/, Rotation /*2*/, Shield /*3*/, ProjectileGrowth /*4*/, KnockOut /*5*/, 
-//                                    Life /*1*/, PointS /*2*/, PointM /*3*/, PointL /*4*/, 
-//                                    Munition /*1*/, Triangle /*2*/, Rhombus /*3*/, Petagon /*4*/, Hexagon /*5*/};
+
     private BonusType type;
     private Circle power;
     private Image icon;

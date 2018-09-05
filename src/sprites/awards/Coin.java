@@ -4,7 +4,6 @@ import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import main.Main;
-import static main.Main.*;
 import sprites.Sprite;
 
 public class Coin extends Sprite {
@@ -25,8 +24,8 @@ public class Coin extends Sprite {
     
     @Override
     public void update() {
-        if ((getTranslateX() + velocityX) < 0 || (getTranslateX() + velocityX) > WINDOW_WIDTH ||
-                            (getTranslateY() + velocityY) > WINDOW_HEIGHT)
+        if ((getTranslateX() + velocityX) < 0 || (getTranslateX() + velocityX) > Main.width ||
+                            (getTranslateY() + velocityY) > Main.height)
             Main.removeSprite(this);
         else{
             setTranslateX(getTranslateX() + velocityX);

@@ -22,6 +22,7 @@ public class Main extends Application {
     public static final double WINDOW_HEIGHT = 700;//700
     public static final double MIN_WINDOW_WIDTH = 1000;
     public static final double MIN_WINDOW_HEIGHT = 600;
+    private static final boolean FULL_SCREEN = true;
     private static final int HARD = 5;
     
     private static final int ENEMIES_IN_A_ROW = 8;
@@ -30,12 +31,14 @@ public class Main extends Application {
     private static final int TIME_WORTH = 1;    
     
     //Nodes on scene -----------------------------
-    private Group root;
-    public static Camera camera;
+    private static Stage stage;
+    private Scene scene;
+    private Group root = new Group();
+    public static Camera camera = new Camera();
     private static Background background;
     private static Player player;
     private List<Shot> shots;
-    private static List<Enemy> enemies;
+    private static List<Enemy> enemies = new LinkedList<>();
     private static List<Enemy> shotEnemies = new ArrayList<>();
     private static List<Projectile> projs = new ArrayList<>();
     private static List<Coin> coins = new ArrayList<>();
@@ -53,15 +56,20 @@ public class Main extends Application {
     private Text end_text;    
   
     private boolean rst = false; //random shoot time
+    private boolean shoot = false; //commander order shoot
+    private static boolean attack = false; //enemy to the front line
     
     public static double width = WINDOW_WIDTH;
     public static double height = WINDOW_HEIGHT;
     
+    public static boolean offense = false;
+    
     @Override
     public void start(Stage primaryStage) {
-        enemies = new LinkedList<>();
-        root = new Group();
-        camera = new Camera();
+//        if (FULL_SCREEN){
+//            width = Screen.getPrimary().getBounds().getWidth();
+//            height = Screen.getPrimary().getBounds().getHeight();
+//        }
         
         background = new Background(width, height);
         root.getChildren().add(background);
@@ -72,44 +80,45 @@ public class Main extends Application {
         camera.getChildren().add(player);
  
         displayPoints();
-        displayTime(); 
+        displayTime();
         
+        Commander commander = null;
         for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
             for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
                 Enemy enemy;
-                if (i + j % 3 == 1)
+                if ((i + j) % 3 == 2)
                     enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
-                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);
+                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, commander);
                 else
-                    if (i + j % 3 == 2)
-                        enemy = new Commander((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
-                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);
-                    else
+                    if ((i + j) % 3 == 1){
+                        if (commander == null){
+                            enemy = new Commander((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
+                                        (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);
+                            commander = (Commander)enemy;
+                        }else{
+                            enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
+                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, commander);
+                        }
+                    }else
                         enemy = new Scout((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
                                     (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);                
-                if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
-                    enemy.markLast();
+
                 enemy.arriveOnScene();
                 enemy.showBar(camera);
                 camera.getChildren().add(enemy);
+                if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
+                    enemy.markLast();
                 
                 //blinking
-                ScaleTransition st;
-                if ((i + j) % 2 == 0){
-                   st = new ScaleTransition(Duration.seconds(2), enemy.getLeftEye()); 
-                }else{
-                   st = new ScaleTransition(Duration.seconds(2), enemy.getRightEye());
-                }
-                st.setFromY(1);
-                st.setToY(0.2);
-                st.setAutoReverse(true);
-                st.setCycleCount(Animation.INDEFINITE);
-                st.play();                
+                if ((i + j) % 2 == 0)
+                   enemy.startBlinking(enemy.getLeftEye()); 
+                else
+                   enemy.startBlinking(enemy.getRightEye());             
                 enemies.add(enemy);
             }
         
         root.getChildren().add(camera);
-        Scene scene = new Scene(root, width, height);
+        scene = new Scene(root, width, height);
         scene.setOnKeyPressed(player);
         scene.setOnKeyReleased(player);
         scene.widthProperty().addListener(w -> {
@@ -121,13 +130,14 @@ public class Main extends Application {
             resizeWindow(scene.getWidth()/width,scene.getHeight()/height); 
             height = scene.getHeight();
             width = scene.getWidth();}
-        );        
+        );   
+        stage = primaryStage;
         primaryStage.setTitle(GAME);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(true);
+        primaryStage.setResizable(false);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
-        primaryStage.setFullScreen(false);
+        primaryStage.setFullScreen(FULL_SCREEN);
         primaryStage.show();
         
         new AnimationTimer() {
@@ -137,12 +147,25 @@ public class Main extends Application {
                 if (time_passed < (int)time){
                     time_passed++;
                     time_text.setText(time_msg + time_passed);
-                    if (Math.random() < 0.15){
-                        rst = true;
+                    if (offense){
+                        double rand = Math.random();
+                        if (rand < 0.20){
+                            if (rand < 0.04)
+                                shoot = true;
+                            else
+                                if ((!attack) && (rand < 0.07))
+                                    attack = true;                                
+                                else
+                                    rst = true;
+                        }
                     }
                 }
             }
         }.start();
+    }
+    
+    public static void setResizable(){
+        stage.setResizable(true);
     }
     
     public void resizeWindow(double ratioWidth, double ratioHeight){
@@ -165,6 +188,10 @@ public class Main extends Application {
             end_text.setTranslateY(end_text.getTranslateY()*ratioHeight);
         }
     }
+    
+    public static void endAttack(){
+        attack = false;
+    }
         
     public void update() {
         if (theEnd == false) {            
@@ -180,16 +207,24 @@ public class Main extends Application {
             if (enemies.isEmpty() || (player.getLifeNumber() == 0)) {
                 theEnd = true;                
             }else {  
-                //random enemy shooting
-                if (rst){
+                //commander orders attack
+                if (shoot){                    
+                    pickCommander();
+                    shoot = false;
+                }else{
                     int randEnemy = (int)(Math.random() * (enemies.size() - 1));
-                    Enemy e = enemies.get(randEnemy);
-                    double x = e.getTranslateX() + e.getBody().getWidth()/2;
-                    double y = e.getTranslateY() + e.getBody().getHeight()/2;
-                    projs.add(new Projectile(x, y));
-                    rst = false;
-                }                  
-                
+                    //random enemy shooting
+                    if (rst){                        
+                        projs.add(enemies.get(randEnemy).shootProjectile());
+                        rst = false;
+                    }else{
+                        //enemy going forward
+                        if ((attack) && Enemy.isUpdate())
+                            enemies.get(randEnemy).moveOnPlayer(player.getTranslateX(), player.getTranslateY());
+                        
+                    }
+                }
+
                 //display game objects ---------------------------------------
                 //player
                 camera.getChildren().add(player);
@@ -255,6 +290,22 @@ public class Main extends Application {
         }
     }
     
+    public static void addProjectile(Projectile proj){
+        projs.add(proj);
+    }
+    
+    public void pickCommander(){//stream
+        List<Commander> commanders = new ArrayList<>();
+        enemies.forEach(e -> {
+            if (e instanceof Commander){
+                commanders.add((Commander)e);
+            }
+        });
+        int randCommander = (int)(Math.random() * (commanders.size() - 1));
+        commanders.get(randCommander).orderAttack(player.getTranslateX(), player.getTranslateY());
+        //System.out.println("Comm " + commanders.get(randCommander).getWarriors().size());
+    }
+        
     public void updatePlayer(){
         if (!player.invincible()){
             if (!player.loseLife()){
@@ -286,7 +337,13 @@ public class Main extends Application {
     
     public void destroyEnemy(Enemy enemy){
         enemies.remove(enemy);
-        shotEnemies.add(enemy);                        
+        shotEnemies.add(enemy);
+        if (enemy instanceof Warrior)
+            ((Warrior)enemy).notifyCommander();
+        if (enemy.isChosen()){
+            Main.endAttack();
+            Enemy.setUpdate(true);
+        }
         Rotate rot = new Rotate();
         enemy.getTransforms().add(rot);
         Timeline tl = new Timeline(
@@ -301,7 +358,7 @@ public class Main extends Application {
                             double rand = Math.random();
                             player.addPoints(enemy.enemyStrength()/HARD);// points won from kill shot
                             if (rand < 0.6){
-                                if (rand < 0.1)
+                                if (rand < 0.2)
                                     player.addBonus(new Bonus(Bonus.pickBonus(), x, y));
                                 else
                                     coins.add(new Coin(x, y));                                          
