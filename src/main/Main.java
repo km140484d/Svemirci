@@ -146,7 +146,7 @@ public class Main extends Application {
                     time_passed++;
                     time_text.setText(time_msg + time_passed);
                     double rand = Math.random();
-                    if (rand < 0.20){
+                    if (!theEnd && (rand < 0.20)){
                         if (rand < 0.04)
                             shoot = true;
                         else
@@ -227,15 +227,15 @@ public class Main extends Application {
                     if (shot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
                         if (shot instanceof Stream || shot instanceof Boomerang){
                             if (currentEnemy.isRedMark()){
-                                if (currentEnemy.enemyShot())
+                                if (currentEnemy.enemyShot(shot.getShotStrength()))
                                     destroyEnemy(currentEnemy);
                                 else
                                     currentEnemy.setRedMark(false);
                             }
-                        }else{
-                            Main.removeSprite(shot);
-                            if (currentEnemy.enemyShot())
+                        }else{                            
+                            if (currentEnemy.enemyShot(shot.getShotStrength()))
                                 destroyEnemy(currentEnemy);
+                            Main.removeSprite(shot);
                         }                                
                         break;
                     }

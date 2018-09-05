@@ -20,6 +20,8 @@ public class Shot extends Sprite {
     protected static final double FACTOR = 2;
     
     protected static double size = SIDE;
+    
+    protected int shotStrength;
 
     public interface ShotAngle{ double getAngle(); }    
     public static enum BasicShotType implements ShotAngle{
@@ -38,10 +40,15 @@ public class Shot extends Sprite {
         }
     };
 
-    public Shot(double playerAngle, double angle) {
+    public Shot(double playerAngle, double angle, int strength) {
+        this.shotStrength = strength;
         velocityX = -SHOT_VELOCITY*Math.cos(Math.toRadians(-playerAngle + 90 - angle));
         velocityY = SHOT_VELOCITY*Math.sin(Math.toRadians(-playerAngle + 90 - angle));
         setRotate(playerAngle);
+    }
+    
+    public int getShotStrength(){
+        return shotStrength;
     }
     
     public static void setEnlarge(boolean enlarge){

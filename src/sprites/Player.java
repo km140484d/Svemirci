@@ -172,6 +172,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         for(int i=0; i < yellow; i++)
             removeYellowBonus(collectedYellow.get(0));
         setRedBonusType(null);
+        setCollectedRed(null);
         setShotType(null, true);
     }
     

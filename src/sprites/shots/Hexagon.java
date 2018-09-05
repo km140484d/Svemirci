@@ -11,8 +11,10 @@ public class Hexagon extends Shot{
     private static final double INNER_ROOT = INNER / Math.sqrt(2);
     public static final double ANGLE = 30; //2*15
     
+    private static final int HEX_STRENGTH = 2;
+    
     public Hexagon(double playerAngle, double angle){
-        super(playerAngle, angle);
+        super(playerAngle, angle, HEX_STRENGTH);
         base = new Polygon(0, -(size/2 + ROOT), 
                 ROOT, -size/2, 
                 ROOT, size/2,

@@ -15,10 +15,12 @@ public class Boomerang extends Shot{
     
     private static final double RADIUS = BOOM*5/4;
     
-    private double r = RADIUS;
+    private static final int BOOM_STRENGTH = 3;
+    
+    private double r = RADIUS;    
  
     public Boomerang(double playerAngle){
-        super(playerAngle, 0);
+        super(playerAngle, 0, BOOM_STRENGTH);
         
         base = new Path(
                 new MoveTo(INNER_R, 0),

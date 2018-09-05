@@ -211,8 +211,8 @@ public abstract class Enemy extends Sprite {
         return chosen;
     }
     
-    public boolean enemyShot(){
-        strength--;
+    public boolean enemyShot(int shotStrength){
+        strength-=shotStrength;
         if (strength <= 0)
             return true;
         else{
@@ -222,7 +222,7 @@ public abstract class Enemy extends Sprite {
             hit.setAutoReverse(true);
             hit.setCycleCount(2);
             hit.play();
-            bars[1].setWidth(bars[1].getWidth() - EN_WIDTH/(2*enemyStrength()));
+            bars[1].setWidth(bars[1].getWidth() - (EN_WIDTH/(2*enemyStrength())) * shotStrength);
             return false;
         }
     }

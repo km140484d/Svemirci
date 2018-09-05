@@ -8,9 +8,10 @@ public class Triangle extends Shot{
     
     private static final double INNER = SIDE*RATIO;
     public static final double ANGLE = 120;//60*2
+    private static final int TRI_STRENGTH = 1;
     
     public Triangle(double playerAngle, double angle){
-        super(playerAngle, angle);
+        super(playerAngle, angle, TRI_STRENGTH);
         base = new Polygon(0, -size*3/4,
                 size*3/4, size*3/4,
                 -size*3/4, size*3/4
