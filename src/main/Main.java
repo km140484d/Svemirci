@@ -15,6 +15,7 @@ import javafx.scene.transform.*;
 import javafx.stage.*;
 import javafx.util.Duration;
 import sprites.awards.*;
+import static sprites.enemies.Enemy.getWidth;
 
 public class Main extends Application {  
     private static final String GAME = "Svemirci";
@@ -22,7 +23,7 @@ public class Main extends Application {
     public static final double WINDOW_HEIGHT = 700;//700
     public static final double MIN_WINDOW_WIDTH = 1000;
     public static final double MIN_WINDOW_HEIGHT = 600;
-    private static final boolean FULL_SCREEN = true;
+    private static final boolean FULL_SCREEN = false;
     private static final int HARD = 5;
     
     private static final int ENEMIES_IN_A_ROW = 8;
@@ -44,7 +45,7 @@ public class Main extends Application {
     
     private static List<Sprite> delObjects = new ArrayList<>();
 
-    private boolean theEnd = false;
+    private boolean theEnd = false, goodbye = false;
     private double time = 0;    
     private int time_passed = 0;
     private String time_msg = "Time: ";
@@ -74,6 +75,8 @@ public class Main extends Application {
         displayPoints();
         displayTime();
         
+        boolean first = true;
+        
         Commander commander = null;
         for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
             for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
@@ -96,6 +99,12 @@ public class Main extends Application {
                                     (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);                
                 enemy.showBar(camera);
                 camera.getChildren().add(enemy);
+                
+                if (i == 0 && first){
+                    Enemy.setMovement(enemy.getTranslateX() - getWidth()*3/4);
+                    first = false;
+                }
+                
                 if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
                     enemy.markLast();
                 
@@ -177,7 +186,7 @@ public class Main extends Application {
     }
         
     public void update() {
-        if (theEnd == false) {            
+        if (!theEnd) {            
             camera.getChildren().clear();             
             //enemy player update
             for(int i = 0; i < enemies.size(); i++){
@@ -186,95 +195,118 @@ public class Main extends Application {
                     updatePlayer();
                     break;
                 }
-            }             
-            if (enemies.isEmpty() || (player.getLifeNumber() == 0)) {
-                theEnd = true;                
-            }else {  
-                //commander orders attack
-                if (shoot){                    
-                    pickCommander();
-                    shoot = false;
+            }              
+            //commander orders attack
+            if (shoot){                    
+                pickCommander();
+                shoot = false;
+            }else{
+                int randEnemy = (int)(Math.random() * (enemies.size() - 1));
+                //random enemy shooting
+                if (rst){                        
+                    projs.add(enemies.get(randEnemy).shootProjectile());
+                    rst = false;
                 }else{
-                    int randEnemy = (int)(Math.random() * (enemies.size() - 1));
-                    //random enemy shooting
-                    if (rst){                        
-                        projs.add(enemies.get(randEnemy).shootProjectile());
-                        rst = false;
-                    }else{
-                        //enemy going forward
-                        if ((attack) && Enemy.isUpdate())
-                            enemies.get(randEnemy).moveOnPlayer(player.getTranslateX(), player.getTranslateY());
-                        
-                    }
-                }
+                    //enemy going forward
+                    if ((attack) && Enemy.isUpdate())
+                        pickScout();
 
-                //display game objects ---------------------------------------
-                //player
-                camera.getChildren().add(player);
-                
-                //enemy and shots update
-                shots = player.getShots(); 
-                for(int i=0; i < shots.size(); i++){
-                    Shot shot = shots.get(i);                
-                    for (int j = 0; j < enemies.size(); j++) {
-                        Enemy currentEnemy = enemies.get(j);
-                        if (shot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
-                            if (shot instanceof Stream || shot instanceof Boomerang){
-                                if (currentEnemy.isRedMark()){
-                                    if (currentEnemy.enemyShot())
-                                        destroyEnemy(currentEnemy);
-                                    else
-                                        currentEnemy.setRedMark(false);
-                                }
-                            }else{
-                                Main.removeSprite(shot);
+                }
+            }
+
+            //display game objects ---------------------------------------
+            //player
+            camera.getChildren().add(player);
+
+            //enemy and shots update
+            shots = player.getShots(); 
+            for(int i=0; i < shots.size(); i++){
+                Shot shot = shots.get(i);                
+                for (int j = 0; j < enemies.size(); j++) {
+                    Enemy currentEnemy = enemies.get(j);
+                    if (shot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
+                        if (shot instanceof Stream || shot instanceof Boomerang){
+                            if (currentEnemy.isRedMark()){
                                 if (currentEnemy.enemyShot())
                                     destroyEnemy(currentEnemy);
-                            }                                
-                            break;
-                        }
+                                else
+                                    currentEnemy.setRedMark(false);
+                            }
+                        }else{
+                            Main.removeSprite(shot);
+                            if (currentEnemy.enemyShot())
+                                destroyEnemy(currentEnemy);
+                        }                                
+                        break;
                     }
                 }
-                shots.removeAll(delObjects);
-                shots.forEach(e -> e.update());
-                camera.getChildren().addAll(shots); 
-                
-                //coins                
-                coins.forEach(c -> {
-                    c.update();
-                    if (c.getBoundsInParent().intersects(player.getBoundsInParent())){
-                        player.addPoints(1);                         
-                        Main.removeSprite(c);
-                    }                    
-                });
-                coins.removeAll(delObjects);
+            }
+            shots.removeAll(delObjects);
+            shots.forEach(e -> e.update());
+            camera.getChildren().addAll(shots); 
+
+            //coins                
+            coins.forEach(c -> {
+                c.update();
+                if (c.getBoundsInParent().intersects(player.getBoundsInParent())){
+                    player.addPoints(1);                         
+                    Main.removeSprite(c);
+                }                    
+            });
+            coins.removeAll(delObjects);
+            camera.getChildren().addAll(coins);
+
+            //enemies
+            camera.getChildren().addAll(shotEnemies);
+            camera.getChildren().addAll(enemies);  
+            enemies.forEach(e -> {e.update(); e.showBar(camera);});
+
+            //projectiles                                
+            projs.forEach(p -> {
+                p.update();
+                if (p.getBoundsInParent().intersects(player.getBoundsInParent()))
+                        updatePlayer();
+            });
+            projs.removeAll(delObjects);
+            camera.getChildren().addAll(projs);
+
+            camera.updateCamera(player);
+            player.setShots(shots);
+            player.update();
+            background.update();
+            time += 1.0 / 60;             
+        }else{
+            if (!goodbye){
+                player.addPoints(-(int)time*TIME_WORTH);
+                camera.getChildren().clear();
+                camera.getChildren().addAll(shots);
+                camera.getChildren().addAll(enemies);
                 camera.getChildren().addAll(coins);
-                
-                //enemies
-                camera.getChildren().addAll(shotEnemies);
-                camera.getChildren().addAll(enemies);  
-                enemies.forEach(e -> {e.update(); e.showBar(camera);});
-                
-                //projectiles                                
-                projs.forEach(p -> {
-                    p.update();
-                    if (p.getBoundsInParent().intersects(player.getBoundsInParent()))
-                            updatePlayer();
-                });
-                projs.removeAll(delObjects);
                 camera.getChildren().addAll(projs);
-                                
-                camera.updateCamera(player);
-                player.setShots(shots);
-                player.update();
-                background.update();
-                time += 1.0 / 60;
-            } 
+                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);
+                end_text.setFill(Color.ORANGERED);
+                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+                root.getChildren().add(end_text);
+                goodbye = true;
+            }
         }
     }
     
     public static void addProjectile(Projectile proj){
         projs.add(proj);
+    }
+    
+    public void pickScout(){
+        List<Scout> scouts = new ArrayList<>();
+        enemies.forEach(e -> {
+            if (e instanceof Scout){
+                scouts.add((Scout)e);
+            }
+        });
+        if (!scouts.isEmpty()){
+            int randScout = (int)(Math.random() * (scouts.size() - 1));
+            scouts.get(randScout).moveOnPlayer(player.getTranslateX(), player.getTranslateY());
+        }
     }
     
     public void pickCommander(){//stream
@@ -284,32 +316,26 @@ public class Main extends Application {
                 commanders.add((Commander)e);
             }
         });
-        int randCommander = (int)(Math.random() * (commanders.size() - 1));
-        commanders.get(randCommander).orderAttack(player.getTranslateX(), player.getTranslateY());
-        //System.out.println("Comm " + commanders.get(randCommander).getWarriors().size());
+        if (!commanders.isEmpty()){
+            int randCommander = (int)(Math.random() * (commanders.size() - 1));
+            commanders.get(randCommander).orderAttack(player.getTranslateX(), player.getTranslateY());
+        }
     }
         
     public void updatePlayer(){
         if (!player.invincible()){
             if (!player.loseLife()){
                 end_text = new Text(width/2 - 100, height/2 - 30, String.format(life_msg, player.getLifeNumber()));
+                end_text.setFill(Color.ORANGERED);
+                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+                root.getChildren().add(end_text);
                 FadeTransition ft = new FadeTransition(Duration.seconds(2), end_text);
                 ft.setFromValue(1);
                 ft.setToValue(0);
                 ft.play();
                 resetPlayer();
-            }else{
-                player.addPoints(-(int)time*TIME_WORTH);
-                camera.getChildren().clear();
-                camera.getChildren().addAll(shots);
-                camera.getChildren().addAll(enemies);
-                camera.getChildren().addAll(coins);
-                camera.getChildren().addAll(projs);
-                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);                
-            }
-            end_text.setFill(Color.ORANGERED);
-            end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-            root.getChildren().add(end_text);
+            }else
+                theEnd = true; 
         }
     }
     
@@ -359,16 +385,7 @@ public class Main extends Application {
         );
         if (enemies.isEmpty() && shotEnemies.size() == 1){
             tl.setOnFinished(t -> {
-                player.addPoints(-(int)time*TIME_WORTH);
-                camera.getChildren().clear();
-                camera.getChildren().addAll(shots);
-                camera.getChildren().addAll(enemies);
-                camera.getChildren().addAll(coins);
-                camera.getChildren().addAll(projs);
-                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
+                theEnd = true;
             });
         }        
         tl.play();

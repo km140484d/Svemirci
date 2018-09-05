@@ -13,9 +13,11 @@ public class Warrior extends Enemy{
     private Commander commander;
     
     public Warrior(double fromX, double fromY, double toX, double toY, Commander commander){
-        super(fromX, fromY, toX, toY);
-        this.commander = commander;
-        commander.addWarrior(this);
+        super(fromX, fromY, toX, toY);        
+        if (commander != null){
+            this.commander = commander;
+            commander.addWarrior(this);
+        }
         helmet = new Path(
                 new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
                 new LineTo(-HELMET_LINE*3/2, EN_HEIGHT*2/3),

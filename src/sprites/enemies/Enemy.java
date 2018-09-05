@@ -51,6 +51,8 @@ public abstract class Enemy extends Sprite {
     private double oldVelocityX, attackVelocityX, attackVelocityY;
     private boolean destination = false, animation = false;
     
+    private static double movement;
+    
     private ScaleTransition st;
     
     public Enemy(double fromX, double fromY, double toX, double toY) {
@@ -94,6 +96,7 @@ public abstract class Enemy extends Sprite {
         body.setArcWidth(EN_WIDTH/2);
         body.setArcHeight(EN_HEIGHT/2);
         body.setFill(Color.YELLOW);
+        body.setStroke(Color.BLACK);
         body.setTranslateX(-EN_WIDTH/2);
         body.setTranslateY(-EN_HEIGHT/2);
         getChildren().add(body);
@@ -136,6 +139,10 @@ public abstract class Enemy extends Sprite {
         st.setAutoReverse(true);
         st.setCycleCount(Animation.INDEFINITE);
         st.play();         
+    }
+    
+    public static void setMovement(double move){
+        movement = move;
     }
     
     public void moveOnPlayer(double playerX, double playerY){
@@ -267,7 +274,6 @@ public abstract class Enemy extends Sprite {
         stat.setTranslateX(x - EN_WIDTH/4);
         stat.setTranslateY(y - EN_HEIGHT/4 - EN_HEIGHT*2/3);
         if (!knockOut){
-
             if (entry){
                 if (y >= posY){
                     entry = false;
@@ -282,11 +288,13 @@ public abstract class Enemy extends Sprite {
                     setTranslateY(y + velocityY);
             }else{
                 if (update){
-                    if ((x - posX+ getWidth()*3/4 <= 0) || 
-                            (x + Main.width - posX - getWidth()*3/4 >= Main.width)){
-                        velocityX = -velocityX;
-                    }
-                    setTranslateX(x + velocityX);   
+                    setTranslateX(x + velocityX);
+                    if (x <= posX - movement){
+                        velocityX = Math.abs(velocityX);
+                    }else{
+                        if (x >= posX + movement)
+                            velocityX = -Math.abs(velocityX);
+                    }  
                 }else{
                     if (chosen){
                         setTranslateX(x + velocityX);
