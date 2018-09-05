@@ -38,15 +38,14 @@ public abstract class Enemy extends Sprite {
     private Rectangle [] bars = new Rectangle [2];
     
     protected int strength;
-    
-    private boolean first = true;
-    private double velocityX = -1, velocityY = 1;
-    private static boolean update = false;
-    
     private boolean redMark;
-    private double posX, posY;
-    private Timeline arrival;
+    private boolean last = false;
     
+    private boolean entry = true;
+    private static boolean update = false, knockOut = false;
+    private double velocityX = -1, velocityY = 2;   
+    private double posX, posY;
+
     private double currX, currY, playerX, playerY;
     private boolean chosen = false;
     private double oldVelocityX, attackVelocityX, attackVelocityY;
@@ -116,6 +115,8 @@ public abstract class Enemy extends Sprite {
         //mouth
         mouth = new Arc(0, EN_HEIGHT/7, EN_WIDTH/3, EN_HEIGHT/4, 180, 180); 
         getChildren().addAll(mouth);
+        setTranslateX(fromX);
+        setTranslateY(fromY);
         
         //bar
         stat = new Group();
@@ -124,19 +125,8 @@ public abstract class Enemy extends Sprite {
             bars[i].setFill(i==1 ? Color.CHARTREUSE : Color.BLACK);
         }
         stat.getChildren().addAll(bars);
-        stat.setTranslateX(-EN_WIDTH/4);
-        stat.setTranslateY(-EN_HEIGHT/4 - EN_HEIGHT*2/3);
-
-        arrival = new Timeline(
-                new KeyFrame(Duration.ZERO, 
-                        new KeyValue(translateYProperty(), fromY, Interpolator.EASE_OUT),
-                        new KeyValue(translateXProperty(), fromX, Interpolator.EASE_OUT)),
-                new KeyFrame(Duration.seconds(4),
-                        new KeyValue(translateYProperty(), toY, Interpolator.EASE_BOTH),
-                        new KeyValue(translateXProperty(), toX, Interpolator.EASE_BOTH)));
-        arrival.play();
-        
-        
+        stat.setTranslateX(getTranslateX()-EN_WIDTH/4);
+        stat.setTranslateY(getTranslateY()-EN_HEIGHT/4 - EN_HEIGHT*2/3);       
     }
     
     public void startBlinking(Group eye){
@@ -179,14 +169,9 @@ public abstract class Enemy extends Sprite {
     }
     
     public void markLast(){
-        arrival.setOnFinished(e -> {Enemy.setUpdate(true); Main.setResizable();});
-        Main.offense = true;
+        last = true;
     }
-    
-    public void arriveOnScene(){
-        arrival.play();
-    }
-    
+
     public void showBar(Group root){
         root.getChildren().add(stat);
     }
@@ -209,6 +194,10 @@ public abstract class Enemy extends Sprite {
 
     public static void setUpdate(boolean state) {
         update = state;
+    }
+    
+    public static void setKnockOut(boolean state){
+        knockOut = state;
     }
     
     public boolean isChosen(){
@@ -252,6 +241,8 @@ public abstract class Enemy extends Sprite {
     @Override
     public void resizeWindow(double ratioWidth, double ratioHeight){
         super.resizeWindow(ratioWidth, ratioHeight);
+        posX *= ratioWidth;
+        posY *= ratioHeight;
         currX *= ratioWidth;
         currY *= ratioHeight;
         playerX *= ratioWidth;
@@ -273,55 +264,70 @@ public abstract class Enemy extends Sprite {
     public void update() {
         double x = getTranslateX();
         double y = getTranslateY();
-        if (update){
-            if ((x - posX*Main.width/Main.WINDOW_WIDTH + getWidth()*3/4 <= 0) || 
-                    (x + Main.width - posX*Main.width/Main.WINDOW_WIDTH - getWidth()*3/4 >= Main.width)){
-                velocityX = -velocityX;
-            }
-            setTranslateX(x + velocityX);
-            stat.setTranslateX(x - EN_WIDTH/4);
-            stat.setTranslateY(y - EN_HEIGHT/4 - EN_HEIGHT*2/3);
-        }else{
-            if (chosen){
-                setTranslateX(x + velocityX);
-                setTranslateY(y + velocityY);
-                stat.setTranslateX(x - EN_WIDTH/4);
-                stat.setTranslateY(y - EN_HEIGHT/4 - EN_HEIGHT*2/3);
-                if (!destination){
-                    if ((((currX < playerX) && (x >= playerX)) || ((currX > playerX) && (x <= playerX))) && 
-                            (((currY < playerY) && (y >= playerY)) || ((currY > playerY) && (y <= playerY)))){
-                        Timeline time = new Timeline(
-                                new KeyFrame(Duration.ZERO, 
-                                        new KeyValue(mouth.scaleXProperty(), 1)),
-                                new KeyFrame(Duration.seconds(2),
-                                        new KeyValue(mouth.scaleXProperty(), .2))
-                        );  
-                        time.setAutoReverse(true);
-                        time.setCycleCount(2);
-                        time.setOnFinished(a -> {
-                            velocityX = -attackVelocityX;
-                            velocityY = -attackVelocityY;
-                            animation = true;
-                        });
-                        time.play();
-                        attackVelocityX = velocityX; attackVelocityY = velocityY;
-                        velocityX = 0; velocityY = 0;
-                        destination = true;
+        stat.setTranslateX(x - EN_WIDTH/4);
+        stat.setTranslateY(y - EN_HEIGHT/4 - EN_HEIGHT*2/3);
+        if (!knockOut){
+
+            if (entry){
+                if (y >= posY){
+                    entry = false;
+                    setTranslateY(posY);
+                    if (last){
+                        TranslateTransition tt = new TranslateTransition(Duration.seconds(1), this);
+                        tt.setToX(getTranslateX());
+                        tt.setOnFinished(t -> update = true);
+                        tt.play();
                     }
+                }else
+                    setTranslateY(y + velocityY);
+            }else{
+                if (update){
+                    if ((x - posX+ getWidth()*3/4 <= 0) || 
+                            (x + Main.width - posX - getWidth()*3/4 >= Main.width)){
+                        velocityX = -velocityX;
+                    }
+                    setTranslateX(x + velocityX);   
                 }else{
-                    if (animation){
-                        if ((((currX < playerX) && (x <= currX)) || ((currX > playerX) && (x >= currX))) && 
-                                (((currY < playerY) && (y <= currY)) || ((currY > playerY) && (y >= currY)))){
-                            velocityX = oldVelocityX;
-                            update = true;
-                            chosen = false;
-                            setTranslateX(currX);
-                            setTranslateY(currY);
-                            Main.endAttack();
+                    if (chosen){
+                        setTranslateX(x + velocityX);
+                        setTranslateY(y + velocityY);
+                        if (!destination){
+                            if ((((currX < playerX) && (x >= playerX)) || ((currX > playerX) && (x <= playerX))) && 
+                                    (((currY < playerY) && (y >= playerY)) || ((currY > playerY) && (y <= playerY)))){
+                                Timeline time = new Timeline(
+                                        new KeyFrame(Duration.ZERO, 
+                                                new KeyValue(mouth.scaleXProperty(), 1)),
+                                        new KeyFrame(Duration.seconds(2),
+                                                new KeyValue(mouth.scaleXProperty(), .2))
+                                );  
+                                time.setAutoReverse(true);
+                                time.setCycleCount(2);
+                                time.setOnFinished(a -> {
+                                    velocityX = -attackVelocityX;
+                                    velocityY = -attackVelocityY;
+                                    animation = true;
+                                });
+                                time.play();
+                                attackVelocityX = velocityX; attackVelocityY = velocityY;
+                                velocityX = 0; velocityY = 0;
+                                destination = true;
+                            }
+                        }else{
+                            if (animation){
+                                if ((((currX < playerX) && (x <= currX)) || ((currX > playerX) && (x >= currX))) && 
+                                        (((currY < playerY) && (y <= currY)) || ((currY > playerY) && (y >= currY)))){
+                                    velocityX = oldVelocityX;
+                                    update = true;
+                                    chosen = false;
+                                    setTranslateX(currX);
+                                    setTranslateY(currY);
+                                    Main.endAttack();
+                                }
+                            }
                         }
+
                     }
                 }
-
             }
         }
     }

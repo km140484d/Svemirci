@@ -172,9 +172,9 @@ public class Bonus extends Sprite{
 
     @Override
     public void update() {
-        if ((getTranslateY() + velocityY) > Main.WINDOW_HEIGHT)
-            Main.removeSprite(this);
-        else
+//        if ((getTranslateY() + velocityY) > Main.height)
+//            Main.removeSprite(this);
+//        else
             setTranslateY(getTranslateY() + velocityY);
     }
     

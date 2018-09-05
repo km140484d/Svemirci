@@ -14,6 +14,8 @@ public class Boomerang extends Shot{
     private static final double OUTER_R = BOOM*3/4;
     
     private static final double RADIUS = BOOM*5/4;
+    
+    private double r = RADIUS;
  
     public Boomerang(double playerAngle){
         super(playerAngle, 0);
@@ -43,28 +45,34 @@ public class Boomerang extends Shot{
     }
     
     @Override
+    public void resizeWindow(double ratioWidth, double ratioHeight){
+        super.resizeWindow(ratioWidth, ratioHeight);
+        r*=ratioHeight;
+    }
+    
+    @Override
     public void update() {
         double x = getTranslateX();
         double y = getTranslateY();
         
-        if (x + velocityX < RADIUS - 5){
-            setTranslateX(RADIUS - 5);
+        if (x + velocityX < r - 5){
+            setTranslateX(r - 5);
             velocityX = -velocityX;
             Main.setEnemyRedMark(true);
         }else{
-            if (x + velocityX > Main.WINDOW_WIDTH - RADIUS - 5){
-                setTranslateX(Main.WINDOW_WIDTH - RADIUS - 5);
+            if (x + velocityX > Main.width - r - 5){
+                setTranslateX(Main.width - r - 5);
                 velocityX = -velocityX;
                 Main.setEnemyRedMark(true);
             }else
                 setTranslateX(x + velocityX);
         }
         
-        if (y + velocityY > Main.WINDOW_HEIGHT - RADIUS - 5)
+        if (y + velocityY > Main.height - r - 5)
             Main.removeSprite(this);        
         else{
-            if (y + velocityY < RADIUS - 5){
-                setTranslateY(RADIUS - 5);
+            if (y + velocityY < r - 5){
+                setTranslateY(r - 5);
                 velocityY = -velocityY;
                 Main.setEnemyRedMark(true);
             }else{

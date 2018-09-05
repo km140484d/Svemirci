@@ -6,10 +6,12 @@ import main.Main;
 
 public class Star extends Sprite{
 
+    private static double BOUND = 30;
+    
     private Polygon body;
-    private Rectangle boundary;
     
     private double velocityX = 1, velocityY  = 1;  
+    private double width = BOUND, height = BOUND;
     
     public Star(){        
         //kao 2 pentagona, unutrasnji manji pentagon je za 180 stepeni rotiran
@@ -24,31 +26,37 @@ public class Star extends Sprite{
                             xCoord(2, 4), yCoord(2, 4),
                             -xCoord(1, 2), -yCoord(1, 2));
         body.setFill(Color.color(Math.random(), Math.random(), Math.random()));
-        boundary = new Rectangle(30, 30);
-        boundary.setTranslateX(-15);
-        boundary.setTranslateY(-15);
-        boundary.setFill(Color.TRANSPARENT);
-        getChildren().addAll(boundary, body);
+        body.setStroke(Color.WHITE);
+        body.setStrokeWidth(1.5);
+        getChildren().addAll(body);
     }
 
-        
+    @Override
+    public void resizeWindow(double ratioWidth, double ratioHeight){
+        super.resizeWindow(ratioWidth, ratioHeight);
+        width*=ratioWidth;
+        height*=ratioHeight;
+        velocityX *= ratioWidth;
+        velocityY *= ratioHeight;
+    }
+    
     @Override
     public void update() {
-        if (getTranslateX() + velocityX < boundary.getWidth() / 2 + 5) {
-            setTranslateX(boundary.getWidth() / 2 + 5);
+        if (getTranslateX() + velocityX < width / 2 + 5) {
+            setTranslateX(width / 2 + 5);
             velocityX = - velocityX;             
-        } else if (getTranslateX() + velocityX > Main.width - boundary.getWidth() / 2 - 5) {
-            setTranslateX(Main.width - boundary.getWidth() / 2 - 5);
+        } else if (getTranslateX() + velocityX > Main.width - width / 2 - 5) {
+            setTranslateX(Main.width - width / 2 - 5);
             velocityX = - velocityX;
         } else {
             setTranslateX(getTranslateX() + velocityX);
         }
         
-        if (getTranslateY() + velocityY < boundary.getHeight() / 2 + 5) {
-            setTranslateY(boundary.getHeight() / 2 + 5); 
+        if (getTranslateY() + velocityY < height / 2 + 5) {
+            setTranslateY(height / 2 + 5); 
             velocityY = - velocityY;       
-        } else if (getTranslateY() + velocityY > Main.height - boundary.getHeight() / 2 - 5) {
-            setTranslateY(Main.height - boundary.getHeight() / 2 - 5);
+        } else if (getTranslateY() + velocityY > Main.height - height/ 2 - 5) {
+            setTranslateY(Main.height - height / 2 - 5);
             velocityY = - velocityY; 
         } else {
             setTranslateY(getTranslateY() + velocityY);

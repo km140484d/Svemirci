@@ -197,6 +197,8 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     //lives ----------------------------------------
     public boolean loseLife(){
         Life lostLife = lives.get(lives.size() - 1);
+        points -= Life.POINTS;
+        points_text.setText(points_msg + points);
         if (lives.size() == 1){
             Main.removeLife(lostLife);
             lives.remove(lostLife);
@@ -368,7 +370,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 Shot.setEnlarge(true);
                 break;
             case KnockOut:
-                Enemy.setUpdate(false);
+                Enemy.setKnockOut(true);
                 break;
         }
     }
@@ -415,7 +417,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     public void removeYellowBonus(BonusIndicator yellow){
         switch((YellowBonus)yellow.getType()){
             case KnockOut:
-                Enemy.setUpdate(true);
+                Enemy.setKnockOut(false);
                 break;
             case Rotation:
                 setRotate(false);                                                              
@@ -540,7 +542,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         
         for(int i = 0; i < bonuses.size(); i++){
             Bonus bonus = bonuses.get(i);
-            if ((bonus.getTranslateY() + bonus.getVelocityY()) > Main.WINDOW_HEIGHT)
+            if ((bonus.getTranslateY() + bonus.getVelocityY()) > Main.height)
                 bonuses.remove(bonus);
             else{
                 bonus.update();

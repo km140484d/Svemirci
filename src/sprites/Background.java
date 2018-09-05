@@ -24,13 +24,22 @@ public class Background extends Sprite {
         
         star1.setTranslateX(Math.random() * 50 + 50);
         star1.setTranslateY(Math.random() * 50 + 50);
-        star2.setTranslateX(Main.WINDOW_WIDTH  - 50 - Math.random() * 50);
-        star2.setTranslateY(Main.WINDOW_HEIGHT - 50 - Math.random() * 50);
-        star3.setTranslateX(Main.WINDOW_WIDTH/2 + Math.random() * 50);
-        star3.setTranslateY(Main.WINDOW_HEIGHT/2 - Math.random() * 50);
+        star2.setTranslateX(width  - 50 - Math.random() * 50);
+        star2.setTranslateY(width - 50 - Math.random() * 50);
+        star3.setTranslateX(width/2 + Math.random() * 50);
+        star3.setTranslateY(width/2 - Math.random() * 50);
         getChildren().addAll(star1, star2, star3);
 
     }
+    
+    @Override
+    public void resizeWindow(double ratioWidth, double ratioHeight){
+        super.resizeWindow(ratioWidth, ratioHeight);
+        star1.resizeWindow(ratioWidth, ratioHeight);
+        star2.resizeWindow(ratioWidth, ratioHeight);
+        star3.resizeWindow(ratioWidth, ratioHeight);
+    };
+    
 
     @Override
     public void update() {

@@ -12,14 +12,15 @@ public class Shot extends Sprite {
     protected Shape center;
     
     protected static final double SIDE = 10;
+    private static double side = SIDE;
     protected static final double RATIO = 0.4;
     
     protected double velocityX, velocityY = SHOT_VELOCITY;
     
     protected static final double FACTOR = 2;
     
-    protected static double size = SIDE;    
-    
+    protected static double size = SIDE;
+
     public interface ShotAngle{ double getAngle(); }    
     public static enum BasicShotType implements ShotAngle{
         Tri{
@@ -45,9 +46,15 @@ public class Shot extends Sprite {
     
     public static void setEnlarge(boolean enlarge){
         if (enlarge)
-            size = SIDE*FACTOR;
+            size = side*FACTOR;
         else
-            size = SIDE;
+            size = side;
+    }
+    
+    @Override
+    public void resizeWindow(double windowWidth, double windowHeight){
+        super.resizeWindow(windowWidth, windowHeight);
+        side*=windowWidth/windowHeight;
     }
     
     @Override

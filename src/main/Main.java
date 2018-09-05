@@ -31,7 +31,6 @@ public class Main extends Application {
     private static final int TIME_WORTH = 1;    
     
     //Nodes on scene -----------------------------
-    private static Stage stage;
     private Scene scene;
     private Group root = new Group();
     public static Camera camera = new Camera();
@@ -62,15 +61,8 @@ public class Main extends Application {
     public static double width = WINDOW_WIDTH;
     public static double height = WINDOW_HEIGHT;
     
-    public static boolean offense = false;
-    
     @Override
     public void start(Stage primaryStage) {
-//        if (FULL_SCREEN){
-//            width = Screen.getPrimary().getBounds().getWidth();
-//            height = Screen.getPrimary().getBounds().getHeight();
-//        }
-        
         background = new Background(width, height);
         root.getChildren().add(background);
         
@@ -102,8 +94,6 @@ public class Main extends Application {
                     }else
                         enemy = new Scout((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
                                     (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);                
-
-                enemy.arriveOnScene();
                 enemy.showBar(camera);
                 camera.getChildren().add(enemy);
                 if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
@@ -130,11 +120,10 @@ public class Main extends Application {
             resizeWindow(scene.getWidth()/width,scene.getHeight()/height); 
             height = scene.getHeight();
             width = scene.getWidth();}
-        );   
-        stage = primaryStage;
+        );
         primaryStage.setTitle(GAME);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setFullScreen(FULL_SCREEN);
@@ -147,25 +136,19 @@ public class Main extends Application {
                 if (time_passed < (int)time){
                     time_passed++;
                     time_text.setText(time_msg + time_passed);
-                    if (offense){
-                        double rand = Math.random();
-                        if (rand < 0.20){
-                            if (rand < 0.04)
-                                shoot = true;
+                    double rand = Math.random();
+                    if (rand < 0.20){
+                        if (rand < 0.04)
+                            shoot = true;
+                        else
+                            if ((!attack) && (rand < 0.07))
+                                attack = true;                                
                             else
-                                if ((!attack) && (rand < 0.07))
-                                    attack = true;                                
-                                else
-                                    rst = true;
-                        }
+                                rst = true;
                     }
                 }
             }
         }.start();
-    }
-    
-    public static void setResizable(){
-        stage.setResizable(true);
     }
     
     public void resizeWindow(double ratioWidth, double ratioHeight){
@@ -310,15 +293,23 @@ public class Main extends Application {
         if (!player.invincible()){
             if (!player.loseLife()){
                 end_text = new Text(width/2 - 100, height/2 - 30, String.format(life_msg, player.getLifeNumber()));
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
                 FadeTransition ft = new FadeTransition(Duration.seconds(2), end_text);
                 ft.setFromValue(1);
                 ft.setToValue(0);
                 ft.play();
                 resetPlayer();
+            }else{
+                player.addPoints(-(int)time*TIME_WORTH);
+                camera.getChildren().clear();
+                camera.getChildren().addAll(shots);
+                camera.getChildren().addAll(enemies);
+                camera.getChildren().addAll(coins);
+                camera.getChildren().addAll(projs);
+                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);                
             }
+            end_text.setFill(Color.ORANGERED);
+            end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+            root.getChildren().add(end_text);
         }
     }
     
@@ -363,21 +354,23 @@ public class Main extends Application {
                                 else
                                     coins.add(new Coin(x, y));                                          
                             }
-                            if (enemies.isEmpty() && shotEnemies.isEmpty()){
-                                player.addPoints(-(int)time*TIME_WORTH);
-                                camera.getChildren().clear();
-                                camera.getChildren().addAll(shots);
-                                camera.getChildren().addAll(enemies);
-                                camera.getChildren().addAll(coins);
-                                camera.getChildren().addAll(projs);
-                                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);
-                                end_text.setFill(Color.ORANGERED);
-                                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                                root.getChildren().add(end_text);
-                            }
                         },
                         new KeyValue(rot.angleProperty(), 360))
         );
+        if (enemies.isEmpty() && shotEnemies.size() == 1){
+            tl.setOnFinished(t -> {
+                player.addPoints(-(int)time*TIME_WORTH);
+                camera.getChildren().clear();
+                camera.getChildren().addAll(shots);
+                camera.getChildren().addAll(enemies);
+                camera.getChildren().addAll(coins);
+                camera.getChildren().addAll(projs);
+                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);
+                end_text.setFill(Color.ORANGERED);
+                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+                root.getChildren().add(end_text);
+            });
+        }        
         tl.play();
     }
         
