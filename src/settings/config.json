@@ -1,0 +1,53 @@
+{
+    "name": "Svemirci",   
+    "full_screen": false,
+    "resizable": true,
+    "width": 1200,
+    "height": 700,
+    "commands" : {
+        "player1_up": "W",   
+        "player1_down": "S",
+        "player1_left": "A",
+        "player1_right": "D",
+        "player1_rotate_left": "E",
+        "player1_rotate_right": "R",
+        "player1_shoot": "SPACE",
+        "player2_up": "UP",   
+        "player2_down": "DOWN",
+        "player2_left": "LEFT",
+        "player2_right": "RIGHT",
+        "player2_rotate_left": "MINUS",
+        "player2_rotate_right": "PLUS",
+        "player2_shoot": "ENTER"
+    },
+    "labels" : {
+        "start" : "Welcome player! Start game!",
+        "victory" : "Congradulations player, you won!",
+        "defeat" : "Better luck next time!",
+        "time" : "Time:",
+        "score" : "Points:",
+        "high_score" : "Top 10 game!"
+    },
+    "difficulty" : "1",
+    "power_time" : "1",
+    "init_speed" : "1",
+    "rotate_angle" : "1",
+    "shot_max_angle" : "1",
+    "player1_max_shots" : "1",
+    "player2_max_shots" : "1",
+    "enemy_fire" : "1",
+    "scout_life" : "1",
+    "warrior_life" : "1",
+    "commander_life" : "1",
+    "high_scores" : [
+        {"name" : "Luka",
+            "points" : "129",
+            "time" : "42"       
+        },
+        {"name" : "Mirjana",
+            "points" : "23",
+            "time" : "100"       
+        }
+    ]
+    
+}

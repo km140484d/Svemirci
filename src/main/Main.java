@@ -1,9 +1,12 @@
 package main;
 
+import settings.*;
 import sprites.shots.*;
 import sprites.*;
 import sprites.enemies.*;
 import cameras.Camera;
+import com.google.gson.*;
+import java.io.*;
 import java.util.*;
 import javafx.animation.*;
 import javafx.application.Application;
@@ -14,6 +17,7 @@ import javafx.scene.text.*;
 import javafx.scene.transform.*;
 import javafx.stage.*;
 import javafx.util.Duration;
+import settings.deserializers.*;
 import sprites.awards.*;
 import static sprites.enemies.Enemy.getWidth;
 
@@ -29,7 +33,9 @@ public class Main extends Application {
     private static final int ENEMIES_IN_A_ROW = 8;
     private static final int ENEMIES_IN_A_COLUMN = 4;
     
-    private static final int TIME_WORTH = 1;    
+    private static final int TIME_WORTH = 1; 
+    
+    private static final String SETTINGS_FILE = "settings/config.json";
     
     //Nodes on scene -----------------------------
     private Scene scene;
@@ -62,8 +68,13 @@ public class Main extends Application {
     public static double width = WINDOW_WIDTH;
     public static double height = WINDOW_HEIGHT;
     
+    public static Constants constants;
+    
     @Override
     public void start(Stage primaryStage) {
+        if (!fileInitialization())
+            return;       
+        
         background = new Background(width, height);
         root.getChildren().add(background);
         
@@ -158,6 +169,49 @@ public class Main extends Application {
                 }
             }
         }.start();
+    }
+    
+    public boolean fileInitialization(){
+        try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));){
+            
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+            gsonBuilder.registerTypeAdapter(Commands.class, new CommandsDeserializer());
+            gsonBuilder.registerTypeAdapter(Labels.class, new LabelsDeserializer());
+            gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
+            Gson gson = gsonBuilder.create();            
+            constants = new Gson().fromJson(br, Constants.class);
+            Commands comm = constants.getCommands();
+            Labels labels = constants.getLabels();
+            Score[] scores = constants.getHigh_scores();
+            System.out.println("GSON object " + constants.getName()+ ", " + constants.getWidth() + ", " 
+                    + constants.getHeight());
+//            if (comm != null){
+//                System.out.println("COMMANDS " + comm.getPlayer2_down());
+//            }            
+//            if (labels != null){
+//                System.out.println("LABELS " + labels.getStart());
+//            }
+//            if (scores != null && scores.length != 0){
+//                System.out.println("SCORES " + scores[0].getName());
+//            }
+            if (comm != null && labels != null && scores != null)
+                return true;
+            else
+                return false;
+            
+        }catch (FileNotFoundException ex) {
+            System.out.println(
+                    "Unable to open file '"
+                    + SETTINGS_FILE + "'");
+            return false;
+        } catch (IOException ex) {
+            System.out.println(
+                    "Error reading file '"
+                    + SETTINGS_FILE + "'");
+            return false;
+        }
     }
     
     public void resizeWindow(double ratioWidth, double ratioHeight){
