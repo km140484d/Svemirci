@@ -51,9 +51,9 @@ public abstract class Enemy extends Sprite {
     
     private ScaleTransition st;
     
-    public Enemy(double fromX, double fromY, double toX, double toY) {
-        this.posX = toX;
-        this.posY = toY;
+    public Enemy(double posX, double posY, double deltaY) {
+        this.posX = posX;
+        this.posY = posY;
         //ears
         for(int i = 0; i < ears.length; i++){
             ears[i] = new Path(
@@ -114,8 +114,8 @@ public abstract class Enemy extends Sprite {
         //mouth
         mouth = new Arc(0, EN_HEIGHT/7, EN_WIDTH/3, EN_HEIGHT/4, 180, 180); 
         getChildren().addAll(mouth);
-        setTranslateX(fromX);
-        setTranslateY(fromY);
+        setTranslateY(posY - deltaY);
+        setTranslateX(posX);
         
         //bar
         stat = new Group();
@@ -262,6 +262,10 @@ public abstract class Enemy extends Sprite {
         stat.setTranslateX(stat.getTranslateX()*ratioWidth);
         stat.setTranslateY(stat.getTranslateY()*ratioHeight);
     };
+    
+    public static void resizeMovement(double ratioWidth){
+        movement *= ratioWidth;
+    }
     
     @Override
     public void update() {

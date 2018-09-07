@@ -1,6 +1,7 @@
 package sprites.enemies;
 
-import javafx.scene.image.Image;
+import java.util.*;
+import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import main.Main;
@@ -10,14 +11,10 @@ import static sprites.enemies.Enemy.EN_WIDTH;
 public class Warrior extends Enemy{
     
     private Path helmet;
-    private Commander commander;
+    private List<Commander> commanders = new ArrayList<>();
     
-    public Warrior(double fromX, double fromY, double toX, double toY, Commander commander){
-        super(fromX, fromY, toX, toY);        
-        if (commander != null){
-            this.commander = commander;
-            commander.addWarrior(this);
-        }
+    public Warrior(double posX, double posY, double deltaY){
+        super(posX, posY, deltaY);        
         helmet = new Path(
                 new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
                 new LineTo(-HELMET_LINE*3/2, EN_HEIGHT*2/3),
@@ -41,9 +38,18 @@ public class Warrior extends Enemy{
         strength = Main.constants.getWarrior_life() * Main.constants.getDifficulty();
     }
     
-    public void notifyCommander(){
-        if (commander != null)
-            commander.removeWarrior(this);
+    public void addCommander(Commander commander){
+        this.commanders.add(commander);
+        commander.addWarrior(this);
+    }
+    
+    public void notifyCommanders(){
+        for(int i = 0; i < commanders.size(); i++)
+            commanders.get(i).removeWarrior(this);
+    }
+    
+    public void commanderDown(Commander commander){
+        commanders.remove(commander);
     }
     
     public void attack(double playerX, double playerY){      

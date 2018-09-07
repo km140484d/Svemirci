@@ -19,8 +19,8 @@ public class Commander extends Enemy{
     
     private List<Warrior> warriors = new ArrayList<>();
     
-    public Commander(double fromX, double fromY, double toX, double toY){
-        super(fromX, fromY, toX, toY);
+    public Commander(double posX, double posY, double deltaY){
+        super(posX, posY, deltaY);
         helmet = new Path(
             new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
             new LineTo(-HELMET_LINE*3/2, EN_HEIGHT),
@@ -69,6 +69,12 @@ public class Commander extends Enemy{
     
     public void removeWarrior(Warrior warrior){
         warriors.remove(warrior);
+    }
+    
+    public void notifyWarriors(){
+        for(int i = 0; i < warriors.size(); i++){
+            warriors.get(i).commanderDown(this);
+        }
     }
     
     public void orderAttack(double playerX, double playerY){

@@ -82,46 +82,85 @@ public class Main extends Application {
         displayPoints();
         displayTime();
         
-        boolean first = true;
+        Configuration config = constants.pickConfiguration("warzone");
+        int enColumns = config.getColumns();
+        int enRows = config.getRows();
+        double enWidth = config.getWidth() * width / enColumns;
+        double enHeight = config.getHeight() * height / enRows;
+        Enemy.setMovement((width - config.getWidth() * width)/2);
+        List<Commander> commanders = new ArrayList<>();
+        Position[] positions = config.getCommanders();
+        for(Position p: positions){
+            Commander commander = new Commander(p.getY() * enWidth,p.getX() * enHeight, config.getHeight()*height);
+            commanders.add(commander);
+            commander.showBar(camera);
+            camera.getChildren().add(commander);
+            enemies.add(commander);
+            if (p.isLast())
+                commander.markLast();
+        }
+        positions = config.getWarriors();
+        for(Position p: positions){
+            Warrior warrior = new Warrior(p.getY() * enWidth,p.getX() * enHeight, config.getHeight()*height);
+            warrior.showBar(camera);
+            camera.getChildren().add(warrior);
+            enemies.add(warrior);
+            int[] comms = Arrays.asList(p.getCommanders().split(",")).stream().mapToInt(Integer::parseInt).toArray();
+            for(int i=0; i < comms.length; i++)
+                warrior.addCommander(commanders.get(comms[i]));
+            if (p.isLast())
+                warrior.markLast();
+        }
+        positions = config.getScouts();
+        for(Position p: positions){
+            Scout scout = new Scout(p.getY() * enWidth,p.getX() * enHeight, config.getHeight()*height);
+            scout.showBar(camera);
+            camera.getChildren().add(scout);
+            enemies.add(scout);
+            if (p.isLast())
+                scout.markLast();
+        }
         
-        Commander commander = null;
-        for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
-            for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
-                Enemy enemy;
-                if ((i + j) % 3 == 2)
-                    enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
-                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, commander);
-                else
-                    if ((i + j) % 3 == 1){
-                        if (commander == null){
-                            enemy = new Commander((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
-                                        (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);
-                            commander = (Commander)enemy;
-                        }else{
-                            enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
-                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, commander);
-                        }
-                    }else
-                        enemy = new Scout((j+1) * width / (ENEMIES_IN_A_ROW + 1),-((ENEMIES_IN_A_ROW - i-1)*Enemy.getHeight()*2),
-                                    (j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2);                
-                enemy.showBar(camera);
-                camera.getChildren().add(enemy);
-                
-                if (i == 0 && first){
-                    Enemy.setMovement(enemy.getTranslateX() - getWidth()*3/4);
-                    first = false;
-                }
-                
-                if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
-                    enemy.markLast();
-                
-                //blinking
-                if ((i + j) % 2 == 0)
-                   enemy.startBlinking(enemy.getLeftEye()); 
-                else
-                   enemy.startBlinking(enemy.getRightEye());             
-                enemies.add(enemy);
-            }
+        
+//        boolean first = true;     
+//        Commander commander = null;
+//        for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
+//            for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
+//                Enemy enemy;
+//                if ((i + j) % 3 == 2){
+//                    enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, 
+//                            height/2);
+//                    ((Warrior)enemy).addCommander(commander);
+//                }else
+//                    if ((i + j) % 3 == 1){
+//                        if (commander == null){
+//                            enemy = new Commander((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, height/2);
+//                            commander = (Commander)enemy;
+//                        }else{
+//                            enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, 
+//                                    height/2);
+//                            ((Warrior)enemy).addCommander(commander);
+//                        }
+//                    }else
+//                        enemy = new Scout((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, height/2);                
+//                enemy.showBar(camera);
+//                camera.getChildren().add(enemy);
+//                
+//                if (i == 0 && first){
+//                    Enemy.setMovement(enemy.getTranslateX() - getWidth()*3/4);
+//                    first = false;
+//                }
+//                
+//                if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
+//                    enemy.markLast();
+//                
+//                //blinking
+//                if ((i + j) % 2 == 0)
+//                   enemy.startBlinking(enemy.getLeftEye()); 
+//                else
+//                   enemy.startBlinking(enemy.getRightEye());             
+//                enemies.add(enemy);
+//            }
         
         root.getChildren().add(camera);
         scene = new Scene(root, width, height);
@@ -155,9 +194,9 @@ public class Main extends Application {
                     time_text.setText(String.format(constants.getLabels().getTime(), time_passed));
                     double rand = Math.random();
                     if (!theEnd && (rand < constants.getEnemy_fire()*constants.getDifficulty())){
-                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty())
+                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty()){
                             shoot = true;
-                        else
+                        }else
                             if ((!attack) && (rand < constants.getEnemy_fire()*2/5*constants.getDifficulty()))
                                 attack = true;                                
                             else
@@ -174,23 +213,17 @@ public class Main extends Application {
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
             gsonBuilder.registerTypeAdapter(Commands.class, new CommandsDeserializer());
-            gsonBuilder.registerTypeAdapter(PlayerCommands.class, new PlayerCommandsDeserializer());
             gsonBuilder.registerTypeAdapter(Labels.class, new LabelsDeserializer());
             gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
+            gsonBuilder.registerTypeAdapter(Configuration.class, new ConfigurationDeserializer());
             Gson gson = gsonBuilder.create();            
-            constants = new Gson().fromJson(br, Constants.class);
-//            
-//            Commands comm = constants.getCommands();
-//            Labels labels = constants.getLabels();
-//            Score[] scores = constants.getHigh_scores();
-//            System.out.println("GSON object " + constants.getName()+ ", " + constants.getWidth() + ", " 
-//                    + constants.getHeight());
-//            if (comm != null && comm.getPlayer1() != null){
-//                System.out.println("COMMANDS PLAYER1 UP: " + comm.getPlayer1().getUp());
-//            }            
+            constants = new Gson().fromJson(br, Constants.class);            
             if (constants.getCommands() != null && constants.getCommands().getPlayer1() != null &&
-                    constants.getLabels() != null && constants.getHigh_scores() != null)
+                    constants.getLabels() != null && constants.getHigh_scores() != null && constants.getConfigurations() != null)
+            {
+                //System.out.println(constants.getConfigurations()[0].getName());
                 return true;
+            }
             else
                 return false;
             
@@ -211,6 +244,7 @@ public class Main extends Application {
         background.resizeWindow(ratioWidth, ratioHeight);
         player.resizeWindow(ratioWidth, ratioHeight);
         enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        Enemy.resizeMovement(ratioWidth);
         shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
         coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
         projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
@@ -399,7 +433,10 @@ public class Main extends Application {
         enemies.remove(enemy);
         shotEnemies.add(enemy);
         if (enemy instanceof Warrior)
-            ((Warrior)enemy).notifyCommander();
+            ((Warrior)enemy).notifyCommanders();
+        else
+            if (enemy instanceof Commander)
+                ((Commander)enemy).notifyWarriors();
         if (enemy.isChosen()){
             Main.endAttack();
             Enemy.setUpdate(true);

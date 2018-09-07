@@ -6,8 +6,8 @@ import main.Main;
 
 public class Scout extends Enemy{
     
-    public Scout(double fromX, double fromY, double toX, double toY){
-        super(fromX, fromY, toX, toY);
+    public Scout(double posX, double posY, double deltaY){
+        super(posX, posY, deltaY);
         strength = Main.constants.getScout_life() * Main.constants.getDifficulty();
         for(Path e: ears)
             e.setStroke(Color.BLACK);

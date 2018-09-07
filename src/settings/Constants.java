@@ -19,7 +19,18 @@ public class Constants {
     private double enemy_fire;
     private int scout_life, warrior_life, commander_life;
     private Score[] high_scores;
+    private Configuration[] configurations;
 
+    
+    public Configuration pickConfiguration(String name){
+        Configuration conf = null;
+        for(Configuration c: configurations)
+            if (c.getName().equals(name)){
+                conf = c;
+                break;
+            }
+        return conf;
+    }
     
     public String getName() {
         return name;
@@ -170,6 +181,13 @@ public class Constants {
     public void setHigh_scores(Score[] high_scores) {
         this.high_scores = high_scores;
     }
-    
-    
+
+    public Configuration[] getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(Configuration[] configurations) {
+        this.configurations = configurations;
+    }
+     
 }
