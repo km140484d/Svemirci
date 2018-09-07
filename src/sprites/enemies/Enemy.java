@@ -19,10 +19,6 @@ public abstract class Enemy extends Sprite {
     
     protected static final double HELMET_LINE = EYE_WIDTH*6/5;
     
-    protected static final int SCOUT = 5;
-    protected static final int WARRIOR = 15;
-    protected static final int COMMANDER = 25;
-    
     protected Rectangle body;
     
     //0-left, 1-right

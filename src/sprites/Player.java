@@ -3,8 +3,8 @@ package sprites;
 import java.util.*;
 import javafx.animation.*;
 import javafx.event.*;
-import javafx.scene.Group;
-import javafx.scene.image.Image;
+import javafx.scene.*;
+import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
@@ -13,6 +13,7 @@ import javafx.scene.transform.*;
 import javafx.util.*;
 import main.Main;
 import static main.Main.*;
+import settings.*;
 import static sprites.Background.LIVES_CNT;
 import sprites.awards.*;
 import sprites.awards.Bonus.*;
@@ -23,6 +24,9 @@ import static sprites.shots.Shot.BasicShotType.*;
 
 public class Player extends Sprite implements EventHandler<KeyEvent> {
       
+    private Commands comms = Main.constants.getCommands();
+    private PlayerCommands playerComms = comms.getPlayer1();
+    
     private static final double WIDTH = 60;
     private static final double HEIGHT = 60;
 
@@ -35,16 +39,16 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static final double STREAM_HEIGHT = TUBE_HEIGHT*4/3;    
     private static final double SHIELD_R = WIDTH*3/4;
     
-    private static final double ROTATE_ANGLE = 3;    
-    private static final int MAX_SHOTS = 5;    
+    private static final double ROTATE_ANGLE = Main.constants.getRotate_angle();    
+    private static final int MAX_SHOTS = Main.constants.getPlayer_max_shots();    
         
     private static final double RED_IND_HEIGHT = 115;
     private static final double YELLOW_IND_HEIGHT = 70;
-    
-    private static enum States {LEFT, RIGHT, UP, DOWN, STALL};
-    private static final double PLAYER_VELOCITY = 10;    
+
     private double velocityX = 0, velocityY = 0;
+    private static enum States {LEFT, RIGHT, UP, DOWN, STALL};   
     private States state = States.STALL;
+        
     
     private Shape body;
     private Group gun;    
@@ -72,6 +76,8 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private int points = 0;
     private static String points_msg = " Points: ";
     private static Text points_text;
+    
+
     
     public Player() { 
         Stop [] stops = {
@@ -498,9 +504,9 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     //movement -----------------------------------
     private void setVelocity() {
-        double velocity = PLAYER_VELOCITY;
+        double velocity = Main.constants.getInit_speed();
         if (speed)
-            velocity = 2*PLAYER_VELOCITY;
+            velocity = 2 * Main.constants.getInit_speed();
         switch (state) {
             case STALL:
                 velocityX = 0;
@@ -577,52 +583,47 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
 
     @Override
-    public void handle(KeyEvent event) {
+    public void handle(KeyEvent event) {        
         if (event.getEventType() == KeyEvent.KEY_PRESSED){
             KeyCode code = event.getCode();
-            switch (code) {                    
-                    case UP:
-                        state = States.UP;
-                        setVelocity();
-                        break;
-                    case DOWN:
+            if ((code.equals(playerComms.getUp())) || (code == playerComms.getDown()) 
+                    || (code == playerComms.getLeft()) || (code == playerComms.getRight())){
+                if (code == playerComms.getUp()){
+                    state = States.UP;
+                }else{
+                    if (code == playerComms.getDown())
                         state = States.DOWN;
-                        setVelocity();
-                        break;
-                    case RIGHT:
-                        state = States.RIGHT;
-                        setVelocity();
-                        break;
-                    case LEFT:
-                        state = States.LEFT;
-                        setVelocity();
-                        break;
-                    case A:
-                        if (rotate)
-                            setRotate(getRotate() - ROTATE_ANGLE);                            
-                        break;
-                    case S:
-                        if (rotate)
-                            setRotate(getRotate() + ROTATE_ANGLE);
-                        break;
-                    case DIGIT1:
-                        Main.camera.setDefault();
-                        break;
-                    case DIGIT2:
-                        Main.camera.setPlayerBound(this);
-                        break;
+                    else{
+                        if (code == playerComms.getRight())
+                            state = States.RIGHT;
+                        else
+                            state = States.LEFT;
+                    }
                 }
+                setVelocity();
+            }else{
+                if ((code == playerComms.getRotate_left()) && rotate)
+                    setRotate(getRotate() - ROTATE_ANGLE);  
+                else
+                    if ((code == playerComms.getRotate_right()) && rotate)
+                        setRotate(getRotate() + ROTATE_ANGLE); 
+                    else
+                        if (code == comms.getCamera_scene())
+                            Main.camera.setDefault();
+                        else
+                            if (code == comms.getCamera_player())
+                                Main.camera.setPlayerBound(this);
+            }
         }else{                
             if (event.getEventType() == KeyEvent.KEY_RELEASED){
                 KeyCode code = event.getCode();
-                switch (code) {
-                    case UP: case DOWN: case LEFT: case RIGHT:
-                        state = States.STALL;
-                        setVelocity();
-                        break;
-                    case SPACE:
+                if (code == playerComms.getUp() || code == playerComms.getDown()
+                        || code == playerComms.getLeft() || code == playerComms.getRight()){
+                    state = States.STALL;
+                    setVelocity();
+                }else{
+                    if (code == playerComms.getShoot())
                         makeShot();
-                        break;
                 }
             }
         }

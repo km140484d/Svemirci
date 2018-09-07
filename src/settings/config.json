@@ -1,52 +1,62 @@
 {
     "name": "Svemirci",   
-    "full_screen": false,
+    "full_screen": true,
     "resizable": true,
-    "width": 1200,
-    "height": 700,
+    "width": 1000,
+    "height": 600,
     "commands" : {
-        "player1_up": "W",   
-        "player1_down": "S",
-        "player1_left": "A",
-        "player1_right": "D",
-        "player1_rotate_left": "E",
-        "player1_rotate_right": "R",
-        "player1_shoot": "SPACE",
-        "player2_up": "UP",   
-        "player2_down": "DOWN",
-        "player2_left": "LEFT",
-        "player2_right": "RIGHT",
-        "player2_rotate_left": "MINUS",
-        "player2_rotate_right": "PLUS",
-        "player2_shoot": "ENTER"
+        "exit" : "ESCAPE",
+        "pause" : "P",
+        "main_menu" : "TAB",
+        "camera_scene" : "DIGIT1",
+        "camera_player" : "DIGIT2",
+        "player1" : {
+            "up": "W",   
+            "down": "S",
+            "left": "A",
+            "right": "D",
+            "rotate_left": "E",
+            "rotate_right": "R",
+            "shoot": "SPACE"
+        },
+        "player2" : {
+            "up": "UP",   
+            "down": "DOWN",
+            "left": "LEFT",
+            "right": "RIGHT",
+            "rotate_left": "MINUS",
+            "rotate_right": "PLUS",
+            "shoot": "ENTER"
+        }       
     },
     "labels" : {
         "start" : "Welcome player! Start game!",
+        "final_score" : "%d Points won!",
         "victory" : "Congradulations player, you won!",
         "defeat" : "Better luck next time!",
-        "time" : "Time:",
-        "score" : "Points:",
+        "life" : "Life lost, %d remain!",
+        "time" : "Time: %d",
+        "points" : "Points:",
         "high_score" : "Top 10 game!"
     },
-    "difficulty" : "1",
-    "power_time" : "1",
-    "init_speed" : "1",
-    "rotate_angle" : "1",
-    "shot_max_angle" : "1",
-    "player1_max_shots" : "1",
-    "player2_max_shots" : "1",
-    "enemy_fire" : "1",
-    "scout_life" : "1",
-    "warrior_life" : "1",
-    "commander_life" : "1",
+    "difficulty" : 1,
+    "power_time" : 10,
+    "init_speed" : 8,
+    "rotate_angle" : 3,
+    "shot_max_angle" : 120,
+    "player_max_shots" : 5,
+    "enemy_fire" : 0.05,
+    "scout_life" : 5,
+    "warrior_life" : 15,
+    "commander_life" : 25,
     "high_scores" : [
         {"name" : "Luka",
-            "points" : "129",
-            "time" : "42"       
+            "points" : 129,
+            "time" : 42       
         },
         {"name" : "Mirjana",
-            "points" : "23",
-            "time" : "100"       
+            "points" : 23,
+            "time" : 100       
         }
     ]
     

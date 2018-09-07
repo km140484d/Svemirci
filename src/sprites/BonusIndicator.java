@@ -4,12 +4,13 @@ import javafx.scene.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import main.*;
 import sprites.awards.*;
 import sprites.awards.Bonus.*;
 
 public class BonusIndicator extends Sprite{
-    
-    private static int BONUS_TIME = 5*60;
+
+    private static int BONUS_TIME = Main.constants.getPower_time() / Main.constants.getDifficulty() * 60;
     private static double RADIUS = 20;
     private static double BAR_SPEED = 3*RADIUS/((BONUS_TIME*2));
     

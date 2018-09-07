@@ -11,6 +11,8 @@ import java.util.*;
 import javafx.animation.*;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
@@ -22,24 +24,18 @@ import sprites.awards.*;
 import static sprites.enemies.Enemy.getWidth;
 
 public class Main extends Application {  
-    private static final String GAME = "Svemirci";
     public static final double WINDOW_WIDTH = 1200;//1200
     public static final double WINDOW_HEIGHT = 700;//700
     public static final double MIN_WINDOW_WIDTH = 1000;
-    public static final double MIN_WINDOW_HEIGHT = 600;
-    private static final boolean FULL_SCREEN = false;
-    private static final int HARD = 5;
-    
+    public static final double MIN_WINDOW_HEIGHT = 600;    
     private static final int ENEMIES_IN_A_ROW = 8;
     private static final int ENEMIES_IN_A_COLUMN = 4;
-    
-    private static final int TIME_WORTH = 1; 
     
     private static final String SETTINGS_FILE = "settings/config.json";
     
     //Nodes on scene -----------------------------
     private Scene scene;
-    private Group root = new Group();
+    private static Group root = new Group();
     public static Camera camera = new Camera();
     private static Background background;
     private static Player player;
@@ -54,19 +50,16 @@ public class Main extends Application {
     private boolean theEnd = false, goodbye = false;
     private double time = 0;    
     private int time_passed = 0;
-    private String time_msg = "Time: ";
     private Text time_text;
 
-    private String end_msg = " POINTS WON";
-    private String life_msg = "LIFE LOST, %d REMAIN";
-    private Text end_text;    
+    private static Text msg_text;    
   
     private boolean rst = false; //random shoot time
     private boolean shoot = false; //commander order shoot
     private static boolean attack = false; //enemy to the front line
     
-    public static double width = WINDOW_WIDTH;
-    public static double height = WINDOW_HEIGHT;
+    public static double width;
+    public static double height;
     
     public static Constants constants;
     
@@ -75,7 +68,10 @@ public class Main extends Application {
         if (!fileInitialization())
             return;       
         
-        background = new Background(width, height);
+        width = constants.getWidth();
+        height = constants.getHeight();
+        
+        background = new Background();
         root.getChildren().add(background);
         
         player = new Player();
@@ -129,8 +125,6 @@ public class Main extends Application {
         
         root.getChildren().add(camera);
         scene = new Scene(root, width, height);
-        scene.setOnKeyPressed(player);
-        scene.setOnKeyReleased(player);
         scene.widthProperty().addListener(w -> {
             resizeWindow(scene.getWidth()/width, scene.getHeight()/height); 
             width = scene.getWidth();
@@ -141,12 +135,15 @@ public class Main extends Application {
             height = scene.getHeight();
             width = scene.getWidth();}
         );
-        primaryStage.setTitle(GAME);
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(true);
+        scene.setOnKeyPressed(player);
+        scene.setOnKeyReleased(player);
+        
+        primaryStage.setTitle(constants.getName());
+        primaryStage.setResizable(constants.isResizable());
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
-        primaryStage.setFullScreen(FULL_SCREEN);
+        primaryStage.setFullScreen(constants.isFull_screen());
+        primaryStage.setScene(scene);
         primaryStage.show();
         
         new AnimationTimer() {
@@ -155,13 +152,13 @@ public class Main extends Application {
                 update();
                 if (time_passed < (int)time){
                     time_passed++;
-                    time_text.setText(time_msg + time_passed);
+                    time_text.setText(String.format(constants.getLabels().getTime(), time_passed));
                     double rand = Math.random();
-                    if (!theEnd && (rand < 0.20)){
-                        if (rand < 0.04)
+                    if (!theEnd && (rand < constants.getEnemy_fire()*constants.getDifficulty())){
+                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty())
                             shoot = true;
                         else
-                            if ((!attack) && (rand < 0.07))
+                            if ((!attack) && (rand < constants.getEnemy_fire()*2/5*constants.getDifficulty()))
                                 attack = true;                                
                             else
                                 rst = true;
@@ -173,30 +170,26 @@ public class Main extends Application {
     
     public boolean fileInitialization(){
         try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));){
-            
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));){            
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
             gsonBuilder.registerTypeAdapter(Commands.class, new CommandsDeserializer());
+            gsonBuilder.registerTypeAdapter(PlayerCommands.class, new PlayerCommandsDeserializer());
             gsonBuilder.registerTypeAdapter(Labels.class, new LabelsDeserializer());
             gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
             Gson gson = gsonBuilder.create();            
             constants = new Gson().fromJson(br, Constants.class);
-            Commands comm = constants.getCommands();
-            Labels labels = constants.getLabels();
-            Score[] scores = constants.getHigh_scores();
-            System.out.println("GSON object " + constants.getName()+ ", " + constants.getWidth() + ", " 
-                    + constants.getHeight());
-//            if (comm != null){
-//                System.out.println("COMMANDS " + comm.getPlayer2_down());
+//            
+//            Commands comm = constants.getCommands();
+//            Labels labels = constants.getLabels();
+//            Score[] scores = constants.getHigh_scores();
+//            System.out.println("GSON object " + constants.getName()+ ", " + constants.getWidth() + ", " 
+//                    + constants.getHeight());
+//            if (comm != null && comm.getPlayer1() != null){
+//                System.out.println("COMMANDS PLAYER1 UP: " + comm.getPlayer1().getUp());
 //            }            
-//            if (labels != null){
-//                System.out.println("LABELS " + labels.getStart());
-//            }
-//            if (scores != null && scores.length != 0){
-//                System.out.println("SCORES " + scores[0].getName());
-//            }
-            if (comm != null && labels != null && scores != null)
+            if (constants.getCommands() != null && constants.getCommands().getPlayer1() != null &&
+                    constants.getLabels() != null && constants.getHigh_scores() != null)
                 return true;
             else
                 return false;
@@ -228,10 +221,10 @@ public class Main extends Application {
         time_text.getTransforms().add(scale);
         time_text.setTranslateX(time_text.getTranslateX()*ratioWidth);
         time_text.setTranslateY(time_text.getTranslateY()*ratioHeight);
-        if (end_text != null){
-            end_text.getTransforms().add(scale);
-            end_text.setTranslateX(end_text.getTranslateX()*ratioWidth);
-            end_text.setTranslateY(end_text.getTranslateY()*ratioHeight);
+        if (msg_text != null){
+            msg_text.getTransforms().add(scale);
+            msg_text.setTranslateX(msg_text.getTranslateX()*ratioWidth);
+            msg_text.setTranslateY(msg_text.getTranslateY()*ratioHeight);
         }
     }
     
@@ -257,8 +250,9 @@ public class Main extends Application {
             }else{
                 int randEnemy = (int)(Math.random() * (enemies.size() - 1));
                 //random enemy shooting
-                if (rst){                        
-                    projs.add(enemies.get(randEnemy).shootProjectile());
+                if (rst){   
+                    if (!enemies.isEmpty())
+                        projs.add(enemies.get(randEnemy).shootProjectile());
                     rst = false;
                 }else{
                     //enemy going forward
@@ -331,16 +325,12 @@ public class Main extends Application {
             time += 1.0 / 60;             
         }else{
             if (!goodbye){
-                player.addPoints(-(int)time*TIME_WORTH);
+                player.addPoints(-(int)time*constants.getDifficulty());
                 camera.getChildren().clear();
                 camera.getChildren().addAll(shots);
                 camera.getChildren().addAll(enemies);
                 camera.getChildren().addAll(coins);
                 camera.getChildren().addAll(projs);
-                end_text = new Text(width/2 - 100, height/2 - 30, player.getPoints() + end_msg);
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
                 goodbye = true;
             }
         }
@@ -379,17 +369,16 @@ public class Main extends Application {
     public void updatePlayer(){
         if (!player.invincible()){
             if (!player.loseLife()){
-                end_text = new Text(width/2 - 100, height/2 - 30, String.format(life_msg, player.getLifeNumber()));
-                end_text.setFill(Color.ORANGERED);
-                end_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-                root.getChildren().add(end_text);
-                FadeTransition ft = new FadeTransition(Duration.seconds(2), end_text);
-                ft.setFromValue(1);
-                ft.setToValue(0);
-                ft.play();
+                Main.setMessageText(String.format(constants.getLabels().getLife(), player.getLifeNumber()), true, null);
                 resetPlayer();
-            }else
+            }else{
                 theEnd = true; 
+                setMessageText(constants.getLabels().getDefeat(), true, 
+                        h -> {
+                            msg_text.setText(String.format(constants.getLabels().getFinal_score(), player.getPoints()));
+                            msg_text.setScaleX(1);
+                        });
+            }
         }
     }
     
@@ -427,7 +416,7 @@ public class Main extends Application {
                             shotEnemies.remove(enemy);
                             camera.getChildren().remove(enemy);
                             double rand = Math.random();
-                            player.addPoints(enemy.enemyStrength()/HARD);// points won from kill shot
+                            player.addPoints(enemy.enemyStrength()/constants.getDifficulty());// points won from kill shot
                             if (rand < 0.6){
                                 if (rand < 0.2)
                                     player.addBonus(new Bonus(Bonus.pickBonus(), x, y));
@@ -437,9 +426,15 @@ public class Main extends Application {
                         },
                         new KeyValue(rot.angleProperty(), 360))
         );
-        if (enemies.isEmpty() && shotEnemies.size() == 1){
+        if (enemies.isEmpty() && shotEnemies.indexOf(enemy) == shotEnemies.size() - 1){
             tl.setOnFinished(t -> {
+                System.out.println("");
                 theEnd = true;
+                setMessageText(constants.getLabels().getVictory(), true, 
+                        h -> {
+                            msg_text.setText(String.format(constants.getLabels().getFinal_score(), player.getPoints()));
+                            msg_text.setScaleX(1);
+                        });
             });
         }        
         tl.play();
@@ -453,8 +448,27 @@ public class Main extends Application {
         enemies.forEach(e -> e.setRedMark(mark));
     }
         
+    public static void setMessageText(String msg, boolean fade, EventHandler<ActionEvent> handler){
+        if (msg_text == null){
+            msg_text = new Text(width/2 - 100, height/2 - 30, msg);
+            msg_text.setFill(Color.ORANGERED);
+            msg_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
+            root.getChildren().add(msg_text);
+        }
+        else
+            msg_text.setText(msg); 
+        msg_text.setOpacity(1);
+        if (fade){
+            ScaleTransition st = new ScaleTransition(Duration.seconds(2), msg_text);
+            st.setFromX(1);
+            st.setToX(0);
+            st.setOnFinished(handler);
+            st.play();            
+        }
+    }
+    
     private void displayTime() {
-        time_text = new Text(width/2 - 15, 20, time_msg + time_passed);
+        time_text = new Text(width/2 - 15, 20, String.format(constants.getLabels().getTime(), time_passed));
         time_text.setFill(Color.RED);
         time_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
         root.getChildren().add(time_text); 
@@ -472,6 +486,7 @@ public class Main extends Application {
     public static void removeLife(Life life){
         background.getChildren().remove(life);
     }
+
     
     public static void main(String[] args) {
         launch(args);

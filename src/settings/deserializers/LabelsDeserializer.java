@@ -10,11 +10,16 @@ public class LabelsDeserializer implements JsonDeserializer<Labels>{
     public Labels deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
         JsonObject jObject = (JsonObject) je;
         
-       return new Labels(jObject.get("start").getAsString(), 
-                    jObject.get("victory").getAsString(),
-                    jObject.get("defeat").getAsString(),
-                    jObject.get("time").getAsString(),
-                    jObject.get("score").getAsString(),
-                    jObject.get("high_score").getAsString());
+        Labels labs = Labels.getInstance();
+        labs.setStart(jObject.get("start").getAsString());
+        labs.setStart(jObject.get("final_score").getAsString());
+        labs.setStart(jObject.get("victory").getAsString());
+        labs.setStart(jObject.get("defeat").getAsString());
+        labs.setStart(jObject.get("life").getAsString());
+        labs.setStart(jObject.get("time").getAsString());
+        labs.setStart(jObject.get("score").getAsString());
+        labs.setStart(jObject.get("high_score").getAsString());
+
+        return labs;
     }
 }

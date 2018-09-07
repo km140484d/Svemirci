@@ -3,11 +3,14 @@ package sprites.shots;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import main.Main;
 
 public class Triangle extends Shot{
     
+    public static final double ANGLE = Main.constants.getShot_max_angle(); //1
+    
     private static final double INNER = SIDE*RATIO;
-    public static final double ANGLE = 120;//60*2
+    
     private static final int TRI_STRENGTH = 1;
     
     public Triangle(double playerAngle, double angle){

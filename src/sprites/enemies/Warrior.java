@@ -38,7 +38,7 @@ public class Warrior extends Enemy{
         for(Path e: ears)
             e.setFill(Color.GRAY);
         
-        strength = WARRIOR;
+        strength = Main.constants.getWarrior_life() * Main.constants.getDifficulty();
     }
     
     public void notifyCommander(){
@@ -56,7 +56,7 @@ public class Warrior extends Enemy{
     
     @Override
     public int enemyStrength() {
-        return Enemy.WARRIOR;
+        return Main.constants.getWarrior_life() * Main.constants.getDifficulty();
     }
     
         @Override

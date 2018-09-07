@@ -6,7 +6,7 @@ import main.Main;
 
 public class Star extends Sprite{
 
-    private static double BOUND = 30;
+    public static double BOUND = 30;
     
     private Polygon body;
     

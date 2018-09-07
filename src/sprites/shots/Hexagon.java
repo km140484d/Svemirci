@@ -3,13 +3,16 @@ package sprites.shots;
 import javafx.scene.image.Image;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import main.Main;
 
 public class Hexagon extends Shot{
+    
+    public static final double ANGLE = Main.constants.getShot_max_angle() / 8;
     
     private static final double ROOT = size / Math.sqrt(2);
     private static final double INNER = RATIO*size;
     private static final double INNER_ROOT = INNER / Math.sqrt(2);
-    public static final double ANGLE = 30; //2*15
+    
     
     private static final int HEX_STRENGTH = 2;
     

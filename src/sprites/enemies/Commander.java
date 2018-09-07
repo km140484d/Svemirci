@@ -7,6 +7,7 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
 import static sprites.enemies.Enemy.*;
+import main.Main;
 
 public class Commander extends Enemy{
 
@@ -59,7 +60,7 @@ public class Commander extends Enemy{
             e.setFill(new ImagePattern(new Image("/resources/enemy/red_feathers.png")));
         getChildren().addAll(helmet, holder, crown);
         
-        strength = COMMANDER;
+        strength = Main.constants.getCommander_life() * Main.constants.getDifficulty();
     }
     
     public void addWarrior(Warrior warrior){
@@ -86,7 +87,7 @@ public class Commander extends Enemy{
     
     @Override
     public int enemyStrength() {
-        return Enemy.COMMANDER;
+        return Main.constants.getCommander_life() * Main.constants.getDifficulty();
     }
 
     @Override

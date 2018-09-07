@@ -3,13 +3,16 @@ package sprites.shots;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import main.Main;
 
 public class Rhombus extends Shot{
+    
+    public static final double ANGLE = Main.constants.getShot_max_angle()/2; //2*45
     
     private static final double WIDTH = size*2/3;
     private static final double INNER = size*RATIO;
     private static final double INNER_WIDTH = INNER*2/3;
-    public static final double ANGLE = 90; //2*45
+
     private static final int RHOMB_STRENGTH = 1;
     
     public Rhombus(double playerAngle, double angle){

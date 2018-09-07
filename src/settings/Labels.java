@@ -3,17 +3,31 @@ package settings;
 import java.io.*;
 
 public class Labels implements Serializable{
-    private String start, victory, defeat;
-    private String time, score, high_score;
+    private String start, final_score, victory, defeat, life;
+    private String time, points, high_score;//start, high_score
+    
+    private static Labels labels;
+    
+    private Labels(){}
 
-    public Labels(String start, String victory, String defeat, String time, String score, String high_score) {
-        this.start = start;
-        this.victory = victory;
-        this.defeat = defeat;
-        this.time = time;
-        this.score = score;
-        this.high_score = high_score;
-    }       
+//    private Labels(String start, String final_score, String victory, String defeat, String life, 
+//            String time, String points, String high_score) {
+//        this.start = start;
+//        this.final_score = final_score;
+//        this.victory = victory;
+//        this.defeat = defeat;
+//        this.life = life;
+//        this.time = time;
+//        this.points = points;
+//        this.high_score = high_score;
+//    } 
+    
+    public static Labels getInstance(){
+        if (labels == null){
+            labels = new Labels();
+        }
+        return labels;
+    }
 
     public String getStart() {
         return start;
@@ -21,6 +35,14 @@ public class Labels implements Serializable{
 
     public void setStart(String start) {
         this.start = start;
+    }
+
+    public String getFinal_score() {
+        return final_score;
+    }
+
+    public void setFinal_score(String final_score) {
+        this.final_score = final_score;
     }
 
     public String getVictory() {
@@ -39,6 +61,14 @@ public class Labels implements Serializable{
         this.defeat = defeat;
     }
 
+    public String getLife() {
+        return life;
+    }
+
+    public void setLife(String life) {
+        this.life = life;
+    }
+
     public String getTime() {
         return time;
     }
@@ -47,12 +77,12 @@ public class Labels implements Serializable{
         this.time = time;
     }
 
-    public String getScore() {
-        return score;
+    public String getPoints() {
+        return points;
     }
 
-    public void setScore(String score) {
-        this.score = score;
+    public void setPoints(String points) {
+        this.points = points;
     }
 
     public String getHigh_score() {

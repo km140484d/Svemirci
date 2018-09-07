@@ -3,10 +3,12 @@ package sprites.shots;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import main.Main;
 
 public class Pentagon extends Shot {
     
-    public static final double ANGLE = 60; //2*30
+    public static final double ANGLE = Main.constants.getShot_max_angle() / 4;
+    
     private static final int PENT_STRENGTH = 2;
     
     public Pentagon(double playerAngle, double angle){

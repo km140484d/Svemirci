@@ -15,7 +15,7 @@ public class Constants {
     
     private int difficulty, power_time;
     private double init_speed, rotate_angle, shot_max_angle;
-    private int player1_max_shots, player2_max_shots;
+    private int player_max_shots;
     private double enemy_fire;
     private int scout_life, warrior_life, commander_life;
     private Score[] high_scores;
@@ -81,8 +81,9 @@ public class Constants {
         return difficulty;
     }
 
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
+    public void setDifficulty(int difficulty) {        
+        this.difficulty = difficulty > 5 ? 5 : difficulty;
+        this.difficulty = difficulty < 1 ? 1 : difficulty;
     }
 
     public int getPower_time() {
@@ -90,7 +91,8 @@ public class Constants {
     }
 
     public void setPower_time(int power_time) {
-        this.power_time = power_time;
+        this.power_time = power_time < 10 ? 10 : power_time;
+        this.power_time = power_time > 20 ? 20 : power_time;
     }
 
     public double getInit_speed() {
@@ -117,28 +119,21 @@ public class Constants {
         this.shot_max_angle = shot_max_angle;
     }
 
-    public int getPlayer1_max_shots() {
-        return player1_max_shots;
+    public int getPlayer_max_shots() {
+        return player_max_shots;
     }
 
-    public void setPlayer1_max_shots(int player1_max_shots) {
-        this.player1_max_shots = player1_max_shots;
+    public void setPlayer_max_shots(int player_max_shots) {
+        this.player_max_shots = player_max_shots;
     }
-
-    public int getPlayer2_max_shots() {
-        return player2_max_shots;
-    }
-
-    public void setPlayer2_max_shots(int player2_max_shots) {
-        this.player2_max_shots = player2_max_shots;
-    }
-
+    
     public double getEnemy_fire() {
         return enemy_fire;
     }
 
     public void setEnemy_fire(double enemy_fire) {
-        this.enemy_fire = enemy_fire;
+        this.enemy_fire = enemy_fire > 0.1 ? 0.1 : enemy_fire;
+        this.enemy_fire = enemy_fire < 0.01 ? 0.01 : enemy_fire;
     }
 
     public int getScout_life() {
@@ -146,7 +141,8 @@ public class Constants {
     }
 
     public void setScout_life(int scout_life) {
-        this.scout_life = scout_life;
+        this.scout_life = scout_life < 1 ? 1 : scout_life;
+        this.scout_life = scout_life > 10 ? 10 : scout_life;
     }
 
     public int getWarrior_life() {
@@ -154,7 +150,8 @@ public class Constants {
     }
 
     public void setWarrior_life(int warrior_life) {
-        this.warrior_life = warrior_life;
+        this.warrior_life = warrior_life < 10 ? 10 : warrior_life;
+        this.warrior_life = warrior_life > 20 ? 20 : warrior_life;
     }
 
     public int getCommander_life() {
@@ -162,7 +159,8 @@ public class Constants {
     }
 
     public void setCommander_life(int commander_life) {
-        this.commander_life = commander_life;
+        this.commander_life = commander_life < 20 ? 20 : commander_life;
+        this.commander_life = commander_life > 30 ? 30 : commander_life;
     }
 
     public Score[] getHigh_scores() {
