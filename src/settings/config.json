@@ -67,13 +67,13 @@
             "columns" : 9,
             "rows" : 9,
             "commanders" : [
-                {"x" : 2.5, "y" : 4, "commanders" : "", "last" : false},
-                {"x" : 2.5, "y" : 6, "commanders" : "", "last" : false},
-                {"x" : 5, "y" : 2.5, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 2.5, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 2.5, "commanders" : "", "last" : false},
+                {"x" : 2.5, "y" : 5, "commanders" : "", "last" : false},
                 {"x" : 5, "y" : 5, "commanders" : "", "last" : false},               
-                {"x" : 5, "y" : 7.5, "commanders" : "", "last" : false},
-                {"x" : 7.5, "y" : 4, "commanders" : "", "last" : false},
-                {"x" : 7.5, "y" : 6, "commanders" : "", "last" : false}
+                {"x" : 7.5, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 7.5, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 7.5, "commanders" : "", "last" : false}
             ],
             "warriors" : [
                 {"x" : 1, "y" : 1, "commanders" : "0,2,3", "last" : false},
@@ -81,65 +81,251 @@
                 {"x" : 3, "y" : 3, "commanders" : "0,2,3", "last" : false},
                 {"x" : 4, "y" : 4, "commanders" : "0,2,3", "last" : false},
                 
-                {"x" : 1, "y" : 5, "commanders" : "0,1,3", "last" : false},
-                {"x" : 2, "y" : 5, "commanders" : "0,1,3", "last" : false},
-                {"x" : 3, "y" : 5, "commanders" : "0,1,3", "last" : false},
-                {"x" : 4, "y" : 5, "commanders" : "0,1,3", "last" : false},
+                {"x" : 5, "y" : 1, "commanders" : "0,1,3", "last" : false},
+                {"x" : 5, "y" : 2, "commanders" : "0,1,3", "last" : false},
+                {"x" : 5, "y" : 3, "commanders" : "0,1,3", "last" : false},
+                {"x" : 5, "y" : 4, "commanders" : "0,1,3", "last" : false},
                 
-                {"x" : 1, "y" : 9, "commanders" : "1,3,4", "last" : false},
-                {"x" : 2, "y" : 8, "commanders" : "1,3,4", "last" : false},
-                {"x" : 3, "y" : 7, "commanders" : "1,3,4", "last" : false},
-                {"x" : 4, "y" : 6, "commanders" : "1,3,4", "last" : false},
+                {"x" : 9, "y" : 1, "commanders" : "1,3,4", "last" : false},
+                {"x" : 8, "y" : 2, "commanders" : "1,3,4", "last" : false},
+                {"x" : 7, "y" : 3, "commanders" : "1,3,4", "last" : false},
+                {"x" : 6, "y" : 4, "commanders" : "1,3,4", "last" : false},
                 
                 {"x" : 9, "y" : 9, "commanders" : "3,4,6", "last" : false},
                 {"x" : 8, "y" : 8, "commanders" : "3,4,6", "last" : false},
                 {"x" : 7, "y" : 7, "commanders" : "3,4,6", "last" : false},
                 {"x" : 6, "y" : 6, "commanders" : "3,4,6", "last" : false},
                 
-                {"x" : 9, "y" : 5, "commanders" : "3,5,6", "last" : false},
-                {"x" : 8, "y" : 5, "commanders" : "3,5,6", "last" : false},
-                {"x" : 7, "y" : 5, "commanders" : "3,5,6", "last" : false},
-                {"x" : 6, "y" : 5, "commanders" : "3,5,6", "last" : false},
+                {"x" : 5, "y" : 9, "commanders" : "3,5,6", "last" : false},
+                {"x" : 5, "y" : 8, "commanders" : "3,5,6", "last" : false},
+                {"x" : 5, "y" : 7, "commanders" : "3,5,6", "last" : false},
+                {"x" : 5, "y" : 6, "commanders" : "3,5,6", "last" : false},
                 
-                {"x" : 9, "y" : 1, "commanders" : "2,3,5", "last" : false},
-                {"x" : 8, "y" : 2, "commanders" : "2,3,5", "last" : false},
-                {"x" : 7, "y" : 3, "commanders" : "2,3,5", "last" : false},
-                {"x" : 6, "y" : 4, "commanders" : "2,3,5", "last" : false}
+                {"x" : 1, "y" : 9, "commanders" : "2,3,5", "last" : false},
+                {"x" : 2, "y" : 8, "commanders" : "2,3,5", "last" : false},
+                {"x" : 3, "y" : 7, "commanders" : "2,3,5", "last" : false},
+                {"x" : 4, "y" : 6, "commanders" : "2,3,5", "last" : false}
                 
                 
             ],        
             "scouts" : [
-                {"x" : 1, "y" : 2, "commanders" : "", "last" : false},
-                {"x" : 1, "y" : 3, "commanders" : "", "last" : false},
-                {"x" : 1, "y" : 4, "commanders" : "", "last" : false},
-                {"x" : 1, "y" : 6, "commanders" : "", "last" : false},
-                {"x" : 1, "y" : 7, "commanders" : "", "last" : false},
-                {"x" : 1, "y" : 8, "commanders" : "", "last" : false},
-                
-                {"x" : 2, "y" : 9, "commanders" : "", "last" : false},
-                {"x" : 3, "y" : 9, "commanders" : "", "last" : false},
-                {"x" : 4, "y" : 9, "commanders" : "", "last" : false},
-                {"x" : 5, "y" : 9, "commanders" : "", "last" : false},
-                {"x" : 6, "y" : 9, "commanders" : "", "last" : false},
-                {"x" : 7, "y" : 9, "commanders" : "", "last" : false},
-                {"x" : 8, "y" : 9, "commanders" : "", "last" : false},
-                
-                {"x" : 9, "y" : 8, "commanders" : "", "last" : false},
-                {"x" : 9, "y" : 7, "commanders" : "", "last" : false},
-                {"x" : 9, "y" : 6, "commanders" : "", "last" : false},
-                {"x" : 9, "y" : 4, "commanders" : "", "last" : false},
-                {"x" : 9, "y" : 3, "commanders" : "", "last" : false},
-                {"x" : 9, "y" : 2, "commanders" : "", "last" : false},
-                
-                {"x" : 8, "y" : 1, "commanders" : "", "last" : false},
-                {"x" : 7, "y" : 1, "commanders" : "", "last" : false},
-                {"x" : 6, "y" : 1, "commanders" : "", "last" : false},
-                {"x" : 5, "y" : 1, "commanders" : "", "last" : false},
-                {"x" : 4, "y" : 1, "commanders" : "", "last" : false},
+                {"x" : 2, "y" : 1, "commanders" : "", "last" : false},
                 {"x" : 3, "y" : 1, "commanders" : "", "last" : false},
-                {"x" : 2, "y" : 1, "commanders" : "", "last" : true}               
+                {"x" : 4, "y" : 1, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 1, "commanders" : "", "last" : false},
+                {"x" : 7, "y" : 1, "commanders" : "", "last" : false},
+                {"x" : 8, "y" : 1, "commanders" : "", "last" : false},
+                
+                {"x" : 9, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 4, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 6, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 7, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 8, "commanders" : "", "last" : false},
+                
+                {"x" : 8, "y" : 9, "commanders" : "", "last" : false},
+                {"x" : 7, "y" : 9, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 9, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 9, "commanders" : "", "last" : false},
+                {"x" : 3, "y" : 9, "commanders" : "", "last" : false},
+                {"x" : 2, "y" : 9, "commanders" : "", "last" : false},
+                
+                {"x" : 1, "y" : 8, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 7, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 6, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 4, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 2, "commanders" : "", "last" : true}               
             ]            
-        } 
+        },
+        {
+            "name" : "beacon",
+            "width" : 0.7,
+            "height" : 0.6,
+            "columns" : 7,
+            "rows" : 7,
+            "commanders" : [
+                {"x" : 4, "y" : 4, "commanders" : "", "last" : false}
+            ],
+            "warriors" : [
+                {"x" : 1, "y" : 2.5, "commanders" : "0", "last" : false},
+                {"x" : 3, "y" : 3.5, "commanders" : "0", "last" : false},
+                
+                {"x" : 4, "y" : 1, "commanders" : "0", "last" : false},
+                {"x" : 4, "y" : 3, "commanders" : "0", "last" : false},
+                
+                {"x" : 7, "y" : 2.5, "commanders" : "0", "last" : false},
+                {"x" : 5, "y" : 3.5, "commanders" : "0", "last" : false},
+                
+                {"x" : 7, "y" : 5.5, "commanders" : "0", "last" : false},
+                {"x" : 5, "y" : 4.5, "commanders" : "0", "last" : false},
+                
+                {"x" : 4, "y" : 7, "commanders" : "0", "last" : false},
+                {"x" : 4, "y" : 5, "commanders" : "0", "last" : false},
+                
+                {"x" : 1, "y" : 5.5, "commanders" : "0", "last" : false},
+                {"x" : 3, "y" : 4.5, "commanders" : "0", "last" : false}               
+            ],        
+            "scouts" : [
+                {"x" : 2, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 6, "commanders" : "", "last" : false},
+                {"x" : 2, "y" : 5, "commanders" : "", "last" : true}              
+            ]            
+        },
+        {
+            "name" : "rhomboid",
+            "width" : 0.8,
+            "height" : 0.75,
+            "columns" : 9,
+            "rows" : 9,
+            "commanders" : [
+                {"x" : 2, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 8, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 5, "commanders" : "", "last" : false}
+            ],
+            "warriors" : [
+                {"x" : 4, "y" : 2, "commanders" : "0,2", "last" : false},
+                {"x" : 3, "y" : 3, "commanders" : "0,2", "last" : false},
+                {"x" : 4, "y" : 3, "commanders" : "0,2", "last" : false},
+                {"x" : 2, "y" : 4, "commanders" : "0,2", "last" : false},
+                {"x" : 3, "y" : 4, "commanders" : "0,2", "last" : false},
+                {"x" : 4, "y" : 4, "commanders" : "0,2", "last" : false},
+                
+                {"x" : 6, "y" : 2, "commanders" : "1,2", "last" : false},
+                {"x" : 7, "y" : 3, "commanders" : "1,2", "last" : false},
+                {"x" : 6, "y" : 3, "commanders" : "1,2", "last" : false},
+                {"x" : 8, "y" : 4, "commanders" : "1,2", "last" : false},
+                {"x" : 7, "y" : 4, "commanders" : "1,2", "last" : false},
+                {"x" : 6, "y" : 4, "commanders" : "1,2", "last" : false},
+                
+                {"x" : 8, "y" : 6, "commanders" : "2", "last" : false},
+                {"x" : 7, "y" : 6, "commanders" : "2", "last" : false},
+                {"x" : 6, "y" : 6, "commanders" : "2", "last" : false},
+                {"x" : 7, "y" : 7, "commanders" : "2", "last" : false},
+                {"x" : 6, "y" : 7, "commanders" : "2", "last" : false},
+                {"x" : 6, "y" : 8, "commanders" : "2", "last" : false},
+                
+                {"x" : 2, "y" : 6, "commanders" : "2", "last" : false},
+                {"x" : 3, "y" : 6, "commanders" : "2", "last" : false},
+                {"x" : 4, "y" : 6, "commanders" : "2", "last" : false},
+                {"x" : 3, "y" : 7, "commanders" : "2", "last" : false},
+                {"x" : 4, "y" : 7, "commanders" : "2", "last" : false},
+                {"x" : 4, "y" : 8, "commanders" : "2", "last" : false},
+                
+                {"x" : 5, "y" : 2, "commanders" : "2", "last" : false},
+                {"x" : 5, "y" : 3, "commanders" : "2", "last" : false},
+                
+                {"x" : 8, "y" : 5, "commanders" : "2", "last" : false},
+                {"x" : 7, "y" : 5, "commanders" : "2", "last" : false},
+                
+                {"x" : 5, "y" : 8, "commanders" : "2", "last" : false},
+                {"x" : 5, "y" : 7, "commanders" : "2", "last" : false},
+                
+                {"x" : 2, "y" : 5, "commanders" : "2", "last" : false},
+                {"x" : 3, "y" : 5, "commanders" : "2", "last" : false}             
+            ],        
+            "scouts" : [
+                {"x" : 5, "y" : 1, "commanders" : "", "last" : false},
+                {"x" : 9, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 9, "commanders" : "", "last" : false},
+                {"x" : 1, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 4, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 6, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 5, "commanders" : "", "last" : true}   
+            ]            
+        },
+      {
+            "name" : "sims",
+            "width" : 0.7,
+            "height" : 0.65,
+            "columns" : 9,
+            "rows" : 9,
+            "commanders" : [
+                {"x" : 5, "y" : 1, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 5, "commanders" : "", "last" : false}
+            ],
+            "warriors" : [
+                {"x" : 3, "y" : 5, "commanders" : "1,2", "last" : false},
+                {"x" : 4, "y" : 6, "commanders" : "1,2", "last" : false},
+                {"x" : 5, "y" : 7, "commanders" : "1,2", "last" : false},
+                {"x" : 6, "y" : 6, "commanders" : "1,2", "last" : false},
+                {"x" : 7, "y" : 5, "commanders" : "1,2", "last" : false},
+                
+                {"x" : 1, "y" : 5, "commanders" : "0,2", "last" : false},
+                {"x" : 2, "y" : 6, "commanders" : "0,2", "last" : false},
+                {"x" : 3, "y" : 7, "commanders" : "0,2", "last" : false},
+                {"x" : 4, "y" : 8, "commanders" : "0,2", "last" : false},
+                {"x" : 5, "y" : 9, "commanders" : "0,2", "last" : false},
+                {"x" : 6, "y" : 8, "commanders" : "0,2", "last" : false},
+                {"x" : 7, "y" : 7, "commanders" : "0,2", "last" : false},
+                {"x" : 8, "y" : 6, "commanders" : "0,2", "last" : false},
+                {"x" : 9, "y" : 5, "commanders" : "0,2", "last" : false}           
+            ],        
+            "scouts" : [
+                {"x" : 4, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 3, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 2, "y" : 4, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 7, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 8, "y" : 4, "commanders" : "", "last" : false},
+                
+                {"x" : 4  , "y" : 4, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 4, "commanders" : "", "last" : true}                
+            ]            
+        },
+        {
+            "name" : "hourglass",
+            "width" : 0.7,
+            "height" : 0.8,
+            "columns" : 9,
+            "rows" : 9,
+            "commanders" : [
+                {"x" : 5, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 5, "commanders" : "", "last" : false},
+                {"x" : 5, "y" : 7, "commanders" : "", "last" : false}
+            ],
+            "warriors" : [
+                {"x" : 1, "y" : 1, "commanders" : "0,1", "last" : false},
+                {"x" : 3, "y" : 1, "commanders" : "0,1", "last" : false},
+                {"x" : 5, "y" : 1, "commanders" : "0,1", "last" : false},
+                {"x" : 7, "y" : 1, "commanders" : "0,1", "last" : false},
+                {"x" : 9, "y" : 1, "commanders" : "0,1", "last" : false},
+                {"x" : 4, "y" : 2, "commanders" : "0,1", "last" : false},
+                {"x" : 6, "y" : 2, "commanders" : "0,1", "last" : false},
+                
+                {"x" : 4, "y" : 8, "commanders" : "1,2", "last" : false},
+                {"x" : 6, "y" : 8, "commanders" : "1,2", "last" : false},
+                {"x" : 1, "y" : 9, "commanders" : "1,2", "last" : false},
+                {"x" : 3, "y" : 9, "commanders" : "1,2", "last" : false},
+                {"x" : 5, "y" : 9, "commanders" : "1,2", "last" : false},
+                {"x" : 7, "y" : 9, "commanders" : "1,2", "last" : false},
+                {"x" : 9, "y" : 9, "commanders" : "1,2", "last" : false}        
+            ],        
+            "scouts" : [
+                {"x" : 2, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 3, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 4, "commanders" : "", "last" : false},
+                
+                {"x" : 8, "y" : 2, "commanders" : "", "last" : false},
+                {"x" : 7, "y" : 3, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 4, "commanders" : "", "last" : false},
+                
+                {"x" : 8, "y" : 8, "commanders" : "", "last" : false},
+                {"x" : 7, "y" : 7, "commanders" : "", "last" : false},
+                {"x" : 6, "y" : 6, "commanders" : "", "last" : false},
+                
+                {"x" : 2, "y" : 8, "commanders" : "", "last" : false},
+                {"x" : 3, "y" : 7, "commanders" : "", "last" : false},
+                {"x" : 4, "y" : 6, "commanders" : "", "last" : true}                
+            ]            
+        }
     ]
     
 }

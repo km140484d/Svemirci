@@ -11,33 +11,35 @@ import java.util.*;
 import javafx.animation.*;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.scene.transform.*;
 import javafx.stage.*;
 import javafx.util.Duration;
+import menu.*;
 import settings.deserializers.*;
 import sprites.awards.*;
-import static sprites.enemies.Enemy.getWidth;
 
 public class Main extends Application {  
+    public static final Font FONT = Font.font("Sylfaen", FontWeight.BOLD, 24);
     public static final double WINDOW_WIDTH = 1200;//1200
     public static final double WINDOW_HEIGHT = 700;//700
     public static final double MIN_WINDOW_WIDTH = 1000;
     public static final double MIN_WINDOW_HEIGHT = 600;    
-    private static final int ENEMIES_IN_A_ROW = 8;
-    private static final int ENEMIES_IN_A_COLUMN = 4;
     
     private static final String SETTINGS_FILE = "settings/config.json";
     
+    //timers
+    private static AnimationTimer gameTimer, menuTimer;
+    
     //Nodes on scene -----------------------------
-    private Scene scene;
-    private static Group root = new Group();
+    private static Stage stage;
+    private static Scene gameScene, menuScene;
+    private static Group gameGroup = new Group(), menuGroup = new Group();
     public static Camera camera = new Camera();
-    private static Background background;
+    private static Background gameBackground, menuBackground;
     private static Player player;
     private List<Shot> shots;
     private static List<Enemy> enemies = new LinkedList<>();
@@ -65,146 +67,40 @@ public class Main extends Application {
     
     @Override
     public void start(Stage primaryStage) {
+        stage = primaryStage;
+        
         if (!fileInitialization())
             return;       
+
+        //Font.getFamilies().forEach(System.out::println);
         
         width = constants.getWidth();
         height = constants.getHeight();
-        
-        background = new Background();
-        root.getChildren().add(background);
-        
-        player = new Player();
-        player.setTranslateX(width / 2);
-        player.setTranslateY(height * 0.95);
-        camera.getChildren().add(player);
- 
-        displayPoints();
-        displayTime();
-        
-        Configuration config = constants.pickConfiguration("warzone");
-        int enColumns = config.getColumns();
-        int enRows = config.getRows();
-        double enWidth = config.getWidth() * width / enColumns;
-        double enHeight = config.getHeight() * height / enRows;
-        Enemy.setMovement((width - config.getWidth() * width)/2);
-        List<Commander> commanders = new ArrayList<>();
-        Position[] positions = config.getCommanders();
-        for(Position p: positions){
-            Commander commander = new Commander(p.getY() * enWidth,p.getX() * enHeight, config.getHeight()*height);
-            commanders.add(commander);
-            commander.showBar(camera);
-            camera.getChildren().add(commander);
-            enemies.add(commander);
-            if (p.isLast())
-                commander.markLast();
-        }
-        positions = config.getWarriors();
-        for(Position p: positions){
-            Warrior warrior = new Warrior(p.getY() * enWidth,p.getX() * enHeight, config.getHeight()*height);
-            warrior.showBar(camera);
-            camera.getChildren().add(warrior);
-            enemies.add(warrior);
-            int[] comms = Arrays.asList(p.getCommanders().split(",")).stream().mapToInt(Integer::parseInt).toArray();
-            for(int i=0; i < comms.length; i++)
-                warrior.addCommander(commanders.get(comms[i]));
-            if (p.isLast())
-                warrior.markLast();
-        }
-        positions = config.getScouts();
-        for(Position p: positions){
-            Scout scout = new Scout(p.getY() * enWidth,p.getX() * enHeight, config.getHeight()*height);
-            scout.showBar(camera);
-            camera.getChildren().add(scout);
-            enemies.add(scout);
-            if (p.isLast())
-                scout.markLast();
-        }
-        
-        
-//        boolean first = true;     
-//        Commander commander = null;
-//        for (int i = 0; i < ENEMIES_IN_A_COLUMN; i++) 
-//            for (int j = 0; j < ENEMIES_IN_A_ROW; j++) {
-//                Enemy enemy;
-//                if ((i + j) % 3 == 2){
-//                    enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, 
-//                            height/2);
-//                    ((Warrior)enemy).addCommander(commander);
-//                }else
-//                    if ((i + j) % 3 == 1){
-//                        if (commander == null){
-//                            enemy = new Commander((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, height/2);
-//                            commander = (Commander)enemy;
-//                        }else{
-//                            enemy = new Warrior((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, 
-//                                    height/2);
-//                            ((Warrior)enemy).addCommander(commander);
-//                        }
-//                    }else
-//                        enemy = new Scout((j+1) * width / (ENEMIES_IN_A_ROW + 1),(i+1) * Enemy.getHeight()*2, height/2);                
-//                enemy.showBar(camera);
-//                camera.getChildren().add(enemy);
-//                
-//                if (i == 0 && first){
-//                    Enemy.setMovement(enemy.getTranslateX() - getWidth()*3/4);
-//                    first = false;
-//                }
-//                
-//                if (i == ENEMIES_IN_A_COLUMN - 1 && j == ENEMIES_IN_A_ROW - 1)
-//                    enemy.markLast();
-//                
-//                //blinking
-//                if ((i + j) % 2 == 0)
-//                   enemy.startBlinking(enemy.getLeftEye()); 
-//                else
-//                   enemy.startBlinking(enemy.getRightEye());             
-//                enemies.add(enemy);
-//            }
-        
-        root.getChildren().add(camera);
-        scene = new Scene(root, width, height);
-        scene.widthProperty().addListener(w -> {
-            resizeWindow(scene.getWidth()/width, scene.getHeight()/height); 
-            width = scene.getWidth();
-            height = scene.getHeight();}
-        );
-        scene.heightProperty().addListener(h -> {
-            resizeWindow(scene.getWidth()/width,scene.getHeight()/height); 
-            height = scene.getHeight();
-            width = scene.getWidth();}
-        );
-        scene.setOnKeyPressed(player);
-        scene.setOnKeyReleased(player);
+            
+        menuScene = new Scene(menuGroup, width, height);
+
+        createGame();
         
         primaryStage.setTitle(constants.getName());
         primaryStage.setResizable(constants.isResizable());
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setFullScreen(constants.isFull_screen());
-        primaryStage.setScene(scene);
+        primaryStage.setScene(menuScene);
         primaryStage.show();
         
-        new AnimationTimer() {
+        Menu menu = new Menu(width*2/5, height/4);
+        menuBackground = new Background();
+        menuGroup.getChildren().addAll(menuBackground, menu);  
+        menuScene.setOnKeyReleased(menu);
+        menuTimer = new AnimationTimer(){
             @Override
-            public void handle(long currentNanoTime) {                
-                update();
-                if (time_passed < (int)time){
-                    time_passed++;
-                    time_text.setText(String.format(constants.getLabels().getTime(), time_passed));
-                    double rand = Math.random();
-                    if (!theEnd && (rand < constants.getEnemy_fire()*constants.getDifficulty())){
-                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty()){
-                            shoot = true;
-                        }else
-                            if ((!attack) && (rand < constants.getEnemy_fire()*2/5*constants.getDifficulty()))
-                                attack = true;                                
-                            else
-                                rst = true;
-                    }
-                }
+            public void handle(long now) {
+                menuBackground.update();
             }
-        }.start();
+        };
+        menuTimer.start();
+        
     }
     
     public boolean fileInitialization(){
@@ -240,33 +136,109 @@ public class Main extends Application {
         }
     }
     
-    public void resizeWindow(double ratioWidth, double ratioHeight){
-        background.resizeWindow(ratioWidth, ratioHeight);
-        player.resizeWindow(ratioWidth, ratioHeight);
-        enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
-        Enemy.resizeMovement(ratioWidth);
-        shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
-        coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
-        projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
+    public void createGame(){
+        gameBackground = new Background();
+        gameGroup.getChildren().add(gameBackground);
         
-        Scale scale = new Scale();
-        scale.setX(ratioWidth);
-        scale.setY(ratioHeight);
-        time_text.getTransforms().add(scale);
-        time_text.setTranslateX(time_text.getTranslateX()*ratioWidth);
-        time_text.setTranslateY(time_text.getTranslateY()*ratioHeight);
-        if (msg_text != null){
-            msg_text.getTransforms().add(scale);
-            msg_text.setTranslateX(msg_text.getTranslateX()*ratioWidth);
-            msg_text.setTranslateY(msg_text.getTranslateY()*ratioHeight);
+        player = new Player();
+        player.setTranslateX(width / 2);
+        player.setTranslateY(height * 0.95);
+        camera.getChildren().add(player);
+ 
+        displayPoints();
+        displayTime();
+        
+        Configuration config = constants.pickConfiguration("hourglass");
+        Enemy.setMovement((width - config.getWidth() * width)/2);
+        List<Commander> commanders = new ArrayList<>();
+        makeEnemies(config.getCommanders(), "C", config, commanders);
+        makeEnemies(config.getWarriors(), "W", config, commanders);
+        makeEnemies(config.getScouts(), "S", config, commanders);
+
+        gameGroup.getChildren().add(camera);
+        gameScene = new Scene(gameGroup, width, height);
+
+        gameScene.widthProperty().addListener(w -> {
+            resizeGameWindow(gameScene.getWidth()/width, gameScene.getHeight()/height); 
+            width = gameScene.getWidth();
+            height = gameScene.getHeight();}
+        );
+        gameScene.heightProperty().addListener(h -> {
+            resizeGameWindow(gameScene.getWidth()/width,gameScene.getHeight()/height); 
+            height = gameScene.getHeight();
+            width = gameScene.getWidth();}
+        );
+        
+        gameScene.setOnKeyPressed(player);
+        gameScene.setOnKeyReleased(player);
+       
+        gameTimer = new AnimationTimer() {
+            @Override
+            public void handle(long currentNanoTime) {                
+                updateGame();
+                if (time_passed < (int)time){
+                    time_passed++;
+                    time_text.setText(String.format(constants.getLabels().getTime(), time_passed));
+                    double rand = Math.random();
+                    if (!theEnd && (rand < constants.getEnemy_fire()*constants.getDifficulty())){
+                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty()){
+                            shoot = true;
+                        }else
+                            if ((!attack) && (rand < constants.getEnemy_fire()*2/5*constants.getDifficulty()))
+                                attack = true;                                
+                            else
+                                rst = true;
+                    }
+                }
+            }
+        };
+    }
+    
+    public void makeEnemies(Position[] positions, String type, Configuration config, List<Commander> commanders){
+        int enColumns = config.getColumns();
+        int enRows = config.getRows();
+        double enWidth = config.getWidth() * width / enColumns;
+        double enHeight = config.getHeight() * height / enRows;
+        for(Position p: positions){
+            Enemy enemy;
+            switch(type){
+                case "C":
+                    enemy = new Commander((width - config.getWidth() * width)/2 + (p.getX() - 0.5) * enWidth,p.getY() * enHeight, config.getHeight()*height);
+                    commanders.add((Commander)enemy);
+                    break;
+                case "W":
+                    enemy = new Warrior((width - config.getWidth() * width)/2 + (p.getX() - 0.5) * enWidth,p.getY() * enHeight, config.getHeight()*height);
+                    int[] comms = Arrays.asList(p.getCommanders().split(",")).stream().mapToInt(Integer::parseInt).toArray();
+                    for(int i=0; i < comms.length; i++)
+                        ((Warrior)enemy).addCommander(commanders.get(comms[i]));
+                    break;
+                default:
+                    enemy = new Scout((width - config.getWidth() * width)/2 + (p.getX() - 0.5) * enWidth,p.getY() * enHeight, config.getHeight()*height);
+                    break;
+            }
+            enemy.showBar(camera);
+            camera.getChildren().add(enemy);
+            enemies.add(enemy);
+            if (p.isLast())
+                enemy.markLast();
         }
+    }
+    
+    public static void startGame(){
+        stage.setScene(gameScene);
+        gameTimer.start();
+        menuTimer.stop();
+    }
+    
+    public static void startGameTimer(){
+        gameTimer.start();
     }
     
     public static void endAttack(){
         attack = false;
     }
         
-    public void update() {
+    public void updateGame() {
         if (!theEnd) {            
             camera.getChildren().clear();             
             //enemy player update
@@ -355,7 +327,7 @@ public class Main extends Application {
             camera.updateCamera(player);
             player.setShots(shots);
             player.update();
-            background.update();
+            gameBackground.update();
             time += 1.0 / 60;             
         }else{
             if (!goodbye){
@@ -367,6 +339,28 @@ public class Main extends Application {
                 camera.getChildren().addAll(projs);
                 goodbye = true;
             }
+        }
+    }
+    
+    public void resizeGameWindow(double ratioWidth, double ratioHeight){
+        gameBackground.resizeWindow(ratioWidth, ratioHeight);
+        player.resizeWindow(ratioWidth, ratioHeight);
+        enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        Enemy.resizeMovement(ratioWidth);
+        shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
+        projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
+        
+        Scale scale = new Scale();
+        scale.setX(ratioWidth);
+        scale.setY(ratioHeight);
+        time_text.getTransforms().add(scale);
+        time_text.setTranslateX(time_text.getTranslateX()*ratioWidth);
+        time_text.setTranslateY(time_text.getTranslateY()*ratioHeight);
+        if (msg_text != null){
+            msg_text.getTransforms().add(scale);
+            msg_text.setTranslateX(msg_text.getTranslateX()*ratioWidth);
+            msg_text.setTranslateY(msg_text.getTranslateY()*ratioHeight);
         }
     }
     
@@ -455,7 +449,7 @@ public class Main extends Application {
                             double rand = Math.random();
                             player.addPoints(enemy.enemyStrength()/constants.getDifficulty());// points won from kill shot
                             if (rand < 0.6){
-                                if (rand < 0.2)
+                                if (rand < 0.25)
                                     player.addBonus(new Bonus(Bonus.pickBonus(), x, y));
                                 else
                                     coins.add(new Coin(x, y));                                          
@@ -465,7 +459,6 @@ public class Main extends Application {
         );
         if (enemies.isEmpty() && shotEnemies.indexOf(enemy) == shotEnemies.size() - 1){
             tl.setOnFinished(t -> {
-                System.out.println("");
                 theEnd = true;
                 setMessageText(constants.getLabels().getVictory(), true, 
                         h -> {
@@ -489,8 +482,8 @@ public class Main extends Application {
         if (msg_text == null){
             msg_text = new Text(width/2 - 100, height/2 - 30, msg);
             msg_text.setFill(Color.ORANGERED);
-            msg_text.setFont(Font.font("verdana", FontWeight.EXTRA_BOLD, FontPosture.REGULAR, 30));
-            root.getChildren().add(msg_text);
+            msg_text.setFont(FONT);
+            gameGroup.getChildren().add(msg_text);
         }
         else
             msg_text.setText(msg); 
@@ -507,21 +500,21 @@ public class Main extends Application {
     private void displayTime() {
         time_text = new Text(width/2 - 15, 20, String.format(constants.getLabels().getTime(), time_passed));
         time_text.setFill(Color.RED);
-        time_text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 13));
-        root.getChildren().add(time_text); 
+        time_text.setFont(FONT);
+        gameGroup.getChildren().add(time_text); 
     }
     
     
     public void displayPoints(){
-        background.getChildren().add(player.getPointsText());
+        gameBackground.getChildren().add(player.getPointsText());
     }
         
     public static void displayLife(Life life){
-        background.getChildren().add(life);
+        gameBackground.getChildren().add(life);
     }
     
     public static void removeLife(Life life){
-        background.getChildren().remove(life);
+        gameBackground.getChildren().remove(life);
     }
 
     
