@@ -1,10 +1,9 @@
 package sprites;
 
-import javafx.scene.Group;
 import javafx.scene.transform.Scale;
 import main.*;
 
-public abstract class Sprite extends Group {
+public abstract class Sprite extends Base {
     
     public Sprite(){
         Scale scale = new Scale();
@@ -15,13 +14,4 @@ public abstract class Sprite extends Group {
     
     public abstract void update();
 
-    public void resizeWindow(double ratioWidth, double ratioHeight){
-        Scale scale = new Scale();
-        scale.setX(ratioWidth);
-        scale.setY(ratioHeight);
-        getTransforms().add(scale);
-        setTranslateX(getTranslateX()*ratioWidth);
-        setTranslateY(getTranslateY()*ratioHeight);
-    };
-    
 }

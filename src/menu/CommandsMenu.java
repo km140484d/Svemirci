@@ -1,18 +1,17 @@
 package menu;
 
 import javafx.geometry.*;
-import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.effect.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
+import main.Base;
 import main.Main;
 import settings.*;
 import settings.Commands.*;
 
-public class CommandsMenu extends Group{
+public class CommandsMenu extends Base{
 
     private Labels labels;
     private Commands commands;
@@ -57,7 +56,7 @@ public class CommandsMenu extends Group{
         title.setWrappingWidth(Main.width/4);
         title.setFill(Color.CRIMSON);
         title.setStroke(Color.WHITE);
-        title.setFont(MenuBase.FONT_L);
+        title.setFont(MenuGroup.FONT_L);
         title.setTextAlignment(TextAlignment.CENTER);
         VBox centerBox = new VBox(Main.height/10, title, mainBox); 
         centerBox.setAlignment(Pos.CENTER);
@@ -78,7 +77,7 @@ public class CommandsMenu extends Group{
         titleLab.setMaxWidth(Main.width*11/36);
         titleLab.setTextFill(Color.WHITE);
         titleLab.setAlignment(Pos.CENTER);
-        titleLab.setFont(MenuBase.FONT_M);
+        titleLab.setFont(MenuGroup.FONT_M);
         vb.getChildren().add(titleLab);
         vb.getChildren().add(commandRow(labels.getCommands().getPlayer_up(), player.getUp().toString()));
         vb.getChildren().add(commandRow(labels.getCommands().getPlayer_down(), player.getDown().toString()));
@@ -106,11 +105,11 @@ public class CommandsMenu extends Group{
         label.setMinWidth(Main.width/8);
         label.setMaxWidth(Main.width/8);
         if (type.equals("L")){            
-            label.setFont(MenuBase.FONT_M);
+            label.setFont(MenuGroup.FONT_M);
             label.setTextFill(Color.CRIMSON);
         }
         else{
-            label.setFont(MenuBase.FONT_S);
+            label.setFont(MenuGroup.FONT_S);
             label.setTextFill(Color.WHITE);
         }
         label.setAlignment(Pos.CENTER);

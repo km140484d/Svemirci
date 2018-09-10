@@ -9,10 +9,10 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
 import javafx.util.Duration;
-import main.Main;
+import main.*;
 import settings.*;
 
-public class HighScoresMenu extends Group{
+public class HighScoresMenu extends Base{
     
     private static final int TOP = 10;
     
@@ -24,7 +24,7 @@ public class HighScoresMenu extends Group{
         scoreTitle.setTextAlignment(TextAlignment.CENTER);
         scoreTitle.setFill(Color.WHITE);
         scoreTitle.setStroke(Color.CRIMSON);
-        scoreTitle.setFont(MenuBase.FONT_L);       
+        scoreTitle.setFont(MenuGroup.FONT_L);       
         
         VBox vb = new VBox(Main.height/(TOP*3));
         Score[] scores = Main.constants.getHigh_scores();

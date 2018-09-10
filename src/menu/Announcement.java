@@ -8,10 +8,11 @@ import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
+import main.Base;
 import main.Main;
 import settings.*;
 
-public class Announcement extends Group{
+public class Announcement extends Base{
     
     public class Level extends Group{
         

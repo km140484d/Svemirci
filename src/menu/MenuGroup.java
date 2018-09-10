@@ -1,12 +1,13 @@
 package menu;
 
 import javafx.event.*;
-import javafx.scene.*;
+import javafx.scene.Group;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
+import main.Main;
 import sprites.*;
 
-public class MenuBase extends Group implements EventHandler<KeyEvent>{
+public class MenuGroup extends Group implements EventHandler<KeyEvent>{
     
     public static final Font FONT_S = Font.font("Sylfaen", FontWeight.MEDIUM, 20);
     public static final Font FONT_M = Font.font("Sylfaen", FontWeight.EXTRA_BOLD, 24);
@@ -18,18 +19,18 @@ public class MenuBase extends Group implements EventHandler<KeyEvent>{
     
     private Background background;
 
-    public MenuBase(Background background, MainMenu menu){
+    public MenuGroup(Background background, MainMenu menu){
         this.background = background;
         this.menu = menu;
         getChildren().addAll(this.background, this.menu);
     }
     
     public static void setMenuState(MenuState state){
-        MenuBase.state = state;
+        MenuGroup.state = state;
     }
     
     public static MenuState getMenuState(){
-        return MenuBase.state;
+        return MenuGroup.state;
     }
 
     @Override
@@ -40,6 +41,7 @@ public class MenuBase extends Group implements EventHandler<KeyEvent>{
                 case TAB:
                     getChildren().clear();
                     getChildren().addAll(background, menu);
+                    Main.setCurrentMenu(menu);
                     state = MenuState.MAIN;
                     break;
             }

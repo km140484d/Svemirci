@@ -6,10 +6,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
+import main.Base;
 import main.Main;
 import settings.*;
 
-public class InfoMenu extends Group{
+public class InfoMenu extends Base{
     
     private static final String NAME = Main.constants.getName();
     private static final String AUTHOR = "Mirjana Konjikovac";
@@ -42,7 +43,7 @@ public class InfoMenu extends Group{
         Label label = new Label(text);
         label.setMinWidth(Main.width/8);
         label.setMaxWidth(Main.width/8);
-        label.setFont(MenuBase.FONT_S);
+        label.setFont(MenuGroup.FONT_S);
         label.setTextFill(Color.WHITE);
         label.setAlignment(Pos.CENTER);
         return label;
@@ -53,7 +54,7 @@ public class InfoMenu extends Group{
         text.maxWidth(Main.width/4);
         text.setFill(Color.CRIMSON);
         text.setStroke(Color.WHITE);
-        text.setFont(MenuBase.FONT_M);
+        text.setFont(MenuGroup.FONT_M);
         text.setTextAlignment(TextAlignment.CENTER);
         return text;
     }

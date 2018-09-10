@@ -12,8 +12,10 @@ import javafx.animation.*;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.event.*;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.scene.transform.*;
@@ -25,12 +27,13 @@ import sprites.awards.*;
 
 public class Main extends Application {  
     public static final Font FONT = Font.font("Sylfaen", FontWeight.BOLD, 24);
+    public static final Font FONT_S = Font.font("Sylfaen", FontWeight.MEDIUM, 18);
     public static final double WINDOW_WIDTH = 1200;//1200
     public static final double WINDOW_HEIGHT = 700;//700
     public static final double MIN_WINDOW_WIDTH = 1000;
     public static final double MIN_WINDOW_HEIGHT = 600;    
     
-    private static final String SETTINGS_FILE = "settings/config.json";
+    public static final String SETTINGS_FILE = "settings/config.json";
     
     //timers
     private static AnimationTimer gameTimer, menuTimer;
@@ -40,7 +43,8 @@ public class Main extends Application {
     private static Scene gameScene, menuScene;
     private static MainMenu menu;
     private static Group gameGroup;
-    private static MenuBase menuGroup;
+    private static MenuGroup menuGroup;
+    private static Base currentMenu;
     public static Camera camera;
     private static Background gameBackground, menuBackground;
     private static Player player;
@@ -66,6 +70,8 @@ public class Main extends Application {
     
     public static Constants constants;
     
+    public static Gson gson;
+    
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;        
@@ -77,10 +83,21 @@ public class Main extends Application {
 
         menuBackground = new Background();
         menu = new MainMenu(width*2/5, height/4);
-        menuGroup = new MenuBase(menuBackground, menu);
+        currentMenu = menu;
+        menuGroup = new MenuGroup(menuBackground, menu);
         menuScene = new Scene(menuGroup, width, height); 
         menuScene.addEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
         menuScene.addEventHandler(KeyEvent.KEY_RELEASED, menu);
+        menuScene.widthProperty().addListener(w -> {
+            resizeMenuWindow(menuScene.getWidth()/width, menuScene.getHeight()/height); 
+            width = menuScene.getWidth();
+            height = menuScene.getHeight();}
+        );
+        menuScene.heightProperty().addListener(h -> {
+            resizeMenuWindow(menuScene.getWidth()/width,menuScene.getHeight()/height); 
+            height = menuScene.getHeight();
+            width = menuScene.getWidth();}
+        );
       
         primaryStage.setTitle(constants.getName());
         primaryStage.setResizable(constants.isResizable());
@@ -120,6 +137,17 @@ public class Main extends Application {
         };        
     }
     
+    public static void setCurrentMenu(Base base) {
+        currentMenu = base;
+    }
+    
+    private void resizeMenuWindow(double ratioWidth, double ratioHeight) {
+        menuBackground.resizeWindow(ratioWidth, ratioHeight);
+        currentMenu.resizeWindow(ratioWidth, ratioHeight);
+        if (currentMenu != menu)
+            menu.resizeWindow(ratioWidth, ratioHeight);
+    }
+    
     public boolean fileInitialization(){
         try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));){            
@@ -129,7 +157,7 @@ public class Main extends Application {
             gsonBuilder.registerTypeAdapter(Labels.class, new LabelsDeserializer());
             gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
             gsonBuilder.registerTypeAdapter(Configuration.class, new ConfigurationDeserializer());
-            Gson gson = gsonBuilder.create();            
+            gson = gsonBuilder.create();            
             constants = new Gson().fromJson(br, Constants.class);            
             if (constants.getCommands() != null && constants.getCommands().getPlayer1() != null &&
                     constants.getLabels() != null && constants.getHigh_scores() != null && constants.getConfigurations() != null)
@@ -234,9 +262,10 @@ public class Main extends Application {
         }
     }
     
-    public static void startMenuItem(Group group){
+    public static void startMenuItem(Base base){
         menuGroup.getChildren().remove(menu);
-        menuGroup.getChildren().add(group);
+        menuGroup.getChildren().add(base);
+        currentMenu = base;
     }
     
     public static void startGame(){
@@ -539,10 +568,11 @@ public class Main extends Application {
         }
     }
     
-    private static void displayTime() {
+    private static void displayTime() {        
         time_text = new Text(width/2 - 15, 20, String.format(constants.getLabels().getTime(), time_passed));
         time_text.setFill(Color.RED);
-        time_text.setFont(FONT);
+        time_text.setFont(FONT_S);
+        time_text.minWidth(width);
         gameGroup.getChildren().add(time_text); 
     }
     
