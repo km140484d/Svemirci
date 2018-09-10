@@ -2,7 +2,7 @@ package menu;
 
 import java.util.*;
 import javafx.event.*;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -55,10 +55,12 @@ public class Menu extends VBox implements EventHandler<KeyEvent>{
         super(VERT_SPACE);
         this.setAlignment(Pos.CENTER);
         items.add(new MenuItem("START", () -> {
-            Main.startGame();
+            Main.startMenuItem(new Announcement(Main.constants.getConfigurations()));
         }));
         items.add(new MenuItem("COMMANDS", null));
-        items.add(new MenuItem("TOP 10", null));
+        items.add(new MenuItem("TOP 10", () -> {
+            Main.startMenuItem(new HighScores());
+        }));
         items.add(new MenuItem("INFO", null));
         items.add(new MenuItem("HELP", null));
         items.add(new MenuItem("EXIT", () -> {System.exit(0);}));

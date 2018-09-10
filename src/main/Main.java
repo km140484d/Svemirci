@@ -37,6 +37,7 @@ public class Main extends Application {
     //Nodes on scene -----------------------------
     private static Stage stage;
     private static Scene gameScene, menuScene;
+    private static Menu menu;
     private static Group gameGroup = new Group(), menuGroup = new Group();
     public static Camera camera = new Camera();
     private static Background gameBackground, menuBackground;
@@ -51,8 +52,8 @@ public class Main extends Application {
 
     private boolean theEnd = false, goodbye = false;
     private double time = 0;    
-    private int time_passed = 0;
-    private Text time_text;
+    private static int time_passed = 0;
+    private static Text time_text;
 
     private static Text msg_text;    
   
@@ -79,7 +80,7 @@ public class Main extends Application {
             
         menuScene = new Scene(menuGroup, width, height);
 
-        createGame();
+        //createGame();
         
         primaryStage.setTitle(constants.getName());
         primaryStage.setResizable(constants.isResizable());
@@ -89,7 +90,7 @@ public class Main extends Application {
         primaryStage.setScene(menuScene);
         primaryStage.show();
         
-        Menu menu = new Menu(width*2/5, height/4);
+        menu = new Menu(width*2/5, height/4);
         menuBackground = new Background();
         menuGroup.getChildren().addAll(menuBackground, menu);  
         menuScene.setOnKeyReleased(menu);
@@ -100,6 +101,27 @@ public class Main extends Application {
             }
         };
         menuTimer.start();
+        
+        gameTimer = new AnimationTimer() {
+            @Override
+            public void handle(long currentNanoTime) {                
+                updateGame();
+                if (time_passed < (int)time){
+                    time_passed++;
+                    time_text.setText(String.format(constants.getLabels().getTime(), time_passed));
+                    double rand = Math.random();
+                    if (!theEnd && (rand < constants.getEnemy_fire()*constants.getDifficulty())){
+                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty()){
+                            shoot = true;
+                        }else
+                            if ((!attack) && (rand < constants.getEnemy_fire()*2/5*constants.getDifficulty()))
+                                attack = true;                                
+                            else
+                                rst = true;
+                    }
+                }
+            }
+        };
         
     }
     
@@ -136,11 +158,11 @@ public class Main extends Application {
         }
     }
     
-    public void createGame(){
+    public static void createGame(Configuration config, String name){
         gameBackground = new Background();
         gameGroup.getChildren().add(gameBackground);
         
-        player = new Player();
+        player = new Player(name);
         player.setTranslateX(width / 2);
         player.setTranslateY(height * 0.95);
         camera.getChildren().add(player);
@@ -148,7 +170,7 @@ public class Main extends Application {
         displayPoints();
         displayTime();
         
-        Configuration config = constants.pickConfiguration("hourglass");
+        //Configuration config = constants.pickConfiguration("hourglass");
         Enemy.setMovement((width - config.getWidth() * width)/2);
         List<Commander> commanders = new ArrayList<>();
         makeEnemies(config.getCommanders(), "C", config, commanders);
@@ -170,31 +192,10 @@ public class Main extends Application {
         );
         
         gameScene.setOnKeyPressed(player);
-        gameScene.setOnKeyReleased(player);
-       
-        gameTimer = new AnimationTimer() {
-            @Override
-            public void handle(long currentNanoTime) {                
-                updateGame();
-                if (time_passed < (int)time){
-                    time_passed++;
-                    time_text.setText(String.format(constants.getLabels().getTime(), time_passed));
-                    double rand = Math.random();
-                    if (!theEnd && (rand < constants.getEnemy_fire()*constants.getDifficulty())){
-                        if (rand < constants.getEnemy_fire()/5*constants.getDifficulty()){
-                            shoot = true;
-                        }else
-                            if ((!attack) && (rand < constants.getEnemy_fire()*2/5*constants.getDifficulty()))
-                                attack = true;                                
-                            else
-                                rst = true;
-                    }
-                }
-            }
-        };
+        gameScene.setOnKeyReleased(player);       
     }
     
-    public void makeEnemies(Position[] positions, String type, Configuration config, List<Commander> commanders){
+    public static void makeEnemies(Position[] positions, String type, Configuration config, List<Commander> commanders){
         int enColumns = config.getColumns();
         int enRows = config.getRows();
         double enWidth = config.getWidth() * width / enColumns;
@@ -224,10 +225,23 @@ public class Main extends Application {
         }
     }
     
+    public static void startMenuItem(Group group){
+        menuGroup.getChildren().remove(menu);
+        menuGroup.getChildren().add(group);
+    }
+    
     public static void startGame(){
         stage.setScene(gameScene);
         gameTimer.start();
         menuTimer.stop();
+    }
+    
+    public static void startMenu(){
+        menuGroup.getChildren().clear();
+        menuGroup.getChildren().addAll(menuBackground, menu);
+        stage.setScene(menuScene);        
+        gameTimer.stop();
+        menuTimer.start();
     }
     
     public static void startGameTimer(){
@@ -331,18 +345,36 @@ public class Main extends Application {
             time += 1.0 / 60;             
         }else{
             if (!goodbye){
-                player.addPoints(-(int)time*constants.getDifficulty());
+                player.addPoints(-(int)time/constants.getDifficulty());
                 camera.getChildren().clear();
                 camera.getChildren().addAll(shots);
                 camera.getChildren().addAll(enemies);
                 camera.getChildren().addAll(coins);
                 camera.getChildren().addAll(projs);
                 goodbye = true;
+                List<Score> scores = new ArrayList<>(Arrays.asList(constants.getHigh_scores()));
+                scores.add(new Score(player.getName(), player.getPoints(), time_passed));
+                scores.sort((Score o1, Score o2) -> {
+                    if (o1.getPoints()==o2.getPoints())
+                        return 0;
+                    else
+                        if (o1.getPoints() > o2.getPoints())
+                            return -1;
+                        else
+                            return 1;
+                });
+                Score[] write = new Score [scores.size()<10?scores.size():10];
+                for(int i=0; i < scores.size(); i++){
+                    if (i < 10){
+                        write[i] = scores.get(i);
+                    }
+                }
+                constants.setHigh_scores(write);
             }
         }
     }
     
-    public void resizeGameWindow(double ratioWidth, double ratioHeight){
+    public static void resizeGameWindow(double ratioWidth, double ratioHeight){
         gameBackground.resizeWindow(ratioWidth, ratioHeight);
         player.resizeWindow(ratioWidth, ratioHeight);
         enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
@@ -497,7 +529,7 @@ public class Main extends Application {
         }
     }
     
-    private void displayTime() {
+    private static void displayTime() {
         time_text = new Text(width/2 - 15, 20, String.format(constants.getLabels().getTime(), time_passed));
         time_text.setFill(Color.RED);
         time_text.setFont(FONT);
@@ -505,7 +537,7 @@ public class Main extends Application {
     }
     
     
-    public void displayPoints(){
+    public static void displayPoints(){
         gameBackground.getChildren().add(player.getPointsText());
     }
         

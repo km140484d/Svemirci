@@ -77,9 +77,10 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static String points_msg = " Points: ";
     private static Text points_text;
     
-
+    private String name;
     
-    public Player() { 
+    public Player(String name) {
+        this.name = name;
         Stop [] stops = {
             new Stop(0, Color.YELLOW),
             new Stop(1, Color.TRANSPARENT)
@@ -180,6 +181,14 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         setRedBonusType(null);
         setCollectedRed(null);
         setShotType(null, true);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
     
     //resize ---------------------------------------
@@ -613,6 +622,9 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                         else
                             if (code == comms.getCamera_player())
                                 Main.camera.setPlayerBound(this);
+                            else
+                                if (code == comms.getMain_menu())
+                                    Main.startMenu();
             }
         }else{                
             if (event.getEventType() == KeyEvent.KEY_RELEASED){
