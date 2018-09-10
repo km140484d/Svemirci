@@ -13,6 +13,7 @@ import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.event.*;
 import javafx.scene.*;
+import javafx.scene.input.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.scene.transform.*;
@@ -37,28 +38,27 @@ public class Main extends Application {
     //Nodes on scene -----------------------------
     private static Stage stage;
     private static Scene gameScene, menuScene;
-    private static Menu menu;
-    private static Group gameGroup = new Group(), menuGroup = new Group();
-    public static Camera camera = new Camera();
+    private static MainMenu menu;
+    private static Group gameGroup;
+    private static MenuBase menuGroup;
+    public static Camera camera;
     private static Background gameBackground, menuBackground;
     private static Player player;
-    private List<Shot> shots;
     private static List<Enemy> enemies = new LinkedList<>();
     private static List<Enemy> shotEnemies = new ArrayList<>();
     private static List<Projectile> projs = new ArrayList<>();
-    private static List<Coin> coins = new ArrayList<>();
-    
+    private static List<Coin> coins = new ArrayList<>();    
     private static List<Sprite> delObjects = new ArrayList<>();
 
-    private boolean theEnd = false, goodbye = false;
-    private double time = 0;    
+    private static boolean theEnd = false, goodbye = false;
+    private static double time = 0;    
     private static int time_passed = 0;
     private static Text time_text;
 
     private static Text msg_text;    
   
-    private boolean rst = false; //random shoot time
-    private boolean shoot = false; //commander order shoot
+    private static boolean rst = false; //random shoot time
+    private static boolean shoot = false; //commander order shoot
     private static boolean attack = false; //enemy to the front line
     
     public static double width;
@@ -68,20 +68,20 @@ public class Main extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-        stage = primaryStage;
-        
+        stage = primaryStage;        
         if (!fileInitialization())
             return;       
-
-        //Font.getFamilies().forEach(System.out::println);
         
         width = constants.getWidth();
         height = constants.getHeight();
-            
-        menuScene = new Scene(menuGroup, width, height);
 
-        //createGame();
-        
+        menuBackground = new Background();
+        menu = new MainMenu(width*2/5, height/4);
+        menuGroup = new MenuBase(menuBackground, menu);
+        menuScene = new Scene(menuGroup, width, height); 
+        menuScene.addEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
+        menuScene.addEventHandler(KeyEvent.KEY_RELEASED, menu);
+      
         primaryStage.setTitle(constants.getName());
         primaryStage.setResizable(constants.isResizable());
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
@@ -90,10 +90,6 @@ public class Main extends Application {
         primaryStage.setScene(menuScene);
         primaryStage.show();
         
-        menu = new Menu(width*2/5, height/4);
-        menuBackground = new Background();
-        menuGroup.getChildren().addAll(menuBackground, menu);  
-        menuScene.setOnKeyReleased(menu);
         menuTimer = new AnimationTimer(){
             @Override
             public void handle(long now) {
@@ -121,8 +117,7 @@ public class Main extends Application {
                     }
                 }
             }
-        };
-        
+        };        
     }
     
     public boolean fileInitialization(){
@@ -159,6 +154,8 @@ public class Main extends Application {
     }
     
     public static void createGame(Configuration config, String name){
+        gameGroup = new Group();
+        camera = new Camera();
         gameBackground = new Background();
         gameGroup.getChildren().add(gameBackground);
         
@@ -170,7 +167,6 @@ public class Main extends Application {
         displayPoints();
         displayTime();
         
-        //Configuration config = constants.pickConfiguration("hourglass");
         Enemy.setMovement((width - config.getWidth() * width)/2);
         List<Commander> commanders = new ArrayList<>();
         makeEnemies(config.getCommanders(), "C", config, commanders);
@@ -193,6 +189,19 @@ public class Main extends Application {
         
         gameScene.setOnKeyPressed(player);
         gameScene.setOnKeyReleased(player);       
+    }
+    
+    public static void resetGame(){
+        time_passed = 0; time = 0;
+        theEnd = false; goodbye = false;
+        shoot = false; attack = false; rst = false;
+        enemies = new LinkedList<>();
+        shotEnemies = new ArrayList<>();
+        projs = new ArrayList<>();
+        coins = new ArrayList<>();
+        delObjects = new ArrayList<>();
+        Enemy.resetEnemyGame();
+        Player.resetPlayerGame();
     }
     
     public static void makeEnemies(Position[] positions, String type, Configuration config, List<Commander> commanders){
@@ -287,6 +296,7 @@ public class Main extends Application {
             camera.getChildren().add(player);
 
             //enemy and shots update
+            List<Shot> shots = player.getShots();
             shots = player.getShots(); 
             for(int i=0; i < shots.size(); i++){
                 Shot shot = shots.get(i);                
@@ -347,7 +357,7 @@ public class Main extends Application {
             if (!goodbye){
                 player.addPoints(-(int)time/constants.getDifficulty());
                 camera.getChildren().clear();
-                camera.getChildren().addAll(shots);
+                camera.getChildren().addAll(player.getShots());
                 camera.getChildren().addAll(enemies);
                 camera.getChildren().addAll(coins);
                 camera.getChildren().addAll(projs);

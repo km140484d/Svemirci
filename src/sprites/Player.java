@@ -14,7 +14,7 @@ import javafx.util.*;
 import main.Main;
 import static main.Main.*;
 import settings.*;
-import static sprites.Background.LIVES_CNT;
+import settings.Commands.*;
 import sprites.awards.*;
 import sprites.awards.Bonus.*;
 import sprites.enemies.*;
@@ -23,10 +23,7 @@ import sprites.shots.Shot.*;
 import static sprites.shots.Shot.BasicShotType.*;
 
 public class Player extends Sprite implements EventHandler<KeyEvent> {
-      
-    private Commands comms = Main.constants.getCommands();
-    private PlayerCommands playerComms = comms.getPlayer1();
-    
+    public static final int LIVES_CNT = 3;    
     private static final double WIDTH = 60;
     private static final double HEIGHT = 60;
 
@@ -49,7 +46,9 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static enum States {LEFT, RIGHT, UP, DOWN, STALL};   
     private States state = States.STALL;
         
-    
+    private Commands comms = Main.constants.getCommands();
+    private PlayerCommands playerComms = comms.getPlayer1();
+
     private Shape body;
     private Group gun;    
     private Group leftTubeGroup;
@@ -78,6 +77,12 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static Text points_text;
     
     private String name;
+    
+    public static void resetPlayerGame(){
+        bonuses = new ArrayList<>();
+        collectedRed = null;
+        collectedYellow = new ArrayList<>();
+    }
     
     public Player(String name) {
         this.name = name;

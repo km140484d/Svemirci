@@ -18,6 +18,21 @@ public class CommandsDeserializer implements JsonDeserializer<Commands>{
                 KeyCode.getKeyCode(jObject.get("camer_player").getAsString())           
         );
         
+        jObject = jObject.get("player1").getAsJsonObject();
+        commands.setPlayer1(getPlayerCommands(jObject.get("player1").getAsJsonObject(), commands));
+        commands.setPlayer1(getPlayerCommands(jObject.get("player2").getAsJsonObject(), commands));        
        return commands;
+    }
+    
+    public Commands.PlayerCommands getPlayerCommands(JsonObject jObject, Commands commands){
+        return commands.new PlayerCommands(
+                KeyCode.getKeyCode(jObject.get("up").getAsString()),
+                KeyCode.getKeyCode(jObject.get("down").getAsString()),
+                KeyCode.getKeyCode(jObject.get("left").getAsString()),
+                KeyCode.getKeyCode(jObject.get("right").getAsString()),
+                KeyCode.getKeyCode(jObject.get("rotate_left").getAsString()),
+                KeyCode.getKeyCode(jObject.get("rotate_right").getAsString()),
+                KeyCode.getKeyCode(jObject.get("shoot").getAsString())                
+        );
     }
 }

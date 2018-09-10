@@ -5,8 +5,6 @@ import javafx.scene.shape.*;
 import main.Main;
 
 public class Background extends Sprite {
-   
-    public static final int LIVES_CNT = 3;
     
     private Star star1 = new Star();
     private Star star2 = new Star();

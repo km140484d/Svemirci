@@ -1,5 +1,8 @@
 package menu;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import javafx.event.*;
 import javafx.geometry.*;
@@ -8,9 +11,11 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import main.Main;
+import menu.MenuBase.*;
+import settings.Labels.*;
 import sprites.shots.*;
 
-public class Menu extends VBox implements EventHandler<KeyEvent>{
+public class MainMenu extends VBox implements EventHandler<KeyEvent>{
     
     private static final double VERT_SPACE = 20;
     private static final double HOR_SPACE = 15;
@@ -28,7 +33,6 @@ public class Menu extends VBox implements EventHandler<KeyEvent>{
             this.text = new Text(string);
             this.text.setFont(Main.FONT);
             this.code = code;
-            //this.text.setEffect(new GaussianBlur(2));
             getChildren().addAll(this.icons[0], text, this.icons[1]);
             setItemActive(false);
         }
@@ -51,19 +55,41 @@ public class Menu extends VBox implements EventHandler<KeyEvent>{
     private List<MenuItem> items = new ArrayList<>();
     private int active = 0;
   
-    public Menu(double width, double height){
+    public MainMenu(double width, double height){
         super(VERT_SPACE);
+        MenuLabels menuLabs = Main.constants.getLabels().getMenu();
         this.setAlignment(Pos.CENTER);
-        items.add(new MenuItem("START", () -> {
+        items.add(new MenuItem(menuLabs.getStart(), () -> {
             Main.startMenuItem(new Announcement(Main.constants.getConfigurations()));
+            MenuBase.setMenuState(MenuBase.MenuState.ANNOUNCEMENT);
         }));
-        items.add(new MenuItem("COMMANDS", null));
-        items.add(new MenuItem("TOP 10", () -> {
-            Main.startMenuItem(new HighScores());
+        items.add(new MenuItem(menuLabs.getCommands(), () -> {
+            Main.startMenuItem(new CommandsMenu(Main.constants.getLabels(), Main.constants.getCommands()));
+            MenuBase.setMenuState(MenuBase.MenuState.COMMANDS);
         }));
-        items.add(new MenuItem("INFO", null));
-        items.add(new MenuItem("HELP", null));
-        items.add(new MenuItem("EXIT", () -> {System.exit(0);}));
+        items.add(new MenuItem(menuLabs.getTop_10(), () -> {
+            Main.startMenuItem(new HighScoresMenu());
+            MenuBase.setMenuState(MenuBase.MenuState.TOP);
+        }));
+        items.add(new MenuItem(menuLabs.getInfo(), () -> {
+            Main.startMenuItem(new InfoMenu(Main.constants.getLabels()));
+            MenuBase.setMenuState(MenuBase.MenuState.INFO);
+        }));
+        items.add(new MenuItem(menuLabs.getHelp(), () -> {
+            try {
+                Desktop desktop = Desktop.getDesktop();
+                if (desktop.isSupported(Desktop.Action.OPEN)) {
+                    desktop.open(new File("D:\\IV godina\\Diplomski rad\\MojRad.pdf"));
+                } else {
+                    System.out.println("Open is not supported");
+                }
+            } catch (IOException exp) {
+                exp.printStackTrace();
+            }
+        }));
+        items.add(new MenuItem(menuLabs.getExit(), () -> {
+            System.exit(0);
+        }));
         
         items.get(0).setItemActive(true);
         
@@ -75,7 +101,7 @@ public class Menu extends VBox implements EventHandler<KeyEvent>{
 
     @Override
     public void handle(KeyEvent event) {
-        if (event.getEventType() == KeyEvent.KEY_RELEASED){
+        if (MenuBase.getMenuState()==MenuState.MAIN && (event.getEventType() == KeyEvent.KEY_RELEASED)){
             KeyCode code = event.getCode();
             switch(code){
                 case UP:

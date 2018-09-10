@@ -1,9 +1,9 @@
 {
-    "name": "Svemirci",   
-    "full_screen": false,
-    "resizable": true,
-    "width": 1000,
-    "height": 600,
+    "name" : "Spacecraft", 
+    "full_screen" : false,
+    "resizable" : true,
+    "width" : 1000,
+    "height" : 600,
     "commands" : {
         "exit" : "ESCAPE",
         "pause" : "P",
@@ -37,9 +37,41 @@
         "life" : "Life lost, %d remain!",
         "time" : "Time: %d",
         "points" : "Points:",
-        "high_score" : "Top 10 game!"
+        "high_score" : "Top 10 game!",
+        "commands" : {
+            "exit" : "EXIT",
+            "pause" : "PAUSE",
+            "main_menu" : "MENU",
+            "camera_scene" : "CAM_SCENE",
+            "camera_player" : "CAM_PLAYER",
+            "player_up" : "UP", 
+            "player_down" : "DOWN",
+            "player_left" : "LEFT",
+            "player_right" : "RIGHT", 
+            "player_rotate_left" : "ROT LEFT", 
+            "player_rotate_right" : "ROT RIGHT", 
+            "player_shoot" : "SHOOT"
+        },
+        "menu" : {
+            "start" : "START",
+            "commands" : "COMMANDS",
+            "top_10" : "TOP 10",
+            "info" : "INFO",
+            "help" : "HELP",
+            "exit" : "EXIT",
+            "high_scores" : "HIGH SCORES",
+            "player1" : "PLAYER 1",
+            "player2" : "PLAYER 2"
+        },
+        "info" : {
+            "name" : "Name",
+            "author" : "Author",
+            "mentor" : "Mentor",
+            "version" : "Version",
+            "description" : "Description"
+        }
     },
-    "difficulty" : 5,
+    "difficulty" : 1,
     "power_time" : 10,
     "init_speed" : 8,
     "rotate_angle" : 3,

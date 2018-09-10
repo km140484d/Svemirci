@@ -24,6 +24,7 @@ public class Announcement extends Group{
             border.setStroke(Color.WHITE);
             border.setFill(new ImagePattern(new Image("/resources/menu/" + config.getName() + ".png")));
             border.setOnMouseClicked(c -> {
+                Main.resetGame();
                 Main.createGame(config, !player1Name.getText().equals("")?player1Name.getText():LABEL);
                 Main.startGame();
             });
@@ -32,7 +33,7 @@ public class Announcement extends Group{
         
     }
     
-    private static final String LABEL = "Player 1";
+    private static final String LABEL = Main.constants.getLabels().getMenu().getPlayer1();
     
     private List<Level> levels = new ArrayList<>();
     private TextField player1Name;

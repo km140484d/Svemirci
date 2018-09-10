@@ -128,6 +128,11 @@ public abstract class Enemy extends Sprite {
         stat.setTranslateY(getTranslateY()-EN_HEIGHT/4 - EN_HEIGHT*2/3);       
     }
     
+    public static void resetEnemyGame(){
+        update = false;
+        knockOut = false;
+    }
+    
     public void startBlinking(Group eye){
         st = new ScaleTransition(Duration.seconds(2), eye); 
         st.setFromY(1);
