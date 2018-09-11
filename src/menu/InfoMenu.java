@@ -20,7 +20,7 @@ public class InfoMenu extends Base{
     private static final String COPY_RIGHT = "@Copyright";
     
     public InfoMenu(Labels labels){
-        VBox vCenter = new VBox(Main.width/20);
+        VBox vCenter = new VBox(Main.height/20);
         vCenter.setMinWidth(Main.width);
         vCenter.setAlignment(Pos.CENTER);
         
@@ -30,6 +30,7 @@ public class InfoMenu extends Base{
         vCenter.getChildren().add(infoRow(labels.getInfo().getVersion(), VERSION));
         vCenter.getChildren().add(infoRow(labels.getInfo().getDescription(), DESCRIPTION));
         vCenter.getChildren().add(makeLabel(COPY_RIGHT));
+        vCenter.setTranslateY(Main.height/20);
         getChildren().add(vCenter);
     }
     

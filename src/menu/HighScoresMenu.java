@@ -89,7 +89,7 @@ public class HighScoresMenu extends Base{
     public static Label makeLabel(String text){
         Label label = new Label(text);
         label.setMinWidth(Main.width / 4);
-        label.setFont(Main.FONT);
+        label.setFont(MenuGroup.FONT_M);
         label.setTextFill(Color.WHITE);
         label.setAlignment(Pos.CENTER);
         return label;

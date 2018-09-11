@@ -35,7 +35,7 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
             for(int i=0; i < icons.length; i++)
                 this.icons[i] = new Hexagon(0,0);
             this.text = new Text(string);
-            this.text.setFont(Main.FONT);
+            this.text.setFont(MenuGroup.FONT_M);
             this.code = code;
             getChildren().addAll(this.icons[0], text, this.icons[1]);
             setItemActive(false);

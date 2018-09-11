@@ -15,7 +15,7 @@ import javafx.event.*;
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.input.*;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.scene.transform.*;
@@ -26,12 +26,12 @@ import settings.deserializers.*;
 import sprites.awards.*;
 
 public class Main extends Application {  
-    public static final Font FONT = Font.font("Sylfaen", FontWeight.BOLD, 24);
-    public static final Font FONT_S = Font.font("Sylfaen", FontWeight.MEDIUM, 18);
+    public static final Font FONT_L = Font.font("Sylfaen", FontWeight.EXTRA_BOLD, 36);
+    public static final Font FONT_S = Font.font("Sylfaen", FontWeight.BOLD, 18);
     public static final double WINDOW_WIDTH = 1200;//1200
     public static final double WINDOW_HEIGHT = 700;//700
     public static final double MIN_WINDOW_WIDTH = 1000;
-    public static final double MIN_WINDOW_HEIGHT = 600;    
+    public static final double MIN_WINDOW_HEIGHT = 600;
     
     public static final String SETTINGS_FILE = "settings/config.json";
     
@@ -39,8 +39,7 @@ public class Main extends Application {
     private static AnimationTimer gameTimer, menuTimer;
     
     //Nodes on scene -----------------------------
-    private static Stage stage;
-    private static Scene gameScene, menuScene;
+    private static Scene scene;
     private static MainMenu menu;
     private static Group gameGroup;
     private static MenuGroup menuGroup;
@@ -57,9 +56,9 @@ public class Main extends Application {
     private static boolean theEnd = false, goodbye = false;
     private static double time = 0;    
     private static int time_passed = 0;
-    private static Text time_text;
-
-    private static Text msg_text;    
+    private static Text time_text, msg_text;
+    
+    private static VBox msgBox, timeBox;   
   
     private static boolean rst = false; //random shoot time
     private static boolean shoot = false; //commander order shoot
@@ -72,12 +71,42 @@ public class Main extends Application {
     
     public static Gson gson;
     
+    private static String sceneType = "M";
+    
+    public boolean fileInitialization(){
+        try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));){            
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+            gsonBuilder.registerTypeAdapter(Commands.class, new CommandsDeserializer());
+            gsonBuilder.registerTypeAdapter(Labels.class, new LabelsDeserializer());
+            gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
+            gsonBuilder.registerTypeAdapter(Configuration.class, new ConfigurationDeserializer());
+            gson = gsonBuilder.create();            
+            constants = new Gson().fromJson(br, Constants.class);            
+            if (constants.getCommands() != null && constants.getCommands().getPlayer1() != null &&
+                    constants.getLabels() != null && constants.getHigh_scores() != null && constants.getConfigurations() != null)
+                return true;
+            else
+                return false;
+            
+        }catch (FileNotFoundException ex) {
+            System.out.println(
+                    "Unable to open file '"
+                    + SETTINGS_FILE + "'");
+            return false;
+        } catch (IOException ex) {
+            System.out.println(
+                    "Error reading file '"
+                    + SETTINGS_FILE + "'");
+            return false;
+        }
+    }
+    
     @Override
-    public void start(Stage primaryStage) {
-        stage = primaryStage;        
+    public void start(Stage primaryStage) {      
         if (!fileInitialization())
-            return;       
-        
+            return;      
         width = constants.getWidth();
         height = constants.getHeight();
 
@@ -85,18 +114,24 @@ public class Main extends Application {
         menu = new MainMenu(width*2/5, height/4);
         currentMenu = menu;
         menuGroup = new MenuGroup(menuBackground, menu);
-        menuScene = new Scene(menuGroup, width, height); 
-        menuScene.addEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
-        menuScene.addEventHandler(KeyEvent.KEY_RELEASED, menu);
-        menuScene.widthProperty().addListener(w -> {
-            resizeMenuWindow(menuScene.getWidth()/width, menuScene.getHeight()/height); 
-            width = menuScene.getWidth();
-            height = menuScene.getHeight();}
+        scene = new Scene(menuGroup, width, height); 
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, menu);
+        scene.widthProperty().addListener(w -> {
+            if (sceneType.equals("M"))
+                resizeMenuWindow(scene.getWidth()/width, scene.getHeight()/height);
+            else
+                resizeGameWindow(scene.getWidth()/width, scene.getHeight()/height);
+            width = scene.getWidth();
+            height = scene.getHeight();}
         );
-        menuScene.heightProperty().addListener(h -> {
-            resizeMenuWindow(menuScene.getWidth()/width,menuScene.getHeight()/height); 
-            height = menuScene.getHeight();
-            width = menuScene.getWidth();}
+        scene.heightProperty().addListener(h -> {
+            if (sceneType.equals("M"))
+                resizeMenuWindow(scene.getWidth()/width, scene.getHeight()/height);
+            else
+                resizeGameWindow(scene.getWidth()/width, scene.getHeight()/height);
+            height = scene.getHeight();
+            width = scene.getWidth();}
         );
       
         primaryStage.setTitle(constants.getName());
@@ -104,7 +139,7 @@ public class Main extends Application {
         primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
         primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.setFullScreen(constants.isFull_screen());
-        primaryStage.setScene(menuScene);
+        primaryStage.setScene(scene);
         primaryStage.show();
         
         menuTimer = new AnimationTimer(){
@@ -141,45 +176,61 @@ public class Main extends Application {
         currentMenu = base;
     }
     
-    private void resizeMenuWindow(double ratioWidth, double ratioHeight) {
+    public static void startMenuItem(Base base){
+        menuGroup.getChildren().remove(menu);
+        menuGroup.getChildren().add(base);
+        currentMenu = base;
+    }
+    
+    public static void startMenu(){  
+        sceneType = "M";
+        menu = new MainMenu(width*2/5, height/4);
+        menuBackground = new Background();
+        menuGroup = new MenuGroup(menuBackground, menu);
+        scene.setRoot(menuGroup);
+        scene.setOnKeyPressed(null);
+        scene.setOnKeyReleased(null);
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, menu); 
+        gameTimer.stop();
+        menuTimer.start();
+    }  
+    
+    public static void startGame(){
+        sceneType = "G";
+        scene.removeEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
+        scene.removeEventHandler(KeyEvent.KEY_RELEASED, menu);
+        setCurrentMenu(menu);
+        gameTimer.start();
+        menuTimer.stop();
+    }
+
+    private static void resizeMenuWindow(double ratioWidth, double ratioHeight) {
         menuBackground.resizeWindow(ratioWidth, ratioHeight);
         currentMenu.resizeWindow(ratioWidth, ratioHeight);
         if (currentMenu != menu)
             menu.resizeWindow(ratioWidth, ratioHeight);
     }
     
-    public boolean fileInitialization(){
-        try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));){            
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-            gsonBuilder.registerTypeAdapter(Commands.class, new CommandsDeserializer());
-            gsonBuilder.registerTypeAdapter(Labels.class, new LabelsDeserializer());
-            gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
-            gsonBuilder.registerTypeAdapter(Configuration.class, new ConfigurationDeserializer());
-            gson = gsonBuilder.create();            
-            constants = new Gson().fromJson(br, Constants.class);            
-            if (constants.getCommands() != null && constants.getCommands().getPlayer1() != null &&
-                    constants.getLabels() != null && constants.getHigh_scores() != null && constants.getConfigurations() != null)
-            {
-                //System.out.println(constants.getConfigurations()[0].getName());
-                return true;
-            }
-            else
-                return false;
-            
-        }catch (FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file '"
-                    + SETTINGS_FILE + "'");
-            return false;
-        } catch (IOException ex) {
-            System.out.println(
-                    "Error reading file '"
-                    + SETTINGS_FILE + "'");
-            return false;
+    public static void resizeGameWindow(double ratioWidth, double ratioHeight){
+        gameBackground.resizeWindow(ratioWidth, ratioHeight);
+        player.resizeWindow(ratioWidth, ratioHeight);
+        enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        Enemy.resizeMovement(ratioWidth);
+        shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
+        coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
+        projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
+        
+        Scale scale = new Scale();
+        scale.setX(ratioWidth);
+        scale.setY(ratioHeight);
+        timeBox.getTransforms().add(scale);
+        if (msgBox != null){
+            msgBox.getTransforms().add(scale);
         }
     }
+    
+    
     
     public static void createGame(Configuration config, String name){
         gameGroup = new Group();
@@ -191,8 +242,7 @@ public class Main extends Application {
         player.setTranslateX(width / 2);
         player.setTranslateY(height * 0.95);
         camera.getChildren().add(player);
- 
-        displayPoints();
+
         displayTime();
         
         Enemy.setMovement((width - config.getWidth() * width)/2);
@@ -202,24 +252,14 @@ public class Main extends Application {
         makeEnemies(config.getScouts(), "S", config, commanders);
 
         gameGroup.getChildren().add(camera);
-        gameScene = new Scene(gameGroup, width, height);
+        scene.setRoot(gameGroup);
 
-        gameScene.widthProperty().addListener(w -> {
-            resizeGameWindow(gameScene.getWidth()/width, gameScene.getHeight()/height); 
-            width = gameScene.getWidth();
-            height = gameScene.getHeight();}
-        );
-        gameScene.heightProperty().addListener(h -> {
-            resizeGameWindow(gameScene.getWidth()/width,gameScene.getHeight()/height); 
-            height = gameScene.getHeight();
-            width = gameScene.getWidth();}
-        );
-        
-        gameScene.setOnKeyPressed(player);
-        gameScene.setOnKeyReleased(player);       
+        scene.setOnKeyPressed(player);
+        scene.setOnKeyReleased(player);       
     }
     
     public static void resetGame(){
+        msg_text = null;
         time_passed = 0; time = 0;
         theEnd = false; goodbye = false;
         shoot = false; attack = false; rst = false;
@@ -260,26 +300,6 @@ public class Main extends Application {
             if (p.isLast())
                 enemy.markLast();
         }
-    }
-    
-    public static void startMenuItem(Base base){
-        menuGroup.getChildren().remove(menu);
-        menuGroup.getChildren().add(base);
-        currentMenu = base;
-    }
-    
-    public static void startGame(){
-        stage.setScene(gameScene);
-        gameTimer.start();
-        menuTimer.stop();
-    }
-    
-    public static void startMenu(){
-        menuGroup.getChildren().clear();
-        menuGroup.getChildren().addAll(menuBackground, menu);
-        stage.setScene(menuScene);        
-        gameTimer.stop();
-        menuTimer.start();
     }
     
     public static void startGameTimer(){
@@ -379,8 +399,7 @@ public class Main extends Application {
 
             camera.updateCamera(player);
             player.setShots(shots);
-            player.update();
-            gameBackground.update();
+            player.update();            
             time += 1.0 / 60;             
         }else{
             if (!goodbye){
@@ -411,28 +430,7 @@ public class Main extends Application {
                 constants.setHigh_scores(write);
             }
         }
-    }
-    
-    public static void resizeGameWindow(double ratioWidth, double ratioHeight){
-        gameBackground.resizeWindow(ratioWidth, ratioHeight);
-        player.resizeWindow(ratioWidth, ratioHeight);
-        enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
-        Enemy.resizeMovement(ratioWidth);
-        shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
-        coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
-        projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
-        
-        Scale scale = new Scale();
-        scale.setX(ratioWidth);
-        scale.setY(ratioHeight);
-        time_text.getTransforms().add(scale);
-        time_text.setTranslateX(time_text.getTranslateX()*ratioWidth);
-        time_text.setTranslateY(time_text.getTranslateY()*ratioHeight);
-        if (msg_text != null){
-            msg_text.getTransforms().add(scale);
-            msg_text.setTranslateX(msg_text.getTranslateX()*ratioWidth);
-            msg_text.setTranslateY(msg_text.getTranslateY()*ratioHeight);
-        }
+        gameBackground.update();
     }
     
     public static void addProjectile(Projectile proj){
@@ -471,6 +469,7 @@ public class Main extends Application {
                 Main.setMessageText(String.format(constants.getLabels().getLife(), player.getLifeNumber()), true, null);
                 resetPlayer();
             }else{
+                System.out.println("Player lost!!!!!!!!!!!");
                 theEnd = true; 
                 setMessageText(constants.getLabels().getDefeat(), true, 
                         h -> {
@@ -551,10 +550,15 @@ public class Main extends Application {
         
     public static void setMessageText(String msg, boolean fade, EventHandler<ActionEvent> handler){
         if (msg_text == null){
-            msg_text = new Text(width/2 - 100, height/2 - 30, msg);
-            msg_text.setFill(Color.ORANGERED);
-            msg_text.setFont(FONT);
-            gameGroup.getChildren().add(msg_text);
+            msg_text = new Text(msg);
+            msgBox = new VBox(msg_text);
+            msgBox.setAlignment(Pos.CENTER);
+            msgBox.setMinWidth(Main.width);
+            msgBox.setMinHeight(Main.height);
+            msg_text.setFill(Color.CRIMSON);
+            msg_text.setStroke(Color.WHITE);
+            msg_text.setFont(FONT_L);
+            gameGroup.getChildren().add(msgBox);
         }
         else
             msg_text.setText(msg); 
@@ -568,27 +572,16 @@ public class Main extends Application {
         }
     }
     
-    private static void displayTime() {        
-        time_text = new Text(width/2 - 15, 20, String.format(constants.getLabels().getTime(), time_passed));
-        time_text.setFill(Color.RED);
+    private static void displayTime() {       
+        time_text = new Text(String.format(constants.getLabels().getTime(), time_passed));
+        time_text.setFill(Color.CRIMSON);
         time_text.setFont(FONT_S);
-        time_text.minWidth(width);
-        gameGroup.getChildren().add(time_text); 
+        timeBox = new VBox(time_text);
+        timeBox.setAlignment(Pos.CENTER);
+        timeBox.setMinWidth(Main.width);
+        timeBox.setMinHeight(Main.height/30);
+        gameGroup.getChildren().add(timeBox); 
     }
-    
-    
-    public static void displayPoints(){
-        gameBackground.getChildren().add(player.getPointsText());
-    }
-        
-    public static void displayLife(Life life){
-        gameBackground.getChildren().add(life);
-    }
-    
-    public static void removeLife(Life life){
-        gameBackground.getChildren().remove(life);
-    }
-
     
     public static void main(String[] args) {
         launch(args);

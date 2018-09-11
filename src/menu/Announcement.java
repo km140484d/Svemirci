@@ -40,8 +40,7 @@ public class Announcement extends Base{
     private TextField player1Name;
     
     
-    public Announcement(Configuration[] configs){
-        
+    public Announcement(Configuration[] configs){        
         int col_row, cnt=0;
         if (configs.length <= 8)
             col_row = 3;
@@ -51,11 +50,11 @@ public class Announcement extends Base{
         
         Label player1 = new Label(LABEL);
         player1.setMinWidth(Main.width / (col_row + 1));
-        player1.setFont(Main.FONT);
+        player1.setFont(MenuGroup.FONT_M);
         player1.setTextFill(Color.WHITE);
         player1.setAlignment(Pos.CENTER);
         player1Name = new TextField();
-        player1Name.setFont(Main.FONT);
+        player1Name.setFont(MenuGroup.FONT_M);
         player1Name.setAlignment(Pos.CENTER);
         player1Name.setMaxWidth(Main.width / (col_row + 1));
         player1Name.setMaxHeight(height/6);

@@ -13,7 +13,6 @@ public class Hexagon extends Shot{
     private static final double INNER = RATIO*size;
     private static final double INNER_ROOT = INNER / Math.sqrt(2);
     
-    
     private static final int HEX_STRENGTH = 2;
     
     public Hexagon(double playerAngle, double angle){
@@ -36,8 +35,5 @@ public class Hexagon extends Shot{
         );
         center.setFill(Color.WHITE);        
         getChildren().addAll(base,center);
-        
-
-    }
-    
+    }    
 }

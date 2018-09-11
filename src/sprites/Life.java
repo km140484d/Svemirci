@@ -16,16 +16,16 @@ public class Life extends Sprite{
     
     public Life(){ 
         leftCheek = new Arc(-(SIZE-CHEEK_WIDTH), 0, SIZE, SIZE, 0,180);
-        leftCheek.setFill(Color.RED);
+        leftCheek.setFill(Color.CRIMSON);
         rightCheek = new Arc(SIZE-CHEEK_WIDTH, 0, SIZE, SIZE, 0, 180);
-        rightCheek.setFill(Color.RED);
+        rightCheek.setFill(Color.CRIMSON);
         
         core = new Path(new MoveTo(-(2*SIZE-CHEEK_WIDTH), 0),
                 new QuadCurveTo(-(SIZE+CHEEK_WIDTH), SIZE, 0, SIZE*2), //right
                 new QuadCurveTo(SIZE+CHEEK_WIDTH, SIZE, 2*SIZE-CHEEK_WIDTH, 0), //left
                 new ClosePath());
-        core.setFill(Color.RED);
-        core.setStroke(Color.RED);
+        core.setFill(Color.CRIMSON);
+        core.setStroke(Color.CRIMSON);
         getChildren().addAll(leftCheek, rightCheek, core);
     }
     
