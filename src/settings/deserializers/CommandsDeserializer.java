@@ -12,10 +12,12 @@ public class CommandsDeserializer implements JsonDeserializer<Commands>{
         JsonObject jObject = (JsonObject) je;
         
         Commands commands = new Commands(KeyCode.getKeyCode(jObject.get("exit").getAsString()),
+                KeyCode.getKeyCode(jObject.get("full_screen").getAsString()),
                 KeyCode.getKeyCode(jObject.get("pause").getAsString()),
                 KeyCode.getKeyCode(jObject.get("main_menu").getAsString()),
                 KeyCode.getKeyCode(jObject.get("camera_scene").getAsString()),
-                KeyCode.getKeyCode(jObject.get("camer_player").getAsString())           
+                KeyCode.getKeyCode(jObject.get("camer_player1").getAsString()),
+                KeyCode.getKeyCode(jObject.get("camer_player2").getAsString())
         );
         
         jObject = jObject.get("player1").getAsJsonObject();

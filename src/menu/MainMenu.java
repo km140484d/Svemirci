@@ -92,7 +92,6 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
             }
         }));
         items.add(new MenuItem(menuLabs.getExit(), () -> {
-            System.out.print(Main.gson.toJson(Main.constants));
             try{
                 BufferedWriter writer = new BufferedWriter(new FileWriter(
                         "src\\settings\\config.json"));
@@ -122,8 +121,7 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
                         items.get(active).setItemActive(false);                        
                         items.get(active - 1).setItemActive(true);
                         active--;
-                    }
-                    
+                    }                    
                     break;
                 case DOWN:
                     if (active < items.size()-1){

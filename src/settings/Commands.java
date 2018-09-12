@@ -78,16 +78,19 @@ public class Commands implements Serializable {
     }
 
     
-    private KeyCode exit, pause, main_menu, camera_scene, camera_player;
+    private KeyCode exit, full_screen, pause, main_menu, camera_scene, camera_player1, camera_player2;
     private PlayerCommands player1;
     private PlayerCommands player2;
             
-    public Commands(KeyCode exit, KeyCode pause, KeyCode main_menu, KeyCode camera_scene, KeyCode camera_player) {
+    public Commands(KeyCode exit, KeyCode full_screen, KeyCode pause, KeyCode main_menu, 
+            KeyCode camera_scene, KeyCode camera_player1, KeyCode camera_player2) {
         this.exit = exit;
+        this.full_screen = full_screen;
         this.pause = pause;
         this.main_menu = main_menu;
         this.camera_scene = camera_scene;
-        this.camera_player = camera_player;
+        this.camera_player1 = camera_player1;
+        this.camera_player2 = camera_player2;
     }
     
     public KeyCode getExit() {
@@ -98,6 +101,14 @@ public class Commands implements Serializable {
         this.exit = exit;
     }
 
+    public KeyCode getFull_screen() {
+        return full_screen;
+    }
+
+    public void setFull_screen(KeyCode full_screen) {
+        this.full_screen = full_screen;
+    }
+    
     public KeyCode getPause() {
         return pause;
     }
@@ -122,12 +133,20 @@ public class Commands implements Serializable {
         this.camera_scene = camera_scene;
     }
 
-    public KeyCode getCamera_player() {
-        return camera_player;
+    public KeyCode getCamera_player1() {
+        return camera_player1;
     }
 
-    public void setCamera_player(KeyCode camera_player) {
-        this.camera_player = camera_player;
+    public void setCamera_player1(KeyCode camera_player1) {
+        this.camera_player1 = camera_player1;
+    }
+
+    public KeyCode getCamera_player2() {
+        return camera_player2;
+    }
+
+    public void setCamera_player2(KeyCode camera_player2) {
+        this.camera_player2 = camera_player2;
     }
 
     public PlayerCommands getPlayer1() {

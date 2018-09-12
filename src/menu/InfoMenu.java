@@ -20,39 +20,42 @@ public class InfoMenu extends Base{
     private static final String COPY_RIGHT = "@Copyright";
     
     public InfoMenu(Labels labels){
-        VBox vCenter = new VBox(Main.height/20);
-        vCenter.setMinWidth(Main.width);
+        double width = Main.constants.getWidth();
+        double height = Main.constants.getHeight();
+        
+        VBox vCenter = new VBox(height/20);
+        vCenter.setMinWidth(width);
         vCenter.setAlignment(Pos.CENTER);
         
-        vCenter.getChildren().add(infoRow(labels.getInfo().getName(), NAME));
-        vCenter.getChildren().add(infoRow(labels.getInfo().getAuthor(), AUTHOR));
-        vCenter.getChildren().add(infoRow(labels.getInfo().getMentor(), MENTOR));
-        vCenter.getChildren().add(infoRow(labels.getInfo().getVersion(), VERSION));
-        vCenter.getChildren().add(infoRow(labels.getInfo().getDescription(), DESCRIPTION));
-        vCenter.getChildren().add(makeLabel(COPY_RIGHT));
-        vCenter.setTranslateY(Main.height/20);
+        vCenter.getChildren().add(infoRow(labels.getInfo().getName(), NAME, width));
+        vCenter.getChildren().add(infoRow(labels.getInfo().getAuthor(), AUTHOR, width));
+        vCenter.getChildren().add(infoRow(labels.getInfo().getMentor(), MENTOR, width));
+        vCenter.getChildren().add(infoRow(labels.getInfo().getVersion(), VERSION, width));
+        vCenter.getChildren().add(infoRow(labels.getInfo().getDescription(), DESCRIPTION, width));
+        vCenter.getChildren().add(makeLabel(COPY_RIGHT, width));
+        vCenter.setTranslateY(height/20);
         getChildren().add(vCenter);
     }
     
-    public static VBox infoRow(String label, String text){
-        VBox vItem = new VBox(5, makeLabel(label), makeText(text));
+    public static VBox infoRow(String label, String text, double width){
+        VBox vItem = new VBox(5, makeLabel(label, width), makeText(text, width));
         vItem.setAlignment(Pos.CENTER);
         return vItem;
     }
     
-    public static Label makeLabel(String text){
+    public static Label makeLabel(String text, double width){
         Label label = new Label(text);
-        label.setMinWidth(Main.width/8);
-        label.setMaxWidth(Main.width/8);
+        label.setMinWidth(width/8);
+        label.setMaxWidth(width/8);
         label.setFont(MenuGroup.FONT_S);
         label.setTextFill(Color.WHITE);
         label.setAlignment(Pos.CENTER);
         return label;
     }
     
-    public static Text makeText(String str){
+    public static Text makeText(String str, double width){
         Text text = new Text(str);
-        text.maxWidth(Main.width/4);
+        text.maxWidth(width/4);
         text.setFill(Color.CRIMSON);
         text.setStroke(Color.WHITE);
         text.setFont(MenuGroup.FONT_M);

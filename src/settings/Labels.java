@@ -5,16 +5,19 @@ import java.io.*;
 public class Labels implements Serializable{
  
     public class CommandLabels{
-        private String exit, pause, main_menu, camera_scene, camera_player;
+        private String exit, pause, main_menu, camera_scene, camera_player1, camera_player2;
         private String player_up, player_down, player_left, player_right, 
                 player_rotate_left, player_rotate_right, player_shoot;
 
-        public CommandLabels(String exit, String pause, String main_menu, String camera_scene, String camera_player, String player_up, String player_down, String player_left, String player_right, String player_rotate_left, String player_rotate_right, String player_shoot) {
+        public CommandLabels(String exit, String pause, String main_menu, String camera_scene, String camera_player1, String camera_player2,
+                String player_up, String player_down, String player_left, String player_right, String player_rotate_left,
+                String player_rotate_right, String player_shoot) {
             this.exit = exit;
             this.pause = pause;
             this.main_menu = main_menu;
             this.camera_scene = camera_scene;
-            this.camera_player = camera_player;
+            this.camera_player1 = camera_player1;
+            this.camera_player2 = camera_player2;
             this.player_up = player_up;
             this.player_down = player_down;
             this.player_left = player_left;
@@ -56,12 +59,20 @@ public class Labels implements Serializable{
             this.camera_scene = camera_scene;
         }
 
-        public String getCamera_player() {
-            return camera_player;
+        public String getCamera_player1() {
+            return camera_player1;
         }
 
-        public void setCamera_player(String camera_player) {
-            this.camera_player = camera_player;
+        public void setCamera_player1(String camera_player1) {
+            this.camera_player1 = camera_player1;
+        }
+
+        public String getCamera_player2() {
+            return camera_player2;
+        }
+
+        public void setCamera_player2(String camera_player2) {
+            this.camera_player2 = camera_player2;
         }
 
         public String getPlayer_up() {
@@ -265,22 +276,28 @@ public class Labels implements Serializable{
         
     }
     
-    private String start, final_score, victory, defeat, life;
-    private String time, points, high_score;//start, high_score
+    private String start, final_score1, final_score2, victory, defeat, player_lost, life;
+    private String time, points, player, finished, score, pause;//start, high_score
     private CommandLabels commands;
     private MenuLabels menu;
     private InfoLabels info;
 
-    public Labels(String start, String final_score, String victory, String defeat, String life, 
-            String time, String points, String high_score) {
+    public Labels(String start, String final_score1, String final_score2, String victory, String defeat, 
+            String player_lost, String life, String time, String points,
+            String player, String finished, String score, String pause) {
         this.start = start;
-        this.final_score = final_score;
+        this.final_score1 = final_score1;
+        this.final_score2 = final_score2;
         this.victory = victory;
         this.defeat = defeat;
+        this.player_lost = player_lost;
         this.life = life;
         this.time = time;
         this.points = points;
-        this.high_score = high_score;
+        this.player = player;
+        this.finished = finished;
+        this.points = points;
+        this.pause = pause;
     } 
 
     public String getStart() {
@@ -291,12 +308,20 @@ public class Labels implements Serializable{
         this.start = start;
     }
 
-    public String getFinal_score() {
-        return final_score;
+    public String getFinal_score1() {
+        return final_score1;
     }
 
-    public void setFinal_score(String final_score) {
-        this.final_score = final_score;
+    public void setFinal_score1(String final_score1) {
+        this.final_score1 = final_score1;
+    }
+
+    public String getFinal_score2() {
+        return final_score2;
+    }
+
+    public void setFinal_score2(String final_score2) {
+        this.final_score2 = final_score2;
     }
 
     public String getVictory() {
@@ -313,6 +338,14 @@ public class Labels implements Serializable{
 
     public void setDefeat(String defeat) {
         this.defeat = defeat;
+    }
+
+    public String getPlayer_lost() {
+        return player_lost;
+    }
+
+    public void setPlayer_lost(String player_lost) {
+        this.player_lost = player_lost;
     }
 
     public String getLife() {
@@ -339,12 +372,36 @@ public class Labels implements Serializable{
         this.points = points;
     }
 
-    public String getHigh_score() {
-        return high_score;
+    public String getPlayer() {
+        return player;
     }
 
-    public void setHigh_score(String high_score) {
-        this.high_score = high_score;
+    public void setPlayer(String player) {
+        this.player = player;
+    }
+
+    public String getFinished() {
+        return finished;
+    }
+
+    public void setFinished(String finished) {
+        this.finished = finished;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    public String getPause() {
+        return pause;
+    }
+
+    public void setPause(String pause) {
+        this.pause = pause;
     }
 
     public CommandLabels getCommands() {

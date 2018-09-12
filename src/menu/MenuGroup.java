@@ -5,6 +5,7 @@ import javafx.scene.Group;
 import javafx.scene.input.*;
 import javafx.scene.text.*;
 import main.Main;
+import settings.Commands;
 import sprites.*;
 
 public class MenuGroup extends Group implements EventHandler<KeyEvent>{
@@ -37,15 +38,20 @@ public class MenuGroup extends Group implements EventHandler<KeyEvent>{
     public void handle(KeyEvent event) {
         if (event.getEventType() == KeyEvent.KEY_RELEASED){
             KeyCode code = event.getCode();
-            switch(code){
-                case TAB:
-                    getChildren().clear();
-                    getChildren().addAll(background, menu);
-                    Main.setCurrentMenu(menu);
-                    state = MenuState.MAIN;
-                    break;
+            Commands commands = Main.constants.getCommands();
+            if (code == commands.getMain_menu()){
+                getChildren().clear();
+                getChildren().addAll(background, menu);
+                Main.setCurrentMenu(menu);
+                state = MenuState.MAIN;
+            }else{
+                if (code == commands.getExit()){
+                    System.exit(0);
+                }else{
+                    if (code == commands.getFull_screen())
+                        Main.stage.setFullScreen(!Main.stage.isFullScreen());
+                }
             }
         }
-    }
-    
+    }    
 }

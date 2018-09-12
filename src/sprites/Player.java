@@ -47,9 +47,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private double velocityX = 0, velocityY = 0;
     private static enum States {LEFT, RIGHT, UP, DOWN, STALL};   
     private States state = States.STALL;
-        
-    private Commands comms = Main.constants.getCommands();
-    private PlayerCommands playerComms = comms.getPlayer1();
 
     private Shape body;
     private Group gun, leftTubeGroup, rightTubeGroup; 
@@ -57,40 +54,51 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private Timeline playerProtection;
     
     private List<Life> lives = new ArrayList<>();
-    private List<Life> lostLives = new ArrayList<>();
-        
+    private List<Life> lostLives = new ArrayList<>();        
     private List<Shot> shots = new LinkedList<>();
-
-    private RedBonus redBonus; 
-    private boolean rotate = false;
-    private boolean speed = false;
-    
     private BasicShotType shotType = BasicShotType.Tri;
     private int shotCnt = 1;
-    
-    private static List<Bonus> bonuses = new ArrayList<>();
-    private static BonusIndicator collectedRed = null;
-    private static List<BonusIndicator> collectedYellow = new ArrayList<>();   
+
+    private RedBonus redBonus; 
+    private boolean rotate = false, speed = false;   
+  
+    private BonusIndicator collectedRed = null;
+    private List<BonusIndicator> collectedYellow = new ArrayList<>();   
        
     private int points = 0;
-    private static String points_msg = Main.constants.getLabels().getPoints();
-    private static Text points_text;
+    private String points_msg = Main.constants.getLabels().getPoints();
+    private Text points_text;
     
+    public static enum Type {PLAYER1, PLAYER2};
+    private Type playerType;
     private String name;
+    private double posX, posY;    
+            
+    private Commands comms = Main.constants.getCommands();
+    private PlayerCommands playerComms = comms.getPlayer1();
     
     private VBox indicators;
     private HBox lifeBox, redBox, yellowBox;
     
     public static void resetPlayerGame(){
-        bonuses = new ArrayList<>();
-        collectedRed = null;
-        collectedYellow = new ArrayList<>();
         Enemy.setKnockOut(false);
         Shot.setEnlarge(false);
     }
     
-    public Player(String name) {
+    public Player(String name, Type playerType, double posX, double posY) {
+        //type = player1/player2
         this.name = name;
+        this.posX = posX;
+        this.posY = posY;
+        this.playerType = playerType;
+        Color color = Color.SKYBLUE;
+        Pos indicatorPos = Pos.TOP_LEFT, boxPos = Pos.CENTER_LEFT;
+        if (playerType == Type.PLAYER2){
+            playerComms = comms.getPlayer2();
+            color = Color.PALEGOLDENROD;
+            indicatorPos = Pos.TOP_RIGHT;
+            boxPos = Pos.CENTER_RIGHT;
+        }
         Stop [] stops = {
             new Stop(0, Color.YELLOW),
             new Stop(1, Color.TRANSPARENT)
@@ -110,7 +118,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         Ellipse e1 = new Ellipse(0, BODY_OUT_RY, BODY_OUT_RX, BODY_OUT_RY);
         Ellipse e2 = new Ellipse(0, BODY_OUT_RY*7/4, BODY_OUT_RX, BODY_OUT_RY);
         body = Shape.subtract(e1, e2);
-        body.setFill(Color.SKYBLUE);
+        body.setFill(color);
         body.setStroke(Color.BLACK);
         body.setStrokeWidth(1.2);
 
@@ -118,7 +126,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         rightTubeGroup = makeTube("R");
 
         Arc gun_out = new Arc(0, 0, GUN_OUT_RX, GUN_OUT_RY, -10, 200);
-        gun_out.setFill(Color.SKYBLUE);
+        gun_out.setFill(color);
         gun_out.setStroke(Color.BLACK);
         gun_out.setStrokeWidth(1.2);
         Arc gun_in = new Arc(0, 0, GUN_OUT_RX/3, GUN_OUT_RY/2, -10, 200);
@@ -129,13 +137,12 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         getChildren().addAll(gun, leftTubeGroup, rightTubeGroup, body);
         
         indicators = new VBox(Main.height/200);
-        indicators.setAlignment(Pos.TOP_LEFT);
+        indicators.setMinWidth(Main.width*19/20);
+        indicators.setAlignment(indicatorPos);
         indicators.setTranslateY(Main.height/100);
-        indicators.setTranslateY(Main.width/200);
-//        indicators.setMinWidth(Main.width);
-//        indicators.setMinHeight(5*IND_HEIGHT);
+        indicators.setTranslateX(Main.width/40);
         
-        lifeBox = getBox(Pos.CENTER_LEFT);       
+        lifeBox = getBox(boxPos);       
         for(int i = 0; i < LIVES_CNT; i++){
             Life life = new Life();          
             lives.add(life);
@@ -145,13 +152,15 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         points_text = new Text(points_msg + points);
         points_text.setFill(Color.CRIMSON);
         points_text.setFont(Main.FONT_S);
-        HBox pointsBox = getBox(Pos.CENTER_LEFT);
+        HBox pointsBox = getBox(boxPos);
         pointsBox.getChildren().add(points_text);
         
-        redBox = getBox(Pos.CENTER_LEFT);       
-        yellowBox = getBox(Pos.CENTER_LEFT); 
+        redBox = getBox(boxPos);       
+        yellowBox = getBox(boxPos); 
         
         indicators.getChildren().addAll(lifeBox, pointsBox, redBox, yellowBox);
+        setTranslateX(posX);
+        setTranslateY(posY);
     }
     
     public static HBox getBox(Pos pos){
@@ -210,24 +219,25 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         setRedBonusType(null);
         setCollectedRed(null);
         setShotType(null, true);
+        setTranslateX(this.posX);
+        setTranslateY(this.posY);
     }
     
     //resize ---------------------------------------
     @Override
-    public void resize(double ratioWidth, double ratioHeight){
+    public void resizeWindow(double ratioWidth, double ratioHeight){
         super.resizeWindow(ratioWidth, ratioHeight);        
         lives.forEach(l -> l.resizeWindow(ratioWidth, ratioHeight));
         lostLives.forEach(l -> l.resizeWindow(ratioWidth, ratioHeight));
         shots.forEach(s -> s.resizeWindow(ratioWidth, ratioHeight));
-        bonuses.forEach(b -> b.resizeWindow(ratioWidth, ratioHeight));
-        
+        this.posX *= ratioWidth;
+        this.posY *= ratioHeight;
+             
         Scale scale = new Scale();
         scale.setX(ratioWidth); 
         scale.setY(ratioHeight);
-//        indicators.getTransforms().add(scale);
-        lifeBox.getTransforms().add(scale);
-        redBox.getTransforms().add(scale);
-        yellowBox.getTransforms().add(scale);
+        //indicators.setMinWidth(Main.width*19/20);
+        indicators.getTransforms().add(scale);
     }
     
     //lives ----------------------------------------
@@ -475,14 +485,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         redBonus = type;
     }
     
-    public void addBonus(Bonus bonus){
-        bonuses.add(bonus);        
-    }
-    
-    public List<Bonus> getBonuses(){
-        return bonuses;
-    }
-    
     public void setRotate(boolean rotate){
         this.rotate = rotate;
     }
@@ -522,6 +524,14 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     public void addPoints(int p){
         this.points += p;
         points_text.setText(points_msg + points);
+    }
+
+    public Type getPlayerType() {
+        return playerType;
+    }
+
+    public void setPlayerType(Type playerType) {
+        this.playerType = playerType;
     }
     
     public String getName() {
@@ -584,21 +594,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         } else {
             setTranslateY(getTranslateY() + velocityY);
         }
-        
-        for(int i = 0; i < bonuses.size(); i++){
-            Bonus bonus = bonuses.get(i);
-            if ((bonus.getTranslateY() + bonus.getVelocityY()) > Main.height)
-                bonuses.remove(bonus);
-            else{
-                bonus.update();
-                if (bonus.getBoundsInParent().intersects(getBoundsInParent())){
-                    consumed(bonus);
-                    bonuses.remove(bonus);
-                    break;
-                }
-            }
-        }
-        camera.getChildren().addAll(bonuses);
 
         yellowBox.getChildren().clear();
         for(int i = 0; i < collectedYellow.size(); i++){
@@ -640,16 +635,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                     setRotate(getRotate() - ROTATE_ANGLE);  
                 else
                     if ((code == playerComms.getRotate_right()) && rotate)
-                        setRotate(getRotate() + ROTATE_ANGLE); 
-                    else
-                        if (code == comms.getCamera_scene())
-                            Main.camera.setDefault();
-                        else
-                            if (code == comms.getCamera_player())
-                                Main.camera.setPlayerBound(this);
-                            else
-                                if (code == comms.getMain_menu())
-                                    Main.startMenu();
+                        setRotate(getRotate() + ROTATE_ANGLE);    
             }
         }else{                
             if (event.getEventType() == KeyEvent.KEY_RELEASED){

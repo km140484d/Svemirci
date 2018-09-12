@@ -37,8 +37,10 @@ public class Main extends Application {
     
     //timers
     private static AnimationTimer gameTimer, menuTimer;
+    private static boolean gameRunning = false;
     
     //Nodes on scene -----------------------------
+    public static Stage stage;
     private static Scene scene;
     private static MainMenu menu;
     private static Group gameGroup;
@@ -46,7 +48,9 @@ public class Main extends Application {
     private static Base currentMenu;
     public static Camera camera;
     private static Background gameBackground, menuBackground;
-    private static Player player;
+    private static List<Player> players, shotPlayers;
+    private static List<EventHandler> playerHandlers;
+    private static List<Bonus> bonuses = new ArrayList<>(); //static
     private static List<Enemy> enemies = new LinkedList<>();
     private static List<Enemy> shotEnemies = new ArrayList<>();
     private static List<Projectile> projs = new ArrayList<>();
@@ -72,6 +76,8 @@ public class Main extends Application {
     public static Gson gson;
     
     private static String sceneType = "M";
+    
+    private static EventHandler<KeyEvent> basicHandler;
     
     public boolean fileInitialization(){
         try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
@@ -104,11 +110,53 @@ public class Main extends Application {
     }
     
     @Override
-    public void start(Stage primaryStage) {      
+    public void start(Stage primaryStage) {    
+        Main.stage = primaryStage;
         if (!fileInitialization())
             return;      
         width = constants.getWidth();
         height = constants.getHeight();
+        basicHandler = (KeyEvent event) -> {
+            if (event.getEventType() == KeyEvent.KEY_RELEASED){
+                KeyCode code = event.getCode();
+                if (code == constants.getCommands().getExit()){ 
+                    System.exit(0);
+                }else{
+                    if (code == constants.getCommands().getFull_screen()){
+                        primaryStage.setFullScreen(!primaryStage.isFullScreen());                        
+                    }else{
+                        if (code == constants.getCommands().getPause()){
+                            if (gameRunning){
+                                gameTimer.stop();
+                                setMessageText(constants.getLabels().getPause(), false, null);
+                            }else{
+                                gameTimer.start();
+                                msg_text.setOpacity(0);
+                            }
+                            gameRunning = !gameRunning;
+                        }else{
+                            if (code == constants.getCommands().getCamera_scene())
+                                Main.camera.setDefault();
+                            else{
+                                if (code == constants.getCommands().getCamera_player1()){
+                                    Player player = Main.getPlayer(Player.Type.PLAYER1);
+                                    if (player != null)
+                                        Main.camera.setPlayerBound(player);
+                                }else{
+                                    if (code == constants.getCommands().getCamera_player2()){
+                                        Player player = Main.getPlayer(Player.Type.PLAYER2);
+                                        if (player != null)
+                                            Main.camera.setPlayerBound(player); 
+                                    }else
+                                        if (code == constants.getCommands().getMain_menu())
+                                            Main.startMenu();
+                                } 
+                            }
+                        }
+                    }
+                }
+            }
+        };
 
         menuBackground = new Background();
         menu = new MainMenu(width*2/5, height/4);
@@ -180,16 +228,22 @@ public class Main extends Application {
         menuGroup.getChildren().remove(menu);
         menuGroup.getChildren().add(base);
         currentMenu = base;
+        currentMenu.resizeWindow(Main.width/constants.getWidth(), Main.height/constants.getHeight());
     }
     
     public static void startMenu(){  
         sceneType = "M";
-        menu = new MainMenu(width*2/5, height/4);
+        menu = new MainMenu(constants.getWidth()*2/5, constants.getHeight()/4);
+        menu.resizeWindow(Main.width/constants.getWidth(), Main.height/constants.getHeight());
         menuBackground = new Background();
         menuGroup = new MenuGroup(menuBackground, menu);
+        MenuGroup.setMenuState(MenuGroup.MenuState.MAIN);
         scene.setRoot(menuGroup);
-        scene.setOnKeyPressed(null);
-        scene.setOnKeyReleased(null);
+        for(EventHandler handler: playerHandlers){
+            scene.removeEventHandler(KeyEvent.KEY_PRESSED, handler);
+            scene.removeEventHandler(KeyEvent.KEY_RELEASED, handler);
+        }
+        scene.removeEventHandler(KeyEvent.KEY_RELEASED, basicHandler);
         scene.addEventHandler(KeyEvent.KEY_RELEASED, menuGroup);
         scene.addEventHandler(KeyEvent.KEY_RELEASED, menu); 
         gameTimer.stop();
@@ -202,6 +256,7 @@ public class Main extends Application {
         scene.removeEventHandler(KeyEvent.KEY_RELEASED, menu);
         setCurrentMenu(menu);
         gameTimer.start();
+        gameRunning = true;
         menuTimer.stop();
     }
 
@@ -214,12 +269,13 @@ public class Main extends Application {
     
     public static void resizeGameWindow(double ratioWidth, double ratioHeight){
         gameBackground.resizeWindow(ratioWidth, ratioHeight);
-        player.resizeWindow(ratioWidth, ratioHeight);
+        players.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
         enemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
         Enemy.resizeMovement(ratioWidth);
         shotEnemies.forEach(e -> e.resizeWindow(ratioWidth, ratioHeight));
         coins.forEach(c -> c.resizeWindow(ratioWidth, ratioHeight));
         projs.forEach(p -> p.resizeWindow(ratioWidth, ratioHeight));
+        bonuses.forEach(b -> b.resizeWindow(ratioWidth, ratioHeight));
         
         Scale scale = new Scale();
         scale.setX(ratioWidth);
@@ -229,19 +285,22 @@ public class Main extends Application {
             msgBox.getTransforms().add(scale);
         }
     }
-    
-    
-    
-    public static void createGame(Configuration config, String name){
+  
+    public static void createGame(Configuration config, String name1, String name2){
         gameGroup = new Group();
         camera = new Camera();
         gameBackground = new Background();
         gameGroup.getChildren().add(gameBackground);
         
-        player = new Player(name);
-        player.setTranslateX(width / 2);
-        player.setTranslateY(height * 0.95);
-        camera.getChildren().add(player);
+        players = new ArrayList<>();
+        if (name2 == null){
+            players.add(new Player(name1, Player.Type.PLAYER1, width/2, height*0.95));
+        }else{
+            players.add(new Player(name1, Player.Type.PLAYER1, width/3, height*0.95));
+            players.add(new Player(name2, Player.Type.PLAYER2, width*2/3, height*0.95));
+        }
+        camera.getChildren().addAll(players);
+        shotPlayers = new ArrayList<>();
 
         displayTime();
         
@@ -254,8 +313,13 @@ public class Main extends Application {
         gameGroup.getChildren().add(camera);
         scene.setRoot(gameGroup);
 
-        scene.setOnKeyPressed(player);
-        scene.setOnKeyReleased(player);       
+        playerHandlers = new ArrayList<>();
+        for(Player player: players){
+            playerHandlers.add(player);
+            scene.addEventHandler(KeyEvent.KEY_PRESSED, player);
+            scene.addEventHandler(KeyEvent.KEY_RELEASED, player);
+        } 
+        scene.addEventHandler(KeyEvent.KEY_RELEASED, basicHandler);
     }
     
     public static void resetGame(){
@@ -270,6 +334,8 @@ public class Main extends Application {
         delObjects = new ArrayList<>();
         Enemy.resetEnemyGame();
         Player.resetPlayerGame();
+        bonuses = new ArrayList<>();
+        gameRunning = false;
     }
     
     public static void makeEnemies(Position[] positions, String type, Configuration config, List<Commander> commanders){
@@ -314,13 +380,18 @@ public class Main extends Application {
         if (!theEnd) {            
             camera.getChildren().clear();             
             //enemy player update
-            for(int i = 0; i < enemies.size(); i++){
-                Enemy enemy = enemies.get(i);
-                if (enemy.getBoundsInParent().intersects(player.getBoundsInParent())){
-                    updatePlayer();
-                    break;
+            for(Player player: players){
+                for(int i = 0; i < enemies.size(); i++){
+                    Enemy enemy = enemies.get(i);
+                    if (enemy.getBoundsInParent().intersects(player.getBoundsInParent())){
+                        updatePlayer(player);
+                        if (theEnd)
+                            return;
+                        else
+                            break;
+                    }
                 }
-            }              
+            }
             //commander orders attack
             if (shoot){                    
                 pickCommander();
@@ -342,43 +413,47 @@ public class Main extends Application {
 
             //display game objects ---------------------------------------
             //player
-            camera.getChildren().add(player);
+            camera.getChildren().addAll(players);
 
             //enemy and shots update
-            List<Shot> shots = player.getShots();
-            shots = player.getShots(); 
-            for(int i=0; i < shots.size(); i++){
-                Shot shot = shots.get(i);                
-                for (int j = 0; j < enemies.size(); j++) {
-                    Enemy currentEnemy = enemies.get(j);
-                    if (shot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
-                        if (shot instanceof Stream || shot instanceof Boomerang){
-                            if (currentEnemy.isRedMark()){
+            for(Player player: players){
+                List<Shot> shots = player.getShots();
+                for(int i=0; i < shots.size(); i++){
+                    Shot shot = shots.get(i);                
+                    for (int j = 0; j < enemies.size(); j++) {
+                        Enemy currentEnemy = enemies.get(j);
+                        if (shot.getBoundsInParent().intersects(currentEnemy.getBoundsInParent())) {
+                            if (shot instanceof Stream || shot instanceof Boomerang){
+                                if (currentEnemy.isRedMark()){
+                                    if (currentEnemy.enemyShot(shot.getShotStrength()))
+                                        destroyEnemy(currentEnemy, player);
+                                    else
+                                        currentEnemy.setRedMark(false);
+                                }
+                            }else{                            
                                 if (currentEnemy.enemyShot(shot.getShotStrength()))
-                                    destroyEnemy(currentEnemy);
-                                else
-                                    currentEnemy.setRedMark(false);
-                            }
-                        }else{                            
-                            if (currentEnemy.enemyShot(shot.getShotStrength()))
-                                destroyEnemy(currentEnemy);
-                            Main.removeSprite(shot);
-                        }                                
-                        break;
+                                    destroyEnemy(currentEnemy, player);
+                                Main.removeSprite(shot);
+                            }                                
+                            break;
+                        }
                     }
                 }
+                shots.removeAll(delObjects);
+                shots.forEach(e -> e.update());
+                camera.getChildren().addAll(shots);
+                player.setShots(shots);
             }
-            shots.removeAll(delObjects);
-            shots.forEach(e -> e.update());
-            camera.getChildren().addAll(shots); 
 
             //coins                
             coins.forEach(c -> {
                 c.update();
-                if (c.getBoundsInParent().intersects(player.getBoundsInParent())){
-                    player.addPoints(1);                         
-                    Main.removeSprite(c);
-                }                    
+                for(Player player: players){
+                    if (c.getBoundsInParent().intersects(player.getBoundsInParent())){
+                        player.addPoints(1);                         
+                        Main.removeSprite(c);
+                    }   
+                }
             });
             coins.removeAll(delObjects);
             camera.getChildren().addAll(coins);
@@ -391,42 +466,65 @@ public class Main extends Application {
             //projectiles                                
             projs.forEach(p -> {
                 p.update();
-                if (p.getBoundsInParent().intersects(player.getBoundsInParent()))
-                        updatePlayer();
+                for(Player player: players){
+                    if (p.getBoundsInParent().intersects(player.getBoundsInParent()))
+                            updatePlayer(player);
+                }
             });
             projs.removeAll(delObjects);
             camera.getChildren().addAll(projs);
+            
+            //bouses
+            for(Player player: players){
+                for(int i = 0; i < bonuses.size(); i++){
+                    Bonus bonus = bonuses.get(i);
+                    if ((bonus.getTranslateY() + bonus.getVelocityY()) > Main.height)
+                        bonuses.remove(bonus);
+                    else{
+                        bonus.update();
+                        if (bonus.getBoundsInParent().intersects(player.getBoundsInParent())){
+                            player.consumed(bonus);
+                            bonuses.remove(bonus);
+                            break;
+                        }
+                    }
+                }                
+            }
+            camera.getChildren().addAll(bonuses);
 
-            camera.updateCamera(player);
-            player.setShots(shots);
-            player.update();            
+            camera.updateCamera(players.get(0));
+            
+            players.forEach(p -> p.update());        
             time += 1.0 / 60;             
         }else{
-            if (!goodbye){
-                player.addPoints(-(int)time/constants.getDifficulty());
+            if (!goodbye){ 
                 camera.getChildren().clear();
-                camera.getChildren().addAll(player.getShots());
                 camera.getChildren().addAll(enemies);
-                camera.getChildren().addAll(coins);
-                camera.getChildren().addAll(projs);
                 goodbye = true;
+                
                 List<Score> scores = new ArrayList<>(Arrays.asList(constants.getHigh_scores()));
-                scores.add(new Score(player.getName(), player.getPoints(), time_passed));
-                scores.sort((Score o1, Score o2) -> {
-                    if (o1.getPoints()==o2.getPoints())
-                        return 0;
-                    else
-                        if (o1.getPoints() > o2.getPoints())
-                            return -1;
+                List<Player> all = new ArrayList<>();
+                all.addAll(players);
+                all.addAll(shotPlayers);
+                for(Player player: all){
+                    player.addPoints(-(int)time/constants.getDifficulty());                    
+                    scores.add(new Score(player.getName(), player.getPoints(), time_passed));
+                    scores.sort((Score o1, Score o2) -> {
+                        if (o1.getPoints()==o2.getPoints())
+                            return 0;
                         else
-                            return 1;
-                });
-                Score[] write = new Score [scores.size()<10?scores.size():10];
-                for(int i=0; i < scores.size(); i++){
-                    if (i < 10){
-                        write[i] = scores.get(i);
-                    }
+                            if (o1.getPoints() > o2.getPoints())
+                                return -1;
+                            else
+                                return 1;
+                    });                    
                 }
+                Score[] write = new Score [scores.size()<10?scores.size():10];
+                    for(int i=0; i < scores.size(); i++){
+                        if (i < 10){
+                            write[i] = scores.get(i);
+                        }
+                    }
                 constants.setHigh_scores(write);
             }
         }
@@ -446,6 +544,7 @@ public class Main extends Application {
         });
         if (!scouts.isEmpty()){
             int randScout = (int)(Math.random() * (scouts.size() - 1));
+            Player player = players.get((int)Math.random()*2);
             scouts.get(randScout).moveOnPlayer(player.getTranslateX(), player.getTranslateY());
         }
     }
@@ -459,41 +558,51 @@ public class Main extends Application {
         });
         if (!commanders.isEmpty()){
             int randCommander = (int)(Math.random() * (commanders.size() - 1));
+            Player player = players.get((int)Math.random()*2);
             commanders.get(randCommander).orderAttack(player.getTranslateX(), player.getTranslateY());
         }
     }
         
-    public void updatePlayer(){
+    public void updatePlayer(Player player){
         if (!player.invincible()){
             if (!player.loseLife()){
-                Main.setMessageText(String.format(constants.getLabels().getLife(), player.getLifeNumber()), true, null);
-                resetPlayer();
+                Main.setMessageText(String.format(constants.getLabels().getLife(), player.getName(), player.getLifeNumber()), true, null);
+                player.reset();
+                Timeline playerAnotherTry = new Timeline(
+                    new KeyFrame(Duration.ZERO, new KeyValue(player.opacityProperty(), 0, Interpolator.EASE_IN)),
+                    new KeyFrame(Duration.seconds(1), new KeyValue(player.opacityProperty(), 1, Interpolator.EASE_IN))
+                );
+                playerAnotherTry.play();
             }else{
-                System.out.println("Player lost!!!!!!!!!!!");
-                theEnd = true; 
-                setMessageText(constants.getLabels().getDefeat(), true, 
-                        h -> {
-                            msg_text.setText(String.format(constants.getLabels().getFinal_score(), player.getPoints()));
-                            msg_text.setScaleX(1);
-                        });
+                //player loses
+                players.remove(player);
+                playerHandlers.remove(player);
+                shotPlayers.add(player);
+                if (players.isEmpty()){
+                    theEnd = true; 
+                    setMessageText(constants.getLabels().getDefeat(), true, 
+                            h -> {
+                                String str;
+                                if (shotPlayers.size() == 2){
+                                    str = String.format(constants.getLabels().getFinal_score2(), 
+                                            shotPlayers.get(0).getName(), shotPlayers.get(0).getPoints(),
+                                            shotPlayers.get(1).getName(), shotPlayers.get(1).getPoints());
+                                }else{
+                                    str = String.format(constants.getLabels().getFinal_score1(), 
+                                            shotPlayers.get(0).getName(), shotPlayers.get(0).getPoints());
+                                }
+                                msg_text.setText(str);
+                                msg_text.setScaleX(1);
+                            });
+                }else{
+                    Main.setMessageText(
+                            String.format(constants.getLabels().getPlayer_lost(), players.get(0).getName(), shotPlayers.get(0).getName()), true, null);
+                }
             }
         }
     }
-    
-    public void resetPlayer(){
-        //reset player
-        player.reset();
-        player.setTranslateX(width / 2);
-        player.setTranslateY(height * 0.95);
-        Timeline playerAnotherTry = new Timeline(
-                new KeyFrame(Duration.ZERO, new KeyValue(player.opacityProperty(), 0, Interpolator.DISCRETE)),
-                new KeyFrame(Duration.seconds(1), new KeyValue(player.opacityProperty(), 1, Interpolator.DISCRETE))
-        );
-        playerAnotherTry.play();
-        
-    }
-    
-    public void destroyEnemy(Enemy enemy){
+
+    public void destroyEnemy(Enemy enemy, Player player){
         enemies.remove(enemy);
         shotEnemies.add(enemy);
         if (enemy instanceof Warrior)
@@ -520,7 +629,7 @@ public class Main extends Application {
                             player.addPoints(enemy.enemyStrength()/constants.getDifficulty());// points won from kill shot
                             if (rand < 0.6){
                                 if (rand < 0.25)
-                                    player.addBonus(new Bonus(Bonus.pickBonus(), x, y));
+                                    bonuses.add(new Bonus(Bonus.pickBonus(), x, y));
                                 else
                                     coins.add(new Coin(x, y));                                          
                             }
@@ -532,7 +641,19 @@ public class Main extends Application {
                 theEnd = true;
                 setMessageText(constants.getLabels().getVictory(), true, 
                         h -> {
-                            msg_text.setText(String.format(constants.getLabels().getFinal_score(), player.getPoints()));
+                            String str;
+                            List<Player> pls = new ArrayList<>();
+                            pls.addAll(players);
+                            pls.addAll(shotPlayers);
+                            if (pls.size() == 2){
+                                    str = String.format(constants.getLabels().getFinal_score2(), 
+                                            pls.get(0).getName(), pls.get(0).getPoints(),
+                                            pls.get(1).getName(), pls.get(1).getPoints());
+                            }else{
+                                str = String.format(constants.getLabels().getFinal_score1(), 
+                                        pls.get(0).getName(), pls.get(0).getPoints());
+                            }
+                            msg_text.setText(str);
                             msg_text.setScaleX(1);
                         });
             });
@@ -547,6 +668,14 @@ public class Main extends Application {
     public static void setEnemyRedMark(boolean mark){
         enemies.forEach(e -> e.setRedMark(mark));
     }
+    
+    public static Player getPlayer(Player.Type type){
+        for(Player p: players){
+            if (p.getPlayerType() == type)
+                return p;
+        }  
+        return null;
+    }
         
     public static void setMessageText(String msg, boolean fade, EventHandler<ActionEvent> handler){
         if (msg_text == null){
@@ -558,6 +687,7 @@ public class Main extends Application {
             msg_text.setFill(Color.CRIMSON);
             msg_text.setStroke(Color.WHITE);
             msg_text.setFont(FONT_L);
+            msg_text.setTextAlignment(TextAlignment.CENTER);
             gameGroup.getChildren().add(msgBox);
         }
         else

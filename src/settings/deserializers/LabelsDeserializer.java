@@ -10,20 +10,27 @@ public class LabelsDeserializer implements JsonDeserializer<Labels>{
     public Labels deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
         JsonObject jObject = (JsonObject) je;
         Labels labs = new Labels(jObject.get("start").getAsString(),
-                jObject.get("final_score").getAsString(),
+                jObject.get("final_score1").getAsString(),
+                jObject.get("final_score2").getAsString(),
                 jObject.get("victory").getAsString(),
                 jObject.get("defeat").getAsString(),
+                jObject.get("player_lost").getAsString(),
                 jObject.get("life").getAsString(),
                 jObject.get("time").getAsString(),
                 jObject.get("score").getAsString(),
-                jObject.get("high_score").getAsString());
+                jObject.get("player").getAsString(),
+                jObject.get("finished").getAsString(),
+                jObject.get("score").getAsString(),
+                jObject.get("pause").getAsString()
+        );
         
          JsonObject jCommands =  jObject.get("commands").getAsJsonObject();
          Labels.CommandLabels commands = labs.new CommandLabels(jCommands.get("exit").getAsString(),
                 jCommands.get("pause").getAsString(),
                 jCommands.get("main_menu").getAsString(),
                 jCommands.get("camera_scene").getAsString(),
-                jCommands.get("camera_player").getAsString(),
+                jCommands.get("camera_player1").getAsString(),
+                jCommands.get("camera_player2").getAsString(),
                 jCommands.get("player_up").getAsString(),
                 jCommands.get("player_down").getAsString(),
                 jCommands.get("player_left").getAsString(),
