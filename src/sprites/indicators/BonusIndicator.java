@@ -1,10 +1,11 @@
-package sprites;
+package sprites.indicators;
 
 import javafx.scene.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import main.*;
+import sprites.Sprite;
 import sprites.awards.*;
 import sprites.awards.Bonus.*;
 
@@ -41,17 +42,18 @@ public class BonusIndicator extends Sprite{
         }
     }
 
+    public void resetBonusTime(){
+        bar_in.setHeight(RADIUS*3/2);
+        time = BONUS_TIME;
+    }
+    
     public boolean decTime(){
         time--;
         bar_in.setHeight(bar_in.getHeight() - BAR_SPEED);
         return time == 0;
     }    
-    
-    public void reset(){
-        bar_in.setHeight(RADIUS*3/2);
-        time = BONUS_TIME;
-    }
-    
+
+    //getters/setters
     public BonusType getType() {
         return type;
     }
@@ -73,9 +75,5 @@ public class BonusIndicator extends Sprite{
     }
 
     @Override
-    public void update() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    
+    public void update() {}    
 }

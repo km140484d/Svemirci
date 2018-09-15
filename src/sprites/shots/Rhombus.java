@@ -7,22 +7,22 @@ import main.Main;
 
 public class Rhombus extends Shot{
     
-    public static final double ANGLE = Main.constants.getShot_max_angle()/2; //2*45
+    protected static final double ANGLE = Main.constants.getShot_max_angle()/2; //2*45
     
-    private static final double WIDTH = size*2/3;
-    private static final double INNER = size*RATIO;
+    private static final double WIDTH = SIDE*2/3;
+    private static final double INNER = SIDE*RATIO;
     private static final double INNER_WIDTH = INNER*2/3;
 
     private static final int RHOMB_STRENGTH = 1;
     
-    public Rhombus(double playerAngle, double angle){
-        super(playerAngle, angle, RHOMB_STRENGTH);
-        base = new Polygon( 0, -size,
+    public Rhombus(double playerAngle, double angle, boolean sizeUp){
+        super(playerAngle, angle, RHOMB_STRENGTH, sizeUp);
+        base = new Polygon( 0, -SIDE,
                 WIDTH, 0,
-                0, size,
+                0, SIDE,
                 -WIDTH, 0                
         );
-        base.setFill(new ImagePattern(new Image("/resources/shots/rhombus1.png")));
+        base.setFill(new ImagePattern(new Image("/resources/shots/rhombus.png")));
         base.setStroke(Color.WHITE);
         
         center = new Polygon( 0, -INNER,

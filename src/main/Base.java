@@ -5,9 +5,7 @@ import javafx.scene.transform.*;
 
 public class Base extends Group{
     
-    public Base(){
-        
-    }
+    public Base(){}
     
     public void resizeWindow(double ratioWidth, double ratioHeight){
         Scale scale = new Scale();

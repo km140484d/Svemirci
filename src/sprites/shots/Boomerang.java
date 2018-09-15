@@ -9,7 +9,7 @@ import main.Main;
 
 public class Boomerang extends Shot{
     
-    private static final double BOOM = size*3/2;
+    private static final double BOOM = SIDE*3/2;
     private static final double INNER_R = BOOM*3/8;
     private static final double OUTER_R = BOOM*3/4;
     
@@ -19,8 +19,8 @@ public class Boomerang extends Shot{
     
     private double r = RADIUS;    
  
-    public Boomerang(double playerAngle){
-        super(playerAngle, 0, BOOM_STRENGTH);
+    public Boomerang(double playerAngle, boolean sizeUp){
+        super(playerAngle, 0, BOOM_STRENGTH, sizeUp);
         
         base = new Path(
                 new MoveTo(INNER_R, 0),
@@ -41,7 +41,7 @@ public class Boomerang extends Shot{
         rt.setCycleCount(Animation.INDEFINITE);
         rt.play();
         
-        base.setFill(new ImagePattern(new Image("/resources/shots/boom1.png")));
+        base.setFill(new ImagePattern(new Image("/resources/shots/boomerang.png")));
         getChildren().addAll(base);
         this.setTranslateY(BOOM/8);
     }
@@ -62,15 +62,15 @@ public class Boomerang extends Shot{
             velocityX = -velocityX;
             Main.setEnemyRedMark(true);
         }else{
-            if (x + velocityX > Main.width - r - 5){
-                setTranslateX(Main.width - r - 5);
+            if (x + velocityX > Main.getWidth() - r - 5){
+                setTranslateX(Main.getWidth() - r - 5);
                 velocityX = -velocityX;
                 Main.setEnemyRedMark(true);
             }else
                 setTranslateX(x + velocityX);
         }
         
-        if (y + velocityY > Main.height - r - 5)
+        if (y + velocityY > Main.getHeight() - r - 5)
             Main.removeSprite(this);        
         else{
             if (y + velocityY < r - 5){
@@ -81,7 +81,6 @@ public class Boomerang extends Shot{
                 setTranslateY(y + velocityY);
             }
         }
-       
     }
     
 }

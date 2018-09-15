@@ -133,11 +133,15 @@ public class Labels implements Serializable{
     }
     
     public class MenuLabels{
-        private String start, commands, top_10, info, help, exit;
+        private String ret_menu, level_mode, resume, main_menu, start, commands, top_10, info, help, exit;
         private String high_scores, player1, player2;
 
-        public MenuLabels(String start, String commands, String top_10, String info, 
-                String help, String exit, String high_scores, String player1, String player2) {
+        public MenuLabels(String ret_menu, String level_mode, String resume, String main_menu, String start, String commands, 
+                String top_10, String info, String help, String exit, String high_scores, String player1, String player2) {
+            this.ret_menu = ret_menu;
+            this.level_mode = level_mode;
+            this.resume = resume;
+            this.main_menu = main_menu;
             this.start = start;
             this.commands = commands;
             this.top_10 = top_10;
@@ -147,6 +151,38 @@ public class Labels implements Serializable{
             this.high_scores = high_scores;
             this.player1 = player1;
             this.player2 = player2;
+        }
+
+        public String getRet_menu() {
+            return ret_menu;
+        }
+
+        public void setRet_menu(String ret_menu) {
+            this.ret_menu = ret_menu;
+        }
+
+        public String getLevel_mode() {
+            return level_mode;
+        }
+
+        public void setLevel_mode(String level_mode) {
+            this.level_mode = level_mode;
+        }
+
+        public String getResume() {
+            return resume;
+        }
+
+        public void setResume(String resume) {
+            this.resume = resume;
+        }
+
+        public String getMain_menu() {
+            return main_menu;
+        }
+
+        public void setMain_menu(String main_menu) {
+            this.main_menu = main_menu;
         }
 
         public String getStart() {

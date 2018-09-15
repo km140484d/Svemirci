@@ -1,9 +1,10 @@
 package sprites;
 
+import sprites.indicators.*;
 import java.util.*;
 import javafx.animation.*;
 import javafx.event.*;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
@@ -15,7 +16,6 @@ import javafx.scene.text.*;
 import javafx.scene.transform.*;
 import javafx.util.*;
 import main.Main;
-import static main.Main.*;
 import settings.*;
 import settings.Commands.*;
 import sprites.awards.*;
@@ -26,8 +26,7 @@ import sprites.shots.Shot.*;
 import static sprites.shots.Shot.BasicShotType.*;
 
 public class Player extends Sprite implements EventHandler<KeyEvent> {
-    public static final int LIVES_CNT = 3;
-    private static final double IND_HEIGHT = Life.getHeght();
+    private static final int LIVES_CNT = 3;
     
     private static final double WIDTH = 60;
     private static final double HEIGHT = 60;
@@ -60,7 +59,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private int shotCnt = 1;
 
     private RedBonus redBonus; 
-    private boolean rotate = false, speed = false;   
+    private boolean rotate = false, speed = false, sizeUp = false;   
   
     private BonusIndicator collectedRed = null;
     private List<BonusIndicator> collectedYellow = new ArrayList<>();   
@@ -71,6 +70,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     public static enum Type {PLAYER1, PLAYER2};
     private Type playerType;
+    private Color playerColor;
     private String name;
     private double posX, posY;    
             
@@ -82,7 +82,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     public static void resetPlayerGame(){
         Enemy.setKnockOut(false);
-        Shot.setEnlarge(false);
     }
     
     public Player(String name, Type playerType, double posX, double posY) {
@@ -91,11 +90,11 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         this.posX = posX;
         this.posY = posY;
         this.playerType = playerType;
-        Color color = Color.SKYBLUE;
+        playerColor = Color.SKYBLUE;
         Pos indicatorPos = Pos.TOP_LEFT, boxPos = Pos.CENTER_LEFT;
         if (playerType == Type.PLAYER2){
             playerComms = comms.getPlayer2();
-            color = Color.PALEGOLDENROD;
+            playerColor = Color.PALEGOLDENROD;
             indicatorPos = Pos.TOP_RIGHT;
             boxPos = Pos.CENTER_RIGHT;
         }
@@ -118,7 +117,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         Ellipse e1 = new Ellipse(0, BODY_OUT_RY, BODY_OUT_RX, BODY_OUT_RY);
         Ellipse e2 = new Ellipse(0, BODY_OUT_RY*7/4, BODY_OUT_RX, BODY_OUT_RY);
         body = Shape.subtract(e1, e2);
-        body.setFill(color);
+        body.setFill(playerColor);
         body.setStroke(Color.BLACK);
         body.setStrokeWidth(1.2);
 
@@ -126,7 +125,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         rightTubeGroup = makeTube("R");
 
         Arc gun_out = new Arc(0, 0, GUN_OUT_RX, GUN_OUT_RY, -10, 200);
-        gun_out.setFill(color);
+        gun_out.setFill(playerColor);
         gun_out.setStroke(Color.BLACK);
         gun_out.setStrokeWidth(1.2);
         Arc gun_in = new Arc(0, 0, GUN_OUT_RX/3, GUN_OUT_RY/2, -10, 200);
@@ -136,11 +135,11 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         
         getChildren().addAll(gun, leftTubeGroup, rightTubeGroup, body);
         
-        indicators = new VBox(Main.height/200);
-        indicators.setMinWidth(Main.width*19/20);
+        indicators = new VBox(Main.getHeight()/200);
+        indicators.setMinWidth(Main.getWidth()*19/20);
         indicators.setAlignment(indicatorPos);
-        indicators.setTranslateY(Main.height/100);
-        indicators.setTranslateX(Main.width/40);
+        indicators.setTranslateY(Main.getHeight()/100);
+        indicators.setTranslateX(Main.getWidth()/40);
         
         lifeBox = getBox(boxPos);       
         for(int i = 0; i < LIVES_CNT; i++){
@@ -163,6 +162,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         setTranslateY(posY);
     }
     
+    //indicator boxes
     public static HBox getBox(Pos pos){
         HBox box = new HBox(1);
         box.setAlignment(pos);
@@ -236,7 +236,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         Scale scale = new Scale();
         scale.setX(ratioWidth); 
         scale.setY(ratioHeight);
-        //indicators.setMinWidth(Main.width*19/20);
         indicators.getTransforms().add(scale);
     }
     
@@ -285,10 +284,10 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         if (redBonus != null){            
             switch(redBonus){
                 case Stream:
-                    shot = new Stream(getRotate());
+                    shot = new Stream(getRotate(), sizeUp);
                     break;
                 case Boomerang:
-                    shot = new Boomerang(getRotate());
+                    shot = new Boomerang(getRotate(), sizeUp);
                     break;
             } 
             redBonus = null;
@@ -317,16 +316,16 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         Shot shot = null;
         switch(shotType){
             case Tri:
-                shot = new Triangle(getRotate(), angle);
+                shot = new Triangle(getRotate(), angle, sizeUp);
                 break;
             case Rho:
-                shot = new Rhombus(getRotate(), angle);
+                shot = new Rhombus(getRotate(), angle, sizeUp);
                 break;
             case Pen:
-                shot = new Pentagon(getRotate(), angle);
+                shot = new Pentagon(getRotate(), angle, sizeUp);
                 break;
             case Hex:
-                shot = new Hexagon(getRotate(), angle);
+                shot = new Hexagon(getRotate(), angle, sizeUp);
         }
         shot.setTranslateX(getTranslateX() + GUN_OUT_RY*Math.cos(Math.toRadians(trans)));
         shot.setTranslateY(getTranslateY() - GUN_OUT_RY*Math.sin(Math.toRadians(trans)));
@@ -368,7 +367,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
             if (type instanceof Bonus.YellowBonus){
                 for(int i=0; i<collectedYellow.size(); i++){
                     if (collectedYellow.get(i).getType().equals(type)){
-                        collectedYellow.get(i).reset();
+                        collectedYellow.get(i).resetBonusTime();
                         return;
                     }
                 }                
@@ -383,7 +382,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     }
     
     public void actionRedBonus(Bonus.RedBonus bonus){
-        setEnemyRedMark(true);
+        Main.setEnemyRedMark(true);
         switch(bonus){
             case Stream:
                 setRedBonusType(Bonus.RedBonus.Stream);
@@ -406,7 +405,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 setShield(true);
                 break;
             case ShotGrowth:
-                Shot.setEnlarge(true);
+                setSizeUp(true);
                 break;
             case KnockOut:
                 Enemy.setKnockOut(true);
@@ -465,7 +464,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 rt.play();
                 break; 
             case ShotGrowth:
-                Shot.setEnlarge(false);
+                setSizeUp(false);
                 break;
             case Shield:
                 setShield(false);
@@ -491,6 +490,10 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     public void setSpeed(boolean speed){
         this.speed = speed;
+    }
+    
+    public void setSizeUp(boolean sizeUp){
+        this.sizeUp = sizeUp;
     }
  
     public boolean invincible(){
@@ -526,12 +529,21 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         points_text.setText(points_msg + points);
     }
 
+    //getters/setters
     public Type getPlayerType() {
         return playerType;
     }
 
     public void setPlayerType(Type playerType) {
         this.playerType = playerType;
+    }
+
+    public Color getPlayerColor() {
+        return playerColor;
+    }
+
+    public void setPlayerColor(Color playerColor) {
+        this.playerColor = playerColor;
     }
     
     public String getName() {
@@ -581,16 +593,16 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     public void update() {
         if (getTranslateX() + velocityX < WIDTH / 2 + 5) {
             setTranslateX(WIDTH / 2 + 5);
-        } else if (getTranslateX() + velocityX > Main.width - WIDTH / 2 - 5) {
-            setTranslateX(Main.width - WIDTH / 2 - 5);
+        } else if (getTranslateX() + velocityX > Main.getWidth() - WIDTH / 2 - 5) {
+            setTranslateX(Main.getWidth() - WIDTH / 2 - 5);
         } else {
             setTranslateX(getTranslateX() + velocityX);
         }
         
         if (getTranslateY() + velocityY < HEIGHT / 2 + 5) {
             setTranslateY(HEIGHT / 2 + 5);
-        } else if (getTranslateY() + velocityY > Main.height - HEIGHT / 2 - 5) {
-            setTranslateY(Main.height - HEIGHT / 2 - 5);
+        } else if (getTranslateY() + velocityY > Main.getHeight() - HEIGHT / 2 - 5) {
+            setTranslateY(Main.getHeight() - HEIGHT / 2 - 5);
         } else {
             setTranslateY(getTranslateY() + velocityY);
         }
@@ -606,9 +618,9 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
 
         }
         redBox.getChildren().clear();
-        if (collectedRed != null && !camera.getChildren().contains(collectedRed))
+        if (collectedRed != null && !Main.getCamera().getChildren().contains(collectedRed))
             redBox.getChildren().add(collectedRed);
-        camera.getChildren().add(indicators);
+        Main.getCamera().getChildren().add(indicators);
     }
 
     @Override
@@ -650,7 +662,5 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 }
             }
         }
-
     }
-    
 }

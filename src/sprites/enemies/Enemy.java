@@ -18,26 +18,23 @@ public abstract class Enemy extends Sprite {
     protected static final double PUPIL_RADIUS = EYE_WIDTH/4;
     
     protected static final double HELMET_LINE = EYE_WIDTH*6/5;
-    
+
+    //body parts
     protected Rectangle body;
-    
+    private Arc mouth; 
     //0-left, 1-right
     private Group [] gr_eyes = new Group [2];
     private Ellipse [] eyes = new Ellipse [2]; 
     private Circle [] pupils = new Circle [2];
-    protected Path [] ears = new Path [2];     
-    
-    private Arc mouth; 
-    
+    protected Path [] ears = new Path [2]; 
+    //health bar
     private Group stat;
     //0 - black, 1 - green
     private Rectangle [] bars = new Rectangle [2];
     
     protected int strength;
-    private boolean redMark;
-    private boolean last = false;
+    private boolean redMark, last = false, entry = true;
     
-    private boolean entry = true;
     private static boolean update = false, knockOut = false;
     private double velocityX = -1, velocityY = 2;   
     private double posX, posY;
@@ -47,9 +44,8 @@ public abstract class Enemy extends Sprite {
     private double oldVelocityX, attackVelocityX, attackVelocityY;
     private boolean destination = false, animation = false;
     
-    private static double movement;
-    
-    private ScaleTransition st;
+    private static double movement;    
+//    private ScaleTransition st;
     
     public Enemy(double posX, double posY, double deltaY) {
         this.posX = posX;
@@ -133,14 +129,14 @@ public abstract class Enemy extends Sprite {
         knockOut = false;
     }
     
-    public void startBlinking(Group eye){
-        st = new ScaleTransition(Duration.seconds(2), eye); 
-        st.setFromY(1);
-        st.setToY(0.2);
-        st.setAutoReverse(true);
-        st.setCycleCount(Animation.INDEFINITE);
-        st.play();         
-    }
+//    public void startBlinking(Group eye){
+//        st = new ScaleTransition(Duration.seconds(2), eye); 
+//        st.setFromY(1);
+//        st.setToY(0.2);
+//        st.setAutoReverse(true);
+//        st.setCycleCount(Animation.INDEFINITE);
+//        st.play();         
+//    }
     
     public static void setMovement(double move){
         movement = move;
@@ -176,6 +172,22 @@ public abstract class Enemy extends Sprite {
         return new Projectile(x, y);
     }
     
+    public boolean enemyShot(int shotStrength){
+        strength-=shotStrength;
+        if (strength <= 0)
+            return true;
+        else{
+            ScaleTransition hit = new ScaleTransition(Duration.seconds(0.1), this);
+            hit.setFromX(1); hit.setByX(0.1);
+            hit.setFromY(1); hit.setByY(0.1);
+            hit.setAutoReverse(true);
+            hit.setCycleCount(2);
+            hit.play();
+            bars[1].setWidth(bars[1].getWidth() - (EN_WIDTH/(2*enemyStrength())) * shotStrength);
+            return false;
+        }
+    }
+    
     public void markLast(){
         last = true;
     }
@@ -184,6 +196,7 @@ public abstract class Enemy extends Sprite {
         root.getChildren().add(stat);
     }
     
+    //getters/setters
     public Rectangle getBody(){
         return body;
     }
@@ -212,22 +225,6 @@ public abstract class Enemy extends Sprite {
         return chosen;
     }
     
-    public boolean enemyShot(int shotStrength){
-        strength-=shotStrength;
-        if (strength <= 0)
-            return true;
-        else{
-            ScaleTransition hit = new ScaleTransition(Duration.seconds(0.1), this);
-            hit.setFromX(1); hit.setByX(0.1);
-            hit.setFromY(1); hit.setByY(0.1);
-            hit.setAutoReverse(true);
-            hit.setCycleCount(2);
-            hit.play();
-            bars[1].setWidth(bars[1].getWidth() - (EN_WIDTH/(2*enemyStrength())) * shotStrength);
-            return false;
-        }
-    }
-    
     public boolean isRedMark(){
         return redMark;
     }  
@@ -237,11 +234,11 @@ public abstract class Enemy extends Sprite {
     }
     
     public static double getWidth(){
-        return EN_WIDTH*7/3*Main.width/Main.WINDOW_WIDTH;
+        return EN_WIDTH*7/3*Main.getWidth()/Main.WINDOW_WIDTH;
     }
     
     public static double getHeight(){
-        return EN_HEIGHT*4/3*Main.height/Main.WINDOW_HEIGHT;
+        return EN_HEIGHT*4/3*Main.getHeight()/Main.WINDOW_HEIGHT;
     }
     
     public abstract int enemyStrength();
@@ -338,7 +335,6 @@ public abstract class Enemy extends Sprite {
                                 }
                             }
                         }
-
                     }
                 }
             }

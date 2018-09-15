@@ -1,5 +1,6 @@
 package menu;
 
+import java.util.List;
 import javafx.animation.*;
 import javafx.geometry.*;
 import javafx.scene.control.*;
@@ -17,32 +18,51 @@ public class HighScoresMenu extends Base{
     
     private HBox[] scoreBoxes = new HBox [TOP];
     
-    public HighScoresMenu(){
-        double width = Main.constants.getWidth();
-        double height = Main.constants.getHeight();
-        
+    public HighScoresMenu(double menuWidth, double menuHeight, List<Score> playerScores){
+        double width = menuWidth, height = menuHeight;
+
         Text scoreTitle = new Text(Main.constants.getLabels().getMenu().getHigh_scores());
-        scoreTitle.minWidth(width);
         scoreTitle.setTextAlignment(TextAlignment.CENTER);
         scoreTitle.setFill(Color.WHITE);
         scoreTitle.setStroke(Color.CRIMSON);
-        scoreTitle.setFont(MenuGroup.FONT_L);       
-        
-        VBox vb = new VBox(height/(TOP*3));
-        HBox labelBox = new HBox(width/8);
+        scoreTitle.setFont(MainMenu.FONT_L);       
+
+        HBox labelBox = new HBox();//width/8);
+        labelBox.setMaxWidth(width*10/11);
         labelBox.getChildren().add(makeLabel(Main.constants.getLabels().getPlayer(), Color.CRIMSON, width));
         labelBox.getChildren().add(makeLabel(Main.constants.getLabels().getFinished(), Color.CRIMSON, width));
         labelBox.getChildren().add(makeLabel(Main.constants.getLabels().getScore(), Color.CRIMSON, width));
-        vb.getChildren().add(labelBox);
+        Separator sep = new Separator();
+        sep.setMaxWidth(width*7/8);
+        
+        VBox vb = new VBox(height/(TOP*3), labelBox, sep);
+        vb.setMaxWidth(width);
+        vb.setAlignment(Pos.CENTER);
         Score[] scores = Main.constants.getHigh_scores();
         for(int i=0; i<TOP; i++){
-            scoreBoxes[i] = new HBox(width/8);
+            scoreBoxes[i] = new HBox();//width/8);
+            scoreBoxes[i].setMaxWidth(width*10/11);
             if (i<scores.length){
                 Label name = makeLabel(scores[i].getName(), Color.WHITE, width);
                 Label time = makeLabel(((scores[i].getTime()/60<10)?"0":"") + scores[i].getTime()/60 + ":" + 
                         ((scores[i].getTime()%60<10)?"0":"") + scores[i].getTime()%60, Color.WHITE, width);
                 Label points = makeLabel(scores[i].getPoints() + "", Color.WHITE, width);
                 scoreBoxes[i].getChildren().addAll(name,time,points);
+                if (playerScores != null && !playerScores.isEmpty()){
+                    for(Score s:playerScores){
+                        if (s.equals(scores[i])){
+                            String webFormat = String.format("#%02x%02x%02x",
+                                (int) (255 * s.getColor().getRed()),
+                                (int) (255 * s.getColor().getGreen()),
+                                (int) (255 * s.getColor().getBlue()));
+                            scoreBoxes[i].setStyle("-fx-border-color:" + webFormat + ";"
+                            + "-fx-border-width:2;");
+                            playerScores.remove(s);
+                            break;
+                        }
+                    }
+                }
+
                 if (i == 0){
                     animateScore(name);
                     animateScore(time);
@@ -51,13 +71,13 @@ public class HighScoresMenu extends Base{
             }else
                 scoreBoxes[i].getChildren().addAll(makeLabel("-", Color.WHITE, width),
                         makeLabel("-", Color.WHITE, width), makeLabel("-", Color.WHITE, width));
-        } 
-        
-        VBox mainBox = new VBox(height/30, scoreTitle, vb);
+        }         
+        VBox mainBox = new VBox(height/40, scoreTitle, vb);
         mainBox.setAlignment(Pos.CENTER);
+        mainBox.setMinWidth(width);
         mainBox.setTranslateY(height/60);
         
-        Rectangle border = new Rectangle(width*11/12, height*17/20);
+        Rectangle border = new Rectangle(width*11/12, height*9/10);
         border.setArcWidth(border.getWidth()/8);
         border.setArcHeight(border.getHeight()/8);
         border.setTranslateX(width/24);
@@ -88,8 +108,8 @@ public class HighScoresMenu extends Base{
     
     public static Label makeLabel(String text, Color color, double width){
         Label label = new Label(text);
-        label.setMinWidth(width / 4);
-        label.setFont(MenuGroup.FONT_S);
+        label.setMinWidth(width*7/24);
+        label.setFont(MainMenu.FONT_S);
         label.setTextFill(color);
         label.setAlignment(Pos.CENTER);
         return label;

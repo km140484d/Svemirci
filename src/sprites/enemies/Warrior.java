@@ -10,12 +10,11 @@ import static sprites.enemies.Enemy.EN_WIDTH;
 
 public class Warrior extends Enemy{
     
-    private Path helmet;
     private List<Commander> commanders = new ArrayList<>();
     
     public Warrior(double posX, double posY, double deltaY){
         super(posX, posY, deltaY);        
-        helmet = new Path(
+        Path helmet = new Path(
                 new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
                 new LineTo(-HELMET_LINE*3/2, EN_HEIGHT*2/3),
                 new VLineTo(0),
@@ -70,6 +69,4 @@ public class Warrior extends Enemy{
         super.update();
     }
 
-
-    
 }

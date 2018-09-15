@@ -1,7 +1,6 @@
 package menu;
 
 import javafx.geometry.*;
-import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -19,9 +18,8 @@ public class InfoMenu extends Base{
     private static final String DESCRIPTION = "Battle with enemies\nfrom outer space.";
     private static final String COPY_RIGHT = "@Copyright";
     
-    public InfoMenu(Labels labels){
-        double width = Main.constants.getWidth();
-        double height = Main.constants.getHeight();
+    public InfoMenu(Labels labels, double menuWidth, double menuHeight){
+        double width = menuWidth, height = menuHeight;
         
         VBox vCenter = new VBox(height/20);
         vCenter.setMinWidth(width);
@@ -47,7 +45,7 @@ public class InfoMenu extends Base{
         Label label = new Label(text);
         label.setMinWidth(width/8);
         label.setMaxWidth(width/8);
-        label.setFont(MenuGroup.FONT_S);
+        label.setFont(MainMenu.FONT_S);
         label.setTextFill(Color.WHITE);
         label.setAlignment(Pos.CENTER);
         return label;
@@ -58,7 +56,7 @@ public class InfoMenu extends Base{
         text.maxWidth(width/4);
         text.setFill(Color.CRIMSON);
         text.setStroke(Color.WHITE);
-        text.setFont(MenuGroup.FONT_M);
+        text.setFont(MainMenu.FONT_M);
         text.setTextAlignment(TextAlignment.CENTER);
         return text;
     }

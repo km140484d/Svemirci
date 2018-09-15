@@ -1,14 +1,12 @@
 package sprites;
 
-import javafx.scene.transform.Scale;
+import javafx.scene.transform.*;
 import main.*;
 
 public abstract class Sprite extends Base {
     
     public Sprite(){
-        Scale scale = new Scale();
-        scale.setX(Main.width/Main.WINDOW_WIDTH);
-        scale.setY(Main.height/Main.WINDOW_HEIGHT);
+        Scale scale = new Scale(Main.getWidth()/Main.WINDOW_WIDTH, Main.getHeight()/Main.WINDOW_HEIGHT);
         getTransforms().add(scale);
     }
     

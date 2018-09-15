@@ -15,7 +15,7 @@ public class Camera extends Group {
     
     public void updatePosition(Player p){
         getTransforms().clear();
-        getTransforms().add(new Translate(Main.width / 2 - p.getTranslateX(), 0));
+        getTransforms().add(new Translate(Main.getWidth() / 2 - p.getTranslateX(), 0));
     }
     
     public void setPlayerBound(Player p){

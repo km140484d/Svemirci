@@ -7,7 +7,6 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.scene.text.*;
 import main.Base;
-import main.Main;
 import settings.*;
 import settings.Commands.*;
 
@@ -16,12 +15,11 @@ public class CommandsMenu extends Base{
     private Labels labels;
     private Commands commands;
     
-    public CommandsMenu(Labels labels, Commands commands){
+    public CommandsMenu(Labels labels, Commands commands, double menuWidth, double menuHeight){
         this.labels = labels;
         this.commands = commands;
         
-        double width = Main.constants.getWidth();
-        double height = Main.constants.getHeight();
+        double width = menuWidth, height = menuHeight;
         
         Rectangle leftRect = new Rectangle(width/4, height*8/9);
         leftRect.setTranslateX(width/24);
@@ -60,7 +58,7 @@ public class CommandsMenu extends Base{
         title.setWrappingWidth(width/4);
         title.setFill(Color.CRIMSON);
         title.setStroke(Color.WHITE);
-        title.setFont(MenuGroup.FONT_L);
+        title.setFont(MainMenu.FONT_L);
         title.setTextAlignment(TextAlignment.CENTER);
         VBox centerBox = new VBox(height/15, title, mainBox); 
         centerBox.setAlignment(Pos.CENTER);
@@ -81,7 +79,7 @@ public class CommandsMenu extends Base{
         titleLab.setMaxWidth(width*11/36);
         titleLab.setTextFill(Color.WHITE);
         titleLab.setAlignment(Pos.CENTER);
-        titleLab.setFont(MenuGroup.FONT_M);
+        titleLab.setFont(MainMenu.FONT_M);
         vb.getChildren().add(titleLab);
         vb.getChildren().add(commandRow(labels.getCommands().getPlayer_up(), player.getUp().toString(), width));
         vb.getChildren().add(commandRow(labels.getCommands().getPlayer_down(), player.getDown().toString(), width));
@@ -109,11 +107,11 @@ public class CommandsMenu extends Base{
         label.setMinWidth(width/8);
         label.setMaxWidth(width/8);
         if (type.equals("L")){            
-            label.setFont(MenuGroup.FONT_M);
+            label.setFont(MainMenu.FONT_M);
             label.setTextFill(Color.CRIMSON);
         }
         else{
-            label.setFont(MenuGroup.FONT_S);
+            label.setFont(MainMenu.FONT_S);
             label.setTextFill(Color.WHITE);
         }
         label.setAlignment(Pos.CENTER);

@@ -1,6 +1,6 @@
 package sprites;
 
-import javafx.scene.paint.Color;
+import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import main.Main;
 
@@ -50,15 +50,15 @@ public class Projectile extends Sprite{
     
     @Override
     public void update() {    
-        if (((getTranslateY() + velocityY) > Main.width) || ((getTranslateY() + velocityY) < 0))
+        if (((getTranslateY() + velocityY) > Main.getWidth()) || ((getTranslateY() + velocityY) < 0))
             Main.removeSprite(this);
         else{
             if (getTranslateX() + velocityX < RADIUS/2 - 5){
                 setTranslateX(RADIUS/2 - 5);
                 velocityX = -velocityX;
             }else{
-                if (getTranslateX() + velocityX > Main.width - RADIUS/2 - 5){
-                    setTranslateX(Main.width - RADIUS/2 - 5);
+                if (getTranslateX() + velocityX > Main.getWidth() - RADIUS/2 - 5){
+                    setTranslateX(Main.getWidth() - RADIUS/2 - 5);
                     velocityX = -velocityX;
                 }else{
                     setTranslateX(getTranslateX() + velocityX);
@@ -66,7 +66,5 @@ public class Projectile extends Sprite{
             }
             setTranslateY(getTranslateY() + velocityY);
         }
-        
     }
-    
 }

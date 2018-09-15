@@ -6,16 +6,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
-import main.*;
-import menu.MenuGroup.*;
+import main.Base;
+import main.Main;
+import settings.Constants;
 import settings.Labels.*;
 import sprites.shots.*;
 
@@ -23,6 +22,10 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
     
     private static final double VERT_SPACE = 20;
     private static final double HOR_SPACE = 15;
+    
+    public static final Font FONT_S = Font.font("Sylfaen", FontWeight.MEDIUM, 18);
+    public static final Font FONT_M = Font.font("Sylfaen", FontWeight.EXTRA_BOLD, 22);
+    public static final Font FONT_L = Font.font("Sylfaen", FontWeight.SEMI_BOLD, 40);
     
     public class MenuItem extends HBox{      
         private Shot[] icons = new Shot[2];
@@ -33,12 +36,19 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
             super(HOR_SPACE);
             this.setAlignment(Pos.CENTER);
             for(int i=0; i < icons.length; i++)
-                this.icons[i] = new Hexagon(0,0);
+                this.icons[i] = new Hexagon(0,0, false);
             this.text = new Text(string);
-            this.text.setFont(MenuGroup.FONT_M);
+            this.text.setFont(FONT_M);
             this.code = code;
             getChildren().addAll(this.icons[0], text, this.icons[1]);
             setItemActive(false);
+            setOnMouseClicked(m -> {code.run();});
+            setOnMouseEntered(m ->{
+                items.get(active).setItemActive(false);   
+                active = items.indexOf(this);
+                items.get(active).setItemActive(true);
+                
+            });
         }
         
         public void setItemActive(boolean state){
@@ -60,24 +70,22 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
     private int active = 0;
   
     public MainMenu(double width, double height){
+        Constants consts = Main.constants;
         VBox vBox = new VBox(VERT_SPACE);
-        MenuLabels menuLabs = Main.constants.getLabels().getMenu();
+        MenuLabels menuLabs = consts.getLabels().getMenu();
         vBox.setAlignment(Pos.CENTER);
         items.add(new MenuItem(menuLabs.getStart(), () -> {
-            Main.startMenuItem(new Announcement(Main.constants.getConfigurations()));
-            MenuGroup.setMenuState(MenuGroup.MenuState.ANNOUNCEMENT);
+            Main.startMenuItem(new Announcement(consts.getConfigurations(), consts.getWidth(), consts.getHeight()*8/9));
         }));
         items.add(new MenuItem(menuLabs.getCommands(), () -> {
-            Main.startMenuItem(new CommandsMenu(Main.constants.getLabels(), Main.constants.getCommands()));
-            MenuGroup.setMenuState(MenuGroup.MenuState.COMMANDS);
+            Main.startMenuItem(new CommandsMenu(consts.getLabels(), consts.getCommands(), 
+                    consts.getWidth(), consts.getHeight()*8/9));
         }));
         items.add(new MenuItem(menuLabs.getTop_10(), () -> {
-            Main.startMenuItem(new HighScoresMenu());
-            MenuGroup.setMenuState(MenuGroup.MenuState.TOP);
+            Main.startMenuItem(new HighScoresMenu(consts.getWidth(), consts.getHeight()*8/9, null));
         }));
         items.add(new MenuItem(menuLabs.getInfo(), () -> {
-            Main.startMenuItem(new InfoMenu(Main.constants.getLabels()));
-            MenuGroup.setMenuState(MenuGroup.MenuState.INFO);
+            Main.startMenuItem(new InfoMenu(consts.getLabels(), consts.getWidth(), consts.getHeight()*8/9));
         }));
         items.add(new MenuItem(menuLabs.getHelp(), () -> {
             try {
@@ -95,7 +103,7 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
             try{
                 BufferedWriter writer = new BufferedWriter(new FileWriter(
                         "src\\settings\\config.json"));
-                writer.write(Main.gson.toJson(Main.constants));
+                writer.write(Main.getGson().toJson(Main.constants));
                 writer.close();
             }catch(IOException e){
                 e.printStackTrace();
@@ -113,7 +121,7 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
 
     @Override
     public void handle(KeyEvent event) {
-        if (MenuGroup.getMenuState()==MenuState.MAIN && (event.getEventType() == KeyEvent.KEY_RELEASED)){
+        if (Main.containsMenu() && event.getEventType() == KeyEvent.KEY_RELEASED){
             KeyCode code = event.getCode();
             switch(code){
                 case UP:

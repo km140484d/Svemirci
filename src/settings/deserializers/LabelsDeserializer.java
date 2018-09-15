@@ -9,7 +9,8 @@ public class LabelsDeserializer implements JsonDeserializer<Labels>{
     @Override
     public Labels deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
         JsonObject jObject = (JsonObject) je;
-        Labels labs = new Labels(jObject.get("start").getAsString(),
+        Labels labs = new Labels(
+                jObject.get("start").getAsString(),
                 jObject.get("final_score1").getAsString(),
                 jObject.get("final_score2").getAsString(),
                 jObject.get("victory").getAsString(),
@@ -43,6 +44,10 @@ public class LabelsDeserializer implements JsonDeserializer<Labels>{
          
          JsonObject jMenu = jObject.get("menu").getAsJsonObject();
          Labels.MenuLabels menu = labs.new MenuLabels(
+                jMenu.get("ret_menu").getAsString(),
+                jMenu.get("level_mode").getAsString(),
+                jMenu.get("resume").getAsString(),
+                jMenu.get("main_menu").getAsString(),
                 jMenu.get("start").getAsString(),
                 jMenu.get("commands").getAsString(),
                 jMenu.get("top_10").getAsString(),

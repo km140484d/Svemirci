@@ -18,10 +18,8 @@ public class Scout extends Enemy{
         return Main.constants.getScout_life() * Main.constants.getDifficulty();
     }
   
-    
     @Override
     public void update() {
         super.update();
-    }
-    
+    }    
 }

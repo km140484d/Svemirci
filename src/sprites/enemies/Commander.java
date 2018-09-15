@@ -6,22 +6,16 @@ import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
-import static sprites.enemies.Enemy.*;
 import main.Main;
 
 public class Commander extends Enemy{
 
-    private static final double HELMET_LINE = EYE_WIDTH*3/2;
-    
-    private Path helmet;
-    private Path holder;
-    private Path crown;
-    
+    private static final double HELMET_LINE = EYE_WIDTH*3/2;    
     private List<Warrior> warriors = new ArrayList<>();
     
     public Commander(double posX, double posY, double deltaY){
         super(posX, posY, deltaY);
-        helmet = new Path(
+        Path helmet = new Path(
             new MoveTo(-EN_WIDTH/2, EN_HEIGHT/2),
             new LineTo(-HELMET_LINE*3/2, EN_HEIGHT),
             new VLineTo(0),
@@ -38,7 +32,7 @@ public class Commander extends Enemy{
         );
         helmet.setFill(new ImagePattern(new Image("/resources/enemy/golden_armor.png")));
         
-        holder = new Path(
+        Path holder = new Path(
             new MoveTo(-HELMET_LINE/2, -EN_HEIGHT*4/5),
             new LineTo(-HELMET_LINE, -EN_HEIGHT*5/6 - HELMET_LINE),
             new HLineTo(HELMET_LINE),
@@ -47,7 +41,7 @@ public class Commander extends Enemy{
         );
         holder.setFill(new ImagePattern(new Image("/resources/enemy/golden_armor.png"))); //dark grey
         
-        crown = new Path(
+        Path crown = new Path(
             new MoveTo(-EN_WIDTH/2, -EN_HEIGHT*5/6),
             new LineTo(-EN_WIDTH*3/4, -EN_HEIGHT),
             new ArcTo(EN_WIDTH*10/11, EN_HEIGHT*1.2, 120, EN_WIDTH*3/4, -EN_HEIGHT, false, true),

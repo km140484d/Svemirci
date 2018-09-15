@@ -3,7 +3,6 @@ package sprites.awards;
 import javafx.scene.image.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
-import main.Main;
 import sprites.*;
 
 public class Bonus extends Sprite{
@@ -28,7 +27,6 @@ public class Bonus extends Sprite{
 
     private BonusType type;
     private Circle power;
-    private Image icon;
     private String path = "";
     
     public Bonus(BonusType type, double x, double y){
@@ -93,10 +91,10 @@ public class Bonus extends Sprite{
     public void initRedBonus(RedBonus bonus){
         switch(bonus){
             case Stream:
-                path = "/resources/bonus/fukiya.png";
+                path = "/resources/awards/fukiya.png";
                 break;
             default:
-                path = "/resources/bonus/boomerang.png";
+                path = "/resources/awards/boomerang.png";
                 break;
         }
     }
@@ -104,19 +102,19 @@ public class Bonus extends Sprite{
     public void initYellowBonus(YellowBonus bonus){
         switch(bonus){
             case Speed:
-                path = "/resources/bonus/speed.png";
+                path = "/resources/awards/speed.png";
                 break;
             case Rotation:
-                path = "/resources/bonus/rotate.png";
+                path = "/resources/awards/rotate.png";
                 break;
             case Shield:
-                path = "/resources/bonus/shield.png";
+                path = "/resources/awards/shield.png";
                 break;
             case ShotGrowth:
-                path = "/resources/bonus/enlarge.png";
+                path = "/resources/awards/enlarge.png";
                 break;
             case KnockOut:
-                path = "/resources/bonus/destroy.png";
+                path = "/resources/awards/pause.png";
                 break;
         }
     }
@@ -124,16 +122,16 @@ public class Bonus extends Sprite{
     public void initGreenBonus(GreenBonus bonus){
         switch(bonus){
             case Life:
-                path = "/resources/bonus/hollowheart.png";
+                path = "/resources/awards/hollowheart.png";
                 break;
             case PointS:
-                path = "/resources/bonus/smallpoints.png";
+                path = "/resources/awards/smallpoints.png";
                 break;
             case PointM:
-                path = "/resources/bonus/mediumpoints.png";
+                path = "/resources/awards/mediumpoints.png";
                 break;
             case PointL:
-                path = "/resources/bonus/bigpoints.png";
+                path = "/resources/awards/bigpoints.png";
                 break;       
         }
     }
@@ -141,19 +139,19 @@ public class Bonus extends Sprite{
     public void initBlackBonus(BlackBonus bonus){
         switch(bonus){
             case Munition:
-                path = "/resources/bonus/powerup.png";
+                path = "/resources/awards/powerup.png";
                 break;
             case Triangle:
-                path = "/resources/bonus/triangle.png";
+                path = "/resources/awards/triangle.png";
                 break;
             case Rhombus:
-                path = "/resources/bonus/rhombus.png";
+                path = "/resources/awards/rhombus.png";
                 break;
             case Pentagon:
-                path = "/resources/bonus/pentagon.png";
+                path = "/resources/awards/pentagon.png";
                 break;
             case Hexagon:
-                path = "/resources/bonus/hexagon.png";
+                path = "/resources/awards/hexagon.png";
                 break;
         }
     }
@@ -172,12 +170,7 @@ public class Bonus extends Sprite{
 
     @Override
     public void update() {
-//        if ((getTranslateY() + velocityY) > Main.height)
-//            Main.removeSprite(this);
-//        else
-            setTranslateY(getTranslateY() + velocityY);
+        setTranslateY(getTranslateY() + velocityY);
     }
-    
-    
-    
+
 }
