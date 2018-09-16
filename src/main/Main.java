@@ -29,13 +29,12 @@ import settings.deserializers.*;
 import sprites.awards.*;
 
 public class Main extends Application {  
-    public static final Font FONT_L = Font.font("Sylfaen", FontWeight.EXTRA_BOLD, 36);
-    public static final Font FONT_S = Font.font("Sylfaen", FontWeight.BOLD, 18);
     public static final double WINDOW_WIDTH = 1200;//1200
     public static final double WINDOW_HEIGHT = 700;//700
-    public static final double MIN_WINDOW_WIDTH = 1000;
-    public static final double MIN_WINDOW_HEIGHT = 600;
-    
+    public static final Font FONT_S = Font.font("Sylfaen", FontWeight.BOLD, 18);
+    private static final Font FONT_L = Font.font("Sylfaen", FontWeight.EXTRA_BOLD, 36);
+    private static final double MIN_WINDOW_WIDTH = 1000;
+    private static final double MIN_WINDOW_HEIGHT = 600;    
     private static final String SETTINGS_FILE = "settings/config.json";
     
     //timers
