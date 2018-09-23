@@ -91,7 +91,7 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
             try {
                 Desktop desktop = Desktop.getDesktop();
                 if (desktop.isSupported(Desktop.Action.OPEN)) {
-                    desktop.open(new File("src\\Aliens.pdf"));
+                    desktop.open(new File("data\\Aliens.pdf")); //data\\Aliens.pdf
                 } else {
                     System.out.println("Open is not supported");
                 }
@@ -100,9 +100,7 @@ public class MainMenu extends Base implements EventHandler<KeyEvent>{
             }
         }));
         items.add(new MenuItem(menuLabs.getExit(), () -> {
-            try{
-                BufferedWriter writer = new BufferedWriter(new FileWriter(
-                        "src\\settings\\config.json"));
+            try(BufferedWriter writer = new BufferedWriter(new FileWriter(Main.SETTINGS_FILE))){                
                 writer.write(Main.getGson().toJson(Main.constants));
                 writer.close();
             }catch(IOException e){

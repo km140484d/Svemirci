@@ -35,7 +35,7 @@ public class Main extends Application {
     private static final Font FONT_L = Font.font("Sylfaen", FontWeight.EXTRA_BOLD, 36);
     private static final double MIN_WINDOW_WIDTH = 1000;
     private static final double MIN_WINDOW_HEIGHT = 600;    
-    private static final String SETTINGS_FILE = "settings/config.json";
+    public static final String SETTINGS_FILE = "data\\config.json"; //settings/config.json
     
     //timers
     private static AnimationTimer gameTimer, menuTimer;
@@ -86,8 +86,7 @@ public class Main extends Application {
     private static VBox pauseBox;
     
     public boolean fileInitialization(){
-        try(InputStream in = getClass().getClassLoader().getResourceAsStream(SETTINGS_FILE);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));){            
+        try(BufferedReader reader = new BufferedReader(new FileReader(SETTINGS_FILE))){
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
             gsonBuilder.registerTypeAdapter(Commands.class, new CommandsDeserializer());
@@ -95,7 +94,7 @@ public class Main extends Application {
             gsonBuilder.registerTypeAdapter(Score.class, new ScoreDeserializer());
             gsonBuilder.registerTypeAdapter(Configuration.class, new ConfigurationDeserializer());
             gson = gsonBuilder.create();            
-            constants = new Gson().fromJson(br, Constants.class);            
+            constants = new Gson().fromJson(reader, Constants.class);            
             if (constants.getCommands() != null && constants.getCommands().getPlayer1() != null &&
                     constants.getLabels() != null && constants.getHigh_scores() != null && constants.getConfigurations() != null)
                 return true;
@@ -282,24 +281,26 @@ public class Main extends Application {
     }
     
     public static void startMenu(Base base){  
-        sceneType = "M";
-        menu = new MainMenu(constants.getWidth()*2/5, constants.getHeight()/4);
-        menu.resizeWindow(Main.width/constants.getWidth(), Main.height/constants.getHeight());
-        currentMenu = menu;
-        menuBackground = new Background();
-        menuGroup = new Group(menuBackground, currentMenu);    
-        if (base != null)
-            startMenuItem(base);        
-        scene.setRoot(menuGroup);
-        for(EventHandler handler: playerHandlers){
-            scene.removeEventHandler(KeyEvent.KEY_PRESSED, handler);
-            scene.removeEventHandler(KeyEvent.KEY_RELEASED, handler);
+        if (!sceneType.equals("M") || currentMenu != menu){
+            sceneType = "M";
+            menu = new MainMenu(constants.getWidth()*2/5, constants.getHeight()/4);
+            menu.resizeWindow(Main.width/constants.getWidth(), Main.height/constants.getHeight());
+            currentMenu = menu;
+            menuBackground = new Background();
+            menuGroup = new Group(menuBackground, currentMenu);    
+            if (base != null)
+                startMenuItem(base);        
+            scene.setRoot(menuGroup);
+            for(EventHandler handler: playerHandlers){
+                scene.removeEventHandler(KeyEvent.KEY_PRESSED, handler);
+                scene.removeEventHandler(KeyEvent.KEY_RELEASED, handler);
+            }
+            scene.removeEventHandler(KeyEvent.KEY_RELEASED, basicGameHandler);
+            scene.addEventHandler(KeyEvent.KEY_RELEASED, basicMenuHandler);
+            scene.addEventHandler(KeyEvent.KEY_RELEASED, menu); 
+            gameTimer.stop();
+            menuTimer.start();
         }
-        scene.removeEventHandler(KeyEvent.KEY_RELEASED, basicGameHandler);
-        scene.addEventHandler(KeyEvent.KEY_RELEASED, basicMenuHandler);
-        scene.addEventHandler(KeyEvent.KEY_RELEASED, menu); 
-        gameTimer.stop();
-        menuTimer.start();
     }  
     
     public static boolean containsMenu(){
@@ -359,7 +360,7 @@ public class Main extends Application {
         sceneType = "G";
         scene.removeEventHandler(KeyEvent.KEY_RELEASED, basicMenuHandler);
         scene.removeEventHandler(KeyEvent.KEY_RELEASED, menu);
-        currentMenu = menu;
+        //currentMenu = menu;
         gameTimer.start();
         gameRunning = true;
         menuTimer.stop();
@@ -573,7 +574,7 @@ public class Main extends Application {
                     if (p.getBoundsInParent().intersects(players.get(i).getBoundsInParent())){
                             updatePlayer(players.get(i));
                             if (theEnd)
-                                return;
+                                return;                               
                             else
                                 break;
                     }
@@ -599,9 +600,8 @@ public class Main extends Application {
                 }                
             }
             camera.getChildren().addAll(bonuses);
-
-            camera.updateCamera(players.get(0));
-            
+            if (!players.isEmpty())
+                camera.updateCamera(players.get(0));            
             players.forEach(p -> p.update());        
             time += 1.0 / 60;             
         }else{
@@ -617,7 +617,7 @@ public class Main extends Application {
                 List<Score> playerScores = new ArrayList<>();
                 all.forEach(p -> {
                     p.addPoints(-(int)time/constants.getDifficulty());
-                    playerScores.add(new Score(p.getPlayerColor(), p.getName(), p.getPoints(), time_passed));
+                    playerScores.add(new Score(p.getPlayerType(), p.getName(), p.getPoints(), time_passed));
                 });
                 for(Score score: playerScores){                                        
                     scores.add(score);

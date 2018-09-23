@@ -11,6 +11,8 @@ import javafx.scene.text.*;
 import javafx.util.Duration;
 import main.*;
 import settings.*;
+import sprites.Player;
+import sprites.Player.Type;
 
 public class HighScoresMenu extends Base{
     
@@ -51,10 +53,13 @@ public class HighScoresMenu extends Base{
                 if (playerScores != null && !playerScores.isEmpty()){
                     for(Score s:playerScores){
                         if (s.equals(scores[i])){
+                            Color color = Color.SKYBLUE;
+                            if (s.getType().equals(Type.PLAYER2))
+                                color = Color.PALEGOLDENROD;
                             String webFormat = String.format("#%02x%02x%02x",
-                                (int) (255 * s.getColor().getRed()),
-                                (int) (255 * s.getColor().getGreen()),
-                                (int) (255 * s.getColor().getBlue()));
+                                (int) (255 * color.getRed()),
+                                (int) (255 * color.getGreen()),
+                                (int) (255 * color.getBlue()));
                             scoreBoxes[i].setStyle("-fx-border-color:" + webFormat + ";"
                             + "-fx-border-width:2;");
                             playerScores.remove(s);
