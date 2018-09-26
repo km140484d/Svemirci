@@ -12,10 +12,15 @@ public class Coin extends Sprite {
     private Circle body;
     private double velocityX, velocityY = 1;
     
+    private static final ImagePattern texture;
+    static{
+        texture = new ImagePattern(new Image("/resources/awards/bit_coin.gif"));
+    }
+    
     public Coin(double x, double y){
         velocityX = Math.tan(Math.toRadians(-15 + Math.random() * 30));
         body = new Circle(SIZE);
-        body.setFill(new ImagePattern(new Image("/resources/awards/bit_coin.gif")));        
+        body.setFill(texture);        
         getChildren().addAll(body);
         setTranslateX(x);
         setTranslateY(y);

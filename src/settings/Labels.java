@@ -308,8 +308,6 @@ public class Labels implements Serializable{
         public void setDescription(String description) {
             this.description = description;
         }
-        
-        
     }
     
     private String start, final_score1, final_score2, victory, defeat, player_lost, life;

@@ -55,8 +55,7 @@ public class Shot extends Sprite {
     @Override
     public void update() {
         double x = getTranslateX();
-        double y = getTranslateY();
-        
+        double y = getTranslateY();        
         if ((x + velocityX < SIDE) || (x + velocityX > Main.getWidth() - SIDE) || 
                 (y + velocityY > Main.getHeight() - SIDE) || (y + velocityY < SIDE)){
             Main.removeSprite(this);
@@ -64,7 +63,5 @@ public class Shot extends Sprite {
             setTranslateX(x + velocityX);
             setTranslateY(y + velocityY);
         }
-
     }
-    
 }

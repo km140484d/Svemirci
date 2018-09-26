@@ -45,7 +45,7 @@ public abstract class Enemy extends Sprite {
     private boolean destination = false, animation = false;
     
     private static double movement;    
-//    private ScaleTransition st;
+    private ScaleTransition st;
     
     public Enemy(double posX, double posY, double deltaY) {
         this.posX = posX;
@@ -129,14 +129,14 @@ public abstract class Enemy extends Sprite {
         knockOut = false;
     }
     
-//    public void startBlinking(Group eye){
-//        st = new ScaleTransition(Duration.seconds(2), eye); 
-//        st.setFromY(1);
-//        st.setToY(0.2);
-//        st.setAutoReverse(true);
-//        st.setCycleCount(Animation.INDEFINITE);
-//        st.play();         
-//    }
+    public void startBlinking(Group eye){
+        st = new ScaleTransition(Duration.seconds(2), eye); 
+        st.setFromY(1);
+        st.setToY(0.2);
+        st.setAutoReverse(true);
+        st.setCycleCount(Animation.INDEFINITE);
+        st.play();         
+    }
     
     public static void setMovement(double move){
         movement = move;

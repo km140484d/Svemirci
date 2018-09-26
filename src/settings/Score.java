@@ -1,15 +1,13 @@
 package settings;
 
 import java.io.*;
-import javafx.scene.paint.Color;
 import sprites.Player.Type;
 
 public class Score implements Serializable {
     
     private Type type;
     private String name;    
-    private int points;    
-    private int time;
+    private int points, time;  
 
     public Score(Type type, String name, int points, int time) {
         this.type = type;

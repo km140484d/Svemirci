@@ -7,9 +7,13 @@ import main.Main;
 
 public class Pentagon extends Shot {
     
-    protected static final double ANGLE = Main.constants.getShot_max_angle() / 4;
-    
+    protected static final double ANGLE = Main.constants.getShot_max_angle() / 4;    
     private static final int PENT_STRENGTH = 2;
+    
+    protected static final ImagePattern pent;     
+    static{
+        pent = new ImagePattern(new Image("/resources/shots/pentagon.png"));
+    }
     
     public Pentagon(double playerAngle, double angle, boolean sizeUp){
         super(playerAngle, angle, PENT_STRENGTH,sizeUp);
@@ -18,7 +22,8 @@ public class Pentagon extends Shot {
                             xCoord(1, 2), yCoord(1, 2),
                             xCoord(1, 3), yCoord(1, 3),
                             xCoord(1, 4), yCoord(1, 4));
-        base.setFill(new ImagePattern(new Image("/resources/shots/pentagon.png")));
+        base.setFill(pent);
+        //base.setFill(Color.THISTLE);
         base.setStroke(Color.WHITE);
         center = new Polygon(xCoord(RATIO, 0), yCoord(RATIO, 0),
                             xCoord(RATIO, 1), yCoord(RATIO, 1),

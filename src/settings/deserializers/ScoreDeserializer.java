@@ -6,7 +6,6 @@ import settings.*;
 
 public class ScoreDeserializer implements JsonDeserializer<Score>{
 
-    Type t;
     @Override
     public Score deserialize(JsonElement je, Type type, JsonDeserializationContext jdc) throws JsonParseException {
         JsonObject jObject = (JsonObject)je;

@@ -12,8 +12,12 @@ public class Rhombus extends Shot{
     private static final double WIDTH = SIDE*2/3;
     private static final double INNER = SIDE*RATIO;
     private static final double INNER_WIDTH = INNER*2/3;
-
     private static final int RHOMB_STRENGTH = 1;
+    
+    protected static final ImagePattern rh;     
+    static{
+        rh = new ImagePattern(new Image("/resources/shots/rhombus.png"));
+    }
     
     public Rhombus(double playerAngle, double angle, boolean sizeUp){
         super(playerAngle, angle, RHOMB_STRENGTH, sizeUp);
@@ -22,7 +26,8 @@ public class Rhombus extends Shot{
                 0, SIDE,
                 -WIDTH, 0                
         );
-        base.setFill(new ImagePattern(new Image("/resources/shots/rhombus.png")));
+        base.setFill(rh);
+        //base.setFill(Color.ORANGE);
         base.setStroke(Color.WHITE);
         
         center = new Polygon( 0, -INNER,

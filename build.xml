@@ -69,5 +69,5 @@
             <attribute name="Main-Class" value="main.Main"/>
         </manifest>
       </jar>
-</target>-->
+    </target>-->
 </project>

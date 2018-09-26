@@ -12,6 +12,11 @@ public class Warrior extends Enemy{
     
     private List<Commander> commanders = new ArrayList<>();
     
+    private static final ImagePattern armor_texture;
+    static{
+        armor_texture = new ImagePattern(new Image("/resources/enemy/steel_armor.png"));
+    }
+    
     public Warrior(double posX, double posY, double deltaY){
         super(posX, posY, deltaY);        
         Path helmet = new Path(
@@ -29,7 +34,7 @@ public class Warrior extends Enemy{
                 new LineTo(EN_WIDTH/2, EN_HEIGHT/2),
                 new ArcTo(EN_WIDTH*2/3, EN_HEIGHT*5/6, 270, -EN_WIDTH/2, EN_HEIGHT/2, true, false)
         );
-        helmet.setFill(new ImagePattern(new Image("/resources/enemy/steel_armor.png")));
+        helmet.setFill(armor_texture);
         getChildren().addAll(helmet);
         for(Path e: ears)
             e.setFill(Color.GRAY);

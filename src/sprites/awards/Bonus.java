@@ -27,22 +27,49 @@ public class Bonus extends Sprite{
 
     private BonusType type;
     private Circle power;
-    private String path = "";
+    
+    private static final ImagePattern im_stream, im_boomerang;
+    private static final ImagePattern im_speed, im_rotation, im_shield, im_shot_growth, im_knock_out;
+    private static final ImagePattern im_life, im_point_s, im_point_m, im_point_l;
+    private static final ImagePattern im_munition, im_triangle, im_rhombus, im_pentagon, im_hexagon;
+    
+    static{
+        //red
+        im_stream = new ImagePattern(new Image("/resources/awards/fukiya.png"));
+        im_boomerang = new ImagePattern(new Image("/resources/awards/boomerang.png"));
+        //yellow
+        im_speed = new ImagePattern(new Image("/resources/awards/speed.png"));
+        im_rotation = new ImagePattern(new Image("/resources/awards/rotate.png"));
+        im_shield = new ImagePattern(new Image("/resources/awards/shield.png"));
+        im_shot_growth = new ImagePattern(new Image("/resources/awards/enlarge.png"));
+        im_knock_out = new ImagePattern(new Image("/resources/awards/pause.png"));
+        //green
+        im_life = new ImagePattern(new Image("/resources/awards/hollowheart.png"));
+        im_point_s = new ImagePattern(new Image("/resources/awards/smallpoints.png"));
+        im_point_m = new ImagePattern(new Image("/resources/awards/mediumpoints.png"));
+        im_point_l = new ImagePattern(new Image("/resources/awards/bigpoints.png"));
+        //black
+        im_munition = new ImagePattern(new Image("/resources/awards/powerup.png"));
+        im_triangle = new ImagePattern(new Image("/resources/awards/triangle.png"));
+        im_rhombus = new ImagePattern(new Image("/resources/awards/rhombus.png"));
+        im_pentagon = new ImagePattern(new Image("/resources/awards/pentagon.png"));
+        im_hexagon = new ImagePattern(new Image("/resources/awards/hexagon.png"));       
+    }
     
     public Bonus(BonusType type, double x, double y){
         this.type = type;
         power = new Circle(BONUS_R);
         if (type instanceof RedBonus)
-            initRedBonus((RedBonus)type);
+            power.setFill(initRedBonus((RedBonus)type));
         else
             if (type instanceof YellowBonus)
-                initYellowBonus((YellowBonus)type);
+                power.setFill(initYellowBonus((YellowBonus)type));
             else
                 if (type instanceof GreenBonus)
-                    initGreenBonus((GreenBonus) type);
+                    power.setFill(initGreenBonus((GreenBonus) type));
                 else
-                    initBlackBonus((BlackBonus)type);
-        power.setFill(new ImagePattern(new Image(path)));
+                    power.setFill(initBlackBonus((BlackBonus)type));
+        //power.setFill(new ImagePattern(new Image(path)));
         getChildren().addAll(power);
         setTranslateX(x);
         setTranslateY(y);
@@ -88,71 +115,55 @@ public class Bonus extends Sprite{
         }
     }
     
-    public void initRedBonus(RedBonus bonus){
+    public ImagePattern initRedBonus(RedBonus bonus){
         switch(bonus){
             case Stream:
-                path = "/resources/awards/fukiya.png";
-                break;
+                return im_stream;
             default:
-                path = "/resources/awards/boomerang.png";
-                break;
+                return im_boomerang;
         }
     }
     
-    public void initYellowBonus(YellowBonus bonus){
+    public ImagePattern initYellowBonus(YellowBonus bonus){
         switch(bonus){
             case Speed:
-                path = "/resources/awards/speed.png";
-                break;
+                return im_speed;
             case Rotation:
-                path = "/resources/awards/rotate.png";
-                break;
+                return im_rotation;
             case Shield:
-                path = "/resources/awards/shield.png";
-                break;
+                return im_shield;
             case ShotGrowth:
-                path = "/resources/awards/enlarge.png";
-                break;
-            case KnockOut:
-                path = "/resources/awards/pause.png";
-                break;
+                return im_shot_growth;
+            default:
+                return im_knock_out;
         }
     }
     
-    public void initGreenBonus(GreenBonus bonus){
+    public ImagePattern initGreenBonus(GreenBonus bonus){
         switch(bonus){
             case Life:
-                path = "/resources/awards/hollowheart.png";
-                break;
+                return im_life;
             case PointS:
-                path = "/resources/awards/smallpoints.png";
-                break;
+                return im_point_s;
             case PointM:
-                path = "/resources/awards/mediumpoints.png";
-                break;
-            case PointL:
-                path = "/resources/awards/bigpoints.png";
-                break;       
+                return im_point_m;
+            default:
+                return im_point_l;      
         }
     }
     
-    public void initBlackBonus(BlackBonus bonus){
+    public ImagePattern initBlackBonus(BlackBonus bonus){
         switch(bonus){
             case Munition:
-                path = "/resources/awards/powerup.png";
-                break;
+                return im_munition;
             case Triangle:
-                path = "/resources/awards/triangle.png";
-                break;
+                return im_triangle;
             case Rhombus:
-                path = "/resources/awards/rhombus.png";
-                break;
+                return im_rhombus;
             case Pentagon:
-                path = "/resources/awards/pentagon.png";
-                break;
-            case Hexagon:
-                path = "/resources/awards/hexagon.png";
-                break;
+                return im_pentagon;
+            default:
+                return im_hexagon;
         }
     }
 
@@ -160,8 +171,8 @@ public class Bonus extends Sprite{
         return type;
     }
     
-    public String getPath(){
-        return path;
+    public ImagePattern getImage(){
+        return (ImagePattern)power.getFill();
     }    
     
     public double getVelocityY(){

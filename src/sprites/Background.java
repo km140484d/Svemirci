@@ -1,8 +1,7 @@
 package sprites;
 
-import javafx.animation.Animation;
-import javafx.animation.ScaleTransition;
-import javafx.scene.Group;
+import javafx.animation.*;
+import javafx.scene.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
@@ -18,7 +17,6 @@ public class Background extends Sprite {
     private final double height = Main.WINDOW_HEIGHT;
     
     private static final double LENGTH = Main.constants.getWidth()/100;
-    
     
     public class Star extends Sprite{
 

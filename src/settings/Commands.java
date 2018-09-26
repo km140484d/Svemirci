@@ -77,7 +77,6 @@ public class Commands implements Serializable {
         } 
     }
 
-    
     private KeyCode exit, full_screen, pause, main_menu, camera_scene, camera_player1, camera_player2;
     private PlayerCommands player1;
     private PlayerCommands player2;

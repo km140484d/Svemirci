@@ -20,7 +20,6 @@ public class Constants {
     private int scout_life, warrior_life, commander_life;
     private Score[] high_scores;
     private Configuration[] configurations;
-
     
     public Configuration pickConfiguration(String name){
         Configuration conf = null;

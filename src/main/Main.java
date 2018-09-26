@@ -543,8 +543,8 @@ public class Main extends Application {
                         }
                     }
                 }
-                shots.removeAll(delObjects);
                 shots.forEach(e -> e.update());
+                shots.removeAll(delObjects);                
                 camera.getChildren().addAll(shots);
                 player.setShots(shots);
             }

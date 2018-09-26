@@ -23,11 +23,11 @@ public class BonusIndicator extends Sprite{
     private Rectangle bar_out;
     private Rectangle bar_in;
 
-    public BonusIndicator(BonusType type, String path) {
+    public BonusIndicator(BonusType type, ImagePattern image) {
         this.type = type;
         this.path = path;
         shape = new Circle(RADIUS);
-        shape.setFill(new ImagePattern(new Image(path)));
+        shape.setFill(image);
         getChildren().addAll(shape);
         
         if (type instanceof Bonus.YellowBonus){

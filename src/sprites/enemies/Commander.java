@@ -13,6 +13,12 @@ public class Commander extends Enemy{
     private static final double HELMET_LINE = EYE_WIDTH*3/2;    
     private List<Warrior> warriors = new ArrayList<>();
     
+    private static final ImagePattern armor_texture, feather_texture;    
+    static{
+        armor_texture = new ImagePattern(new Image("/resources/enemy/golden_armor.png"));
+        feather_texture = new ImagePattern(new Image("/resources/enemy/red_feathers.png"));
+    }
+    
     public Commander(double posX, double posY, double deltaY){
         super(posX, posY, deltaY);
         Path helmet = new Path(
@@ -30,7 +36,7 @@ public class Commander extends Enemy{
             new LineTo(EN_WIDTH/2, EN_HEIGHT/2),
             new ArcTo(EN_WIDTH*2/3, EN_HEIGHT*5/6, 270, -EN_WIDTH/2, EN_HEIGHT/2, true, false)
         );
-        helmet.setFill(new ImagePattern(new Image("/resources/enemy/golden_armor.png")));
+        helmet.setFill(armor_texture);
         
         Path holder = new Path(
             new MoveTo(-HELMET_LINE/2, -EN_HEIGHT*4/5),
@@ -39,7 +45,7 @@ public class Commander extends Enemy{
             new LineTo(HELMET_LINE/2, -EN_HEIGHT*4/5),
             new ClosePath()                
         );
-        holder.setFill(new ImagePattern(new Image("/resources/enemy/golden_armor.png"))); //dark grey
+        holder.setFill(armor_texture); //dark grey
         
         Path crown = new Path(
             new MoveTo(-EN_WIDTH/2, -EN_HEIGHT*5/6),
@@ -48,10 +54,10 @@ public class Commander extends Enemy{
             new LineTo(EN_WIDTH/2, -EN_HEIGHT*5/6),
             new ArcTo(EN_WIDTH*5/12, EN_HEIGHT/8, 180, -EN_WIDTH/2, -EN_HEIGHT*5/6, false, false)
         );
-        crown.setFill(new ImagePattern(new Image("/resources/enemy/red_feathers.png")));
+        crown.setFill(feather_texture);
         
         for(Path e: ears)
-            e.setFill(new ImagePattern(new Image("/resources/enemy/red_feathers.png")));
+            e.setFill(feather_texture);
         getChildren().addAll(helmet, holder, crown);
         
         strength = Main.constants.getCommander_life() * Main.constants.getDifficulty();
@@ -95,5 +101,4 @@ public class Commander extends Enemy{
         super.update();
     }
 
-    
 }

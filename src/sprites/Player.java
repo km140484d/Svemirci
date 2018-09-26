@@ -58,9 +58,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private BasicShotType shotType = BasicShotType.Tri;
     private int shotCnt = 1;
 
-    private RedBonus redBonus; 
-    private boolean rotate = false, speed = false, sizeUp = false;   
-  
+    private boolean rotate = false, speed = false, sizeUp = false;  
     private BonusIndicator collectedRed = null;
     private List<BonusIndicator> collectedYellow = new ArrayList<>();   
        
@@ -79,6 +77,11 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     private VBox indicators;
     private HBox lifeBox, redBox, yellowBox;
+    
+    private static ImagePattern fire_texture;
+    static{
+        fire_texture = new ImagePattern(new Image("/resources/player/fire.gif"));
+    }
     
     public static void resetPlayerGame(){
         Enemy.setKnockOut(false);
@@ -185,7 +188,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 new QuadCurveTo(-TUBE_WIDTH*3/2, STREAM_HEIGHT/2, 0, STREAM_HEIGHT),
                 new QuadCurveTo(TUBE_WIDTH*3/2, STREAM_HEIGHT/2, TUBE_WIDTH/2, 0)
         );
-        stream.setFill(new ImagePattern(new Image("/resources/player/fire.gif")));
+        stream.setFill(fire_texture);
         stream.setTranslateY(TUBE_HEIGHT);
         
         Scale scale = new Scale();
@@ -216,7 +219,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         int yellow = collectedYellow.size();
         for(int i=0; i < yellow; i++)
             removeYellowBonus(collectedYellow.get(0));
-        setRedBonusType(null);
         setCollectedRed(null);
         setShotType(null, true);
         setTranslateX(this.posX);
@@ -281,8 +283,8 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     //shots ----------------------------------------
     private void makeShot() {
         Shot shot = null;
-        if (redBonus != null){            
-            switch(redBonus){
+        if (collectedRed != null){           
+            switch((RedBonus)collectedRed.getType()){
                 case Stream:
                     shot = new Stream(getRotate(), sizeUp);
                     break;
@@ -290,7 +292,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                     shot = new Boomerang(getRotate(), sizeUp);
                     break;
             } 
-            redBonus = null;
             setCollectedRed(null);
             shot.setTranslateX(getTranslateX() + GUN_OUT_RY*Math.tan(Math.toRadians(getRotate())));
             shot.setTranslateY(getTranslateY() - GUN_OUT_RY);
@@ -333,7 +334,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         shots.add(shot);
     }
     
-        public void setShotType(BasicShotType type, boolean reset){
+    public void setShotType(BasicShotType type, boolean reset){
         if (reset)
             shotCnt = 1;
         else{
@@ -361,7 +362,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     public void consumed(Bonus bonus){
         BonusType type = bonus.getBonusType();
         if (type instanceof Bonus.RedBonus){
-            collectedRed = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
+            collectedRed = new BonusIndicator(bonus.getBonusType(), bonus.getImage());
             actionRedBonus((Bonus.RedBonus)type);             
         }else
             if (type instanceof Bonus.YellowBonus){
@@ -371,7 +372,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                         return;
                     }
                 }                
-                BonusIndicator yellow = new BonusIndicator(bonus.getBonusType(), bonus.getPath());
+                BonusIndicator yellow = new BonusIndicator(bonus.getBonusType(), bonus.getImage());
                 collectedYellow.add(yellow);
                 actionYellowBonus((Bonus.YellowBonus)type);
             }else
@@ -383,14 +384,6 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     
     public void actionRedBonus(Bonus.RedBonus bonus){
         Main.setEnemyRedMark(true);
-        switch(bonus){
-            case Stream:
-                setRedBonusType(Bonus.RedBonus.Stream);
-                break;
-            default:
-                setRedBonusType(Bonus.RedBonus.Boomerang);
-                break;
-        }
     }
     
     public void actionYellowBonus(Bonus.YellowBonus bonus){
@@ -477,11 +470,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     }
     
     public void setCollectedRed(Bonus bonus){
-        collectedRed = (bonus == null) ? null : new BonusIndicator(bonus.getBonusType(), bonus.getPath());
-    }
-    
-    public void setRedBonusType(RedBonus type){
-        redBonus = type;
+        collectedRed = (bonus == null) ? null : new BonusIndicator(bonus.getBonusType(), bonus.getImage());
     }
     
     public void setRotate(boolean rotate){

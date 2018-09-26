@@ -11,13 +11,15 @@ public class Boomerang extends Shot{
     
     private static final double BOOM = SIDE*3/2;
     private static final double INNER_R = BOOM*3/8;
-    private static final double OUTER_R = BOOM*3/4;
-    
-    private static final double RADIUS = BOOM*5/4;
-    
-    private static final int BOOM_STRENGTH = 3;
-    
+    private static final double OUTER_R = BOOM*3/4;    
+    private static final double RADIUS = BOOM*5/4;    
+    private static final int BOOM_STRENGTH = 3;    
     private double r = RADIUS;    
+    
+    protected static final ImagePattern boom;     
+    static{
+        boom = new ImagePattern(new Image("/resources/shots/boomerang.png"));
+    }
  
     public Boomerang(double playerAngle, boolean sizeUp){
         super(playerAngle, 0, BOOM_STRENGTH, sizeUp);
@@ -41,7 +43,7 @@ public class Boomerang extends Shot{
         rt.setCycleCount(Animation.INDEFINITE);
         rt.play();
         
-        base.setFill(new ImagePattern(new Image("/resources/shots/boomerang.png")));
+        base.setFill(boom);
         getChildren().addAll(base);
         this.setTranslateY(BOOM/8);
     }
@@ -82,5 +84,4 @@ public class Boomerang extends Shot{
             }
         }
     }
-    
 }

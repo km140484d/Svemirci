@@ -82,7 +82,4 @@ public class Configuration implements Serializable{
     public void setCommanders(Position[] commanders) {
         this.commanders = commanders;
     }
-    
-    
-    
 }
