@@ -21,7 +21,7 @@ public class InfoMenu extends Base{
     public InfoMenu(Labels labels, double menuWidth, double menuHeight){
         double width = menuWidth, height = menuHeight;
         
-        VBox vCenter = new VBox(height/20);
+        VBox vCenter = new VBox(height/15);
         vCenter.setMinWidth(width);
         vCenter.setAlignment(Pos.CENTER);
         
@@ -44,7 +44,7 @@ public class InfoMenu extends Base{
     public static Label makeLabel(String text, double width){
         Label label = new Label(text);
         label.setMinWidth(width/8);
-        label.setMaxWidth(width/8);
+        label.setMaxWidth(width/2);
         label.setFont(MainMenu.FONT_S);
         label.setTextFill(Color.WHITE);
         label.setAlignment(Pos.CENTER);
