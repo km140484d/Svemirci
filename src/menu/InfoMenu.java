@@ -16,7 +16,7 @@ public class InfoMenu extends Base{
     private static final String MENTOR = "prof. dr Igor Tartalja";
     private static final String VERSION = "1.0";
     private static final String DESCRIPTION = "Battle with enemies\nfrom outer space.";
-    private static final String COPY_RIGHT = "@Copyright";
+    private static final String COPY_RIGHT = "© Univerzitet u Beogradu – Elektrotehnički fakultet, 2018";
     
     public InfoMenu(Labels labels, double menuWidth, double menuHeight){
         double width = menuWidth, height = menuHeight;

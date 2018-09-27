@@ -44,7 +44,7 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
     private static final int MAX_SHOTS = Main.constants.getPlayer_max_shots();    
 
     private double velocityX = 0, velocityY = 0;
-    private static enum States {LEFT, RIGHT, UP, DOWN, STALL};   
+    private static enum States {LEFT, RIGHT, UP, DOWN, STALL, STALL_VERT, STALL_HOR};   
     private States state = States.STALL;
 
     private Shape body;
@@ -561,6 +561,12 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 velocityX = 0;
                 velocityY = 0;
                 break;
+            case STALL_HOR:
+                velocityX = 0;
+                break;
+            case STALL_VERT:
+                velocityY = 0;
+                break;
             case RIGHT:
                 velocityX = velocity;
                 break;
@@ -612,25 +618,16 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
         Main.getCamera().getChildren().add(indicators);
     }
 
+    private List<KeyCode> currentlyActiveKeys = new ArrayList<>();
+    
     @Override
     public void handle(KeyEvent event) {        
         if (event.getEventType() == KeyEvent.KEY_PRESSED){
             KeyCode code = event.getCode();
             if ((code.equals(playerComms.getUp())) || (code == playerComms.getDown()) 
                     || (code == playerComms.getLeft()) || (code == playerComms.getRight())){
-                if (code == playerComms.getUp()){
-                    state = States.UP;
-                }else{
-                    if (code == playerComms.getDown())
-                        state = States.DOWN;
-                    else{
-                        if (code == playerComms.getRight())
-                            state = States.RIGHT;
-                        else
-                            state = States.LEFT;
-                    }
-                }
-                setVelocity();
+                if (!currentlyActiveKeys.contains(code))
+                    currentlyActiveKeys.add(code);                
             }else{
                 if ((code == playerComms.getRotate_left()) && rotate)
                     setRotate(getRotate() - ROTATE_ANGLE);  
@@ -643,13 +640,42 @@ public class Player extends Sprite implements EventHandler<KeyEvent> {
                 KeyCode code = event.getCode();
                 if (code == playerComms.getUp() || code == playerComms.getDown()
                         || code == playerComms.getLeft() || code == playerComms.getRight()){
-                    state = States.STALL;
-                    setVelocity();
+                    currentlyActiveKeys.remove(code);
+                    if (currentlyActiveKeys.isEmpty()){                    
+                        state = States.STALL;
+                        setVelocity();
+                    }
                 }else{
                     if (code == playerComms.getShoot())
                         makeShot();
                 }
             }
         }
+        
+        if ((currentlyActiveKeys.contains(playerComms.getDown()) && currentlyActiveKeys.contains(playerComms.getUp())))
+            state = States.STALL_VERT;                   
+        else{
+            if(currentlyActiveKeys.contains(playerComms.getDown()))
+                state = States.DOWN;                   
+            else
+                if (currentlyActiveKeys.contains(playerComms.getUp()))
+                    state = States.UP;
+                else
+                    state = States.STALL_VERT;
+        }                    
+        setVelocity();
+                
+        if ((currentlyActiveKeys.contains(playerComms.getLeft()) && currentlyActiveKeys.contains(playerComms.getRight())))
+            state = States.STALL_HOR;                  
+        else{
+            if(currentlyActiveKeys.contains(playerComms.getLeft()))
+                state = States.LEFT;                   
+            else
+                if (currentlyActiveKeys.contains(playerComms.getRight()))
+                    state = States.RIGHT;  
+                else
+                    state = States.STALL_HOR;
+        }                    
+        setVelocity();
     }
 }
